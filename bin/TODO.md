@@ -1,0 +1,5 @@
+- go through each module with AI to discuss the interfaces and functionality 
+- discuss on the project layout and description, readme 
+- Have a general design doc 
+- Implement each parts with test cases 
+- Have a detailed design doc
