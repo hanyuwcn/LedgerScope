@@ -17,3 +17,20 @@ def numeric_to_percentage(number: float, decimal: int = 1) -> str:
         str: A clean string representation of the value post-conversion, trailing with '%'.
     """
     return f"{number:.{decimal}%}"
+
+
+def list_to_element_string(elements: list) -> str:
+    """
+    Converts a list of strings into a single, comma-separated string representation.
+
+    This presentation helper is primarily used to format lists of variable names or
+    database keys into a clean, human-readable format for logs and error exceptions.
+
+    Args:
+        elements (list): A list of strings to be joined (e.g., ['Orders', 'TaxRate']).
+
+    Returns:
+        str: A single string containing all elements separated by a comma and a space
+            (e.g., "Orders, TaxRate"). Returns an empty string if the input list is empty.
+    """
+    return ", ".join(elements)

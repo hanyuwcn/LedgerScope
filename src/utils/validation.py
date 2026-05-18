@@ -1,5 +1,5 @@
 from src.config import ERROR_VARIABLE_NOT_SETUP_WITH_MESSAGE
-from src.utils import log
+from .formatting import list_to_element_string
 
 
 def get_missing_elements(provided_factor_dict: dict, required_factors: list) -> list:
@@ -25,37 +25,27 @@ def get_missing_elements(provided_factor_dict: dict, required_factors: list) -> 
     return sorted(list(missing))
 
 
-def check_variables_for_function(provided_variables: dict,
-                                 required_variables: list = None, optional_variables: list = None) -> None:
+def check_variables_for_function(provided_variables: dict, required_variables: list = None) -> None:
     """
-    Defensively validates that a context dictionary contains all necessary variables
-    before executing mathematical or logic calculations.
+    Defensively asserts that all mandatory variables are present in a context dictionary
+    before allowing downstream logic execution to proceed.
 
-    If required variables are missing, it logs an error and halts execution by raising
-    a KeyError. If optional variables are missing, it logs an informational tracking statement
-    but allows execution to proceed uninterrupted.
+    If any required keys are missing, this function constructs a clean, formatted error
+    string containing the sorted missing elements and raises a KeyError back to the caller.
+    This allows upper-level business logic to determine how to handle execution failure.
 
     Args:
-        provided_variables (dict): The active context runtime dictionary holding system
-            variables and configurations.
-        required_variables (list, optional): Factors strictly mandatory for the mathematical
-            integrity of a function. Defaults to None (treated safely as an empty list).
-        optional_variables (list, optional): Nice-to-have factors that don't halt calculation
-            if missing. Defaults to None (treated safely as an empty list).
+        provided_variables (dict): The active runtime configuration dictionary containing
+            available variables and context metrics.
+        required_variables (list, optional): Strings representing keys that are strictly
+            mandatory for a calculation. Defaults to None (treated safely as an empty list).
 
     Raises:
-        KeyError: If any strings specified inside `required_variables` are absent from
+        KeyError: If one or more keys specified in `required_variables` are absent from
             the keys of `provided_variables`.
     """
-    # Defensive normalization to eliminate mutable default argument side-effects
     req_vars = required_variables if required_variables is not None else []
-    opt_vars = optional_variables if optional_variables is not None else []
 
-    missing_necessary = get_missing_elements(provided_variables, req_vars)
-    if missing_necessary:
-        log.error(ERROR_VARIABLE_NOT_SETUP_WITH_MESSAGE.format(msg=str(missing_necessary)))
-        raise KeyError
-
-    missing_optional = get_missing_elements(provided_variables, opt_vars)
-    if missing_optional:
-        log.info(ERROR_VARIABLE_NOT_SETUP_WITH_MESSAGE.format(msg=str(missing_optional)))
+    missing = get_missing_elements(provided_variables, req_vars)
+    if missing:
+        raise KeyError(ERROR_VARIABLE_NOT_SETUP_WITH_MESSAGE.format(msg=list_to_element_string(missing)))

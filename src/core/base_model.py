@@ -1,80 +1,141 @@
-from src.config import MODEL_DEFAULT_OUTPUT_NAME
-from src.utils import check_variables_for_function
+from src.utils import log
+from src.utils.validation import check_variables_for_function
 
 
 class Model:
-    def __init__(self):
-        self._model_function = None
-        self._output_name = MODEL_DEFAULT_OUTPUT_NAME
+    """
+    Abstract base framework representing a modular financial or operational calculation block.
 
-        ## Columns, model should apply the same object of _factors,
-        ## so that each change to the factors can immediately effect on the model result
-        self._columns = {}
-        self._factors = {}
+    Subclasses must define their core execution formula, operational bounds, and trackable 
+    outputs while this core orchestrator guarantees parameter verification before calculations run.
+    """
 
-        ## To use for check variables
-        self._required_factors = []
-        self._required_columns = []
-
-    def get_output_name(self):
-        return self._output_name
-
-    def set_columns(self, columns):
-        self._columns = columns
-
-    def get_columns(self):
-        return self._columns
-
-    def add_column(self, column):
-        self._columns[column.get_name()] = column
-
-    def set_factors(self, factors):
+    def __init__(self, input_variables: dict = None):
         """
-        The most recommended way to generate model. Keep the model and every column applying the same factor object.
-        ONLY set factor without evaluating columns.
+        Initializes the base Model framework with essential internal configuration state mappings.
 
-        :param factors: to which the model and every column apply
+        Args:
+            input_variables (dict, optional): A dictionary mapping variable name strings to 
+                their corresponding numeric values (e.g., {"DEAL_ORDERS": 100}). If None, 
+                it defaults securely to an empty dictionary to prevent NoneType attribute errors.
         """
-        self._factors = factors
+        # Configuration attributes defined explicitly by specific subclasses
+        self._model_function = None  # The core executable calculation method/formula
+        self._output_names = []  # List of string keys this specific model calculates
+        self._required_variables = []  # Mandatory variable names required to execute
+        self._optional_variables = []  # Optional variable names that can accept defaults
 
-    def apply_factors(self, factors):
+        # Initialize input container defensively to eliminate NoneType errors
+        self._input_variables = input_variables if input_variables is not None else {}
+
+    @property
+    def output_names(self) -> list:
         """
-        Set up the factors and updating the corresponding columns.
+        Returns the list of specific variable names calculated by this model.
 
-        :param factors: to which the model and every column apply
+        Returns:
+            list: A list of strings representing the output keys.
         """
-        self.set_factors(factors)
-        self.evaluate_columns()
+        return self._output_names
 
-    def update_factors(self, factors):
+    @property
+    def input_variables(self) -> dict:
         """
-        Update the existing factors in the current model with the new factor dict, then reevaluate columns based on it
-        Insert the new item if the key doesn't exist in the factors
-        Update with the new value if the key exists in the factors
+        Returns the active operational context runtime dictionary.
 
-        :param factors: to be updated to the existing factors
+        Returns:
+            dict: The shared state pool containing active metrics and variables.
         """
-        for factor_name, factor_value in factors.items():
-            self._factors[factor_name] = factor_value
+        return self._input_variables
 
-        self.evaluate_columns()
+    @input_variables.setter
+    def input_variables(self, input_variables: dict) -> None:
+        """
+        Overwrites or binds a fresh state execution map to the model context.
 
-    def get_factors(self):
-        return self._factors
+        Args:
+            input_variables (dict): A fresh dictionary mapping variables to values.
+                If None is passed, it falls back cleanly to an empty dictionary.
+        """
+        self._input_variables = input_variables if input_variables is not None else {}
 
-    def evaluate(self):
-        ## Validate inputs (Letting KeyError bubble up naturally if mandatory columns are missing)
+    def update_input_variable(self, key_or_variable, value=None) -> None:
+        """
+        Updates an existing runtime variable or injects a completely new execution factor.
+
+        Supports polymorphic signatures: accepts either an explicit Variable instance 
+        or standard raw key-value arguments.
+
+        Args:
+            key_or_variable (Union[str, object]): Either a raw string configuration key 
+                name (e.g., "COST_CPA") OR a domain Variable object instance that implements 
+                either the property layout or getter interface.
+            value (Union[int, float], optional): The raw numeric value to map to the variable. 
+                This parameter is only evaluated if `key_or_variable` is provided as a raw string.
+        """
+        # Scenario A: A Domain Variable object instance was passed directly
+        if hasattr(key_or_variable, "name") and hasattr(key_or_variable, "expected_value"):
+            self._input_variables[key_or_variable.name] = key_or_variable.expected_value
+        elif hasattr(key_or_variable, "get_name") and hasattr(key_or_variable, "get_value"):
+            self._input_variables[key_or_variable.get_name()] = key_or_variable.get_value()
+        # Scenario B: Standard raw string key and numeric value mapping
+        else:
+            self._input_variables[str(key_or_variable)] = value
+
+    def check_variables(self) -> None:
+        """
+        Defensively validates context dictionary states before executing formulas.
+
+        Required variable omission throws a process-halting KeyError, whereas optional 
+        variable omission triggers an informational tracking statement allowing downstream 
+        defaults to kick in.
+        """
+        # 1. Critical Validation Pass (Strict execution stop)
+        try:
+            check_variables_for_function(self._input_variables, self._required_variables)
+        except KeyError as e:
+            log.error(e.args[0])
+            raise
+
+        # 2. Optional Validation Pass (Informational alert; calculation injects internal defaults)
+        try:
+            check_variables_for_function(self._input_variables, self._optional_variables)
+        except KeyError as e:
+            log.info(e.args[0])
+
+    def evaluate(self) -> dict:
+        """
+        Validates system dependencies and executes the subclass mathematical formula.
+
+        Architectural Note: In-Place Merge Strategy vs. New Dictionary Creation
+        ---------------------------------------------------------------------
+        Calculated output variables are explicitly merged back into the existing input 
+        dictionary in-place rather than generating a brand new copy at each step. This 
+        design pattern is selected intentionally for two core reasons:
+
+        1. Memory Optimization: It prevents the system from generating heavy memory overhead 
+           and garbage collection cycles during deep, multi-variable simulations.
+        2. Seamless Model Chaining: It allows multiple sequential processing models (e.g., 
+           Model A -> Model B -> Model C) to execute over a single, shared, cumulative state. 
+           Outputs from previous calculations automatically become available as valid inputs 
+           for downstream pipeline engines without writing manual aggregation logic.
+
+        Risk Mitigation: Because this results in a mutable shared state across models, users 
+        should ensure that original raw inputs are duplicated via a copy/clone wrapper at the 
+        very beginning of an analysis workflow if the baseline state needs to remain uncorrupted.
+
+        Returns:
+            dict: The comprehensive shared context pool holding all consolidated inputs 
+                and newly updated computational outputs.
+        """
+        # Assert mathematical correctness checks before invoking execution thread
         self.check_variables()
 
-        params = self.provide_params()
-        return {self._output_name: self._model_function(**params)}
+        # Execute formula by unpacking our variables context directly into the target function
+        result = self._model_function(**self._input_variables)
 
-    def check_variables(self):
-        check_variables_for_function(self._columns, self._required_columns)
-        check_variables_for_function(self._factors, self._required_factors)
+        # Enforce that the output is wrapped as a dict before performing merge
+        if result and isinstance(result, dict):
+            self._input_variables.update(result)
 
-    def evaluate_columns(self):
-        pass
-
-    def provide_params(self):
-        pass
+        return self._input_variables
