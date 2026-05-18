@@ -1,7 +1,7 @@
 ERROR_VARIABLE_CONSTRUCTION_ERROR = ("Invalid argument combination. You must provide either: \n "
-                               "1. All three (min, max, expect)\n "
-                               "2. Only 'expect'\n "
-                               "3. Only 'min' and 'max'")
+                                     "1. All three (min, max, expect)\n "
+                                     "2. Only 'expect'\n "
+                                     "3. Only 'min' and 'max'")
 
 ERROR_VARIABLE_NOT_SETUP = "{var} not setup"
 ERROR_VARIABLE_TYPE_NOT_SUPPORT = "Value type not supported"

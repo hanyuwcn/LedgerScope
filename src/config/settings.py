@@ -3,9 +3,9 @@
 # =====================================================================
 # SYSTEM ENVIRONMENT VARIABLES
 # =====================================================================
-NUMS_IN_RANGE = 10         # Granularity/steps for variable sweeps and heatmaps
-DECIMAL_ROUNDING = 4       # Precision cap for floating-point calculations
-SAMPLE_SIZE = 100          # Total iterations for randomized Monte Carlo runs
+NUMS_IN_RANGE = 10  # Granularity/steps for variable sweeps and heatmaps
+DECIMAL_ROUNDING = 4  # Precision cap for floating-point calculations
+SAMPLE_SIZE = 100  # Total iterations for randomized Monte Carlo runs
 
 # =====================================================================
 # FINANCIAL PARAMETER DEFAULTS

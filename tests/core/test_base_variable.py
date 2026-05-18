@@ -1,7 +1,7 @@
 import unittest
+
 import numpy as np
 
-from src.config import ERROR_VARIABLE_CONSTRUCTION_ERROR
 from src.core import ValueType, Variable
 
 

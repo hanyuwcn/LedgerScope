@@ -1,7 +1,9 @@
 import unittest
+
 import numpy as np
-from tests.fixtures.variables_pool import get_test_variable_portfolio
+
 from src.config import variable_names
+from tests.fixtures.variables_pool import get_test_variable_portfolio
 
 
 class TestExpenseVariables(unittest.TestCase):
