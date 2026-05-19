@@ -22,6 +22,16 @@ class TestProfitModel(unittest.TestCase):
         # Verify exact registered calculation footprint signatures
         self.assertEqual(model.output_names, [variable_names.PROFIT])
 
+        # Verify explicit required and optional variable signature bounds
+        self.assertEqual(
+            model.required_variables,
+            [
+                variable_names.REVENUE,
+                variable_names.COST
+            ]
+        )
+        self.assertEqual(model.optional_variables, [])
+
     # -----------------------------------------------------------------
     # 2. STATE DICTIONARY GETTER & SETTER PROPERTIES
     # -----------------------------------------------------------------

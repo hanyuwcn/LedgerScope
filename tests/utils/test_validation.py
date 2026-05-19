@@ -1,7 +1,12 @@
 import unittest
 
 from src.config import variable_names
-from src.utils.validation import get_missing_elements, check_variables_for_function
+from src.models import AdvertisingEfficiencyModel, CostOfGoodsSoldModel, TotalCostModel
+from src.utils.validation import (
+    get_missing_elements,
+    check_variables_for_function,
+    is_model_sequence_valid
+)
 
 # Mocking your config error message setup locally for explicit string assertions
 ERROR_VARIABLE_NOT_SETUP_WITH_MESSAGE = "Variable(s) not setup: {msg}"
@@ -11,14 +16,20 @@ class TestValidationUtils(unittest.TestCase):
 
     def setUp(self):
         """
-        Set up a mock payload dictionary mimicking a partially 
-        complete ledger state to test key validation compliance.
+        Set up raw payload states and real production model instances 
+        to verify utility calculations and pipeline structural compliance.
         """
+        # Baseline dictionary context for basic element checking
         self.mock_provided = {
             variable_names.DEAL_ORDERS: 100,
             variable_names.DEAL_SELLING_PRICE: 4500,
             variable_names.EXPENSE_MONTHLY_RENT: 2000
         }
+
+        # Real model instances for pipeline structural verification
+        self.advertising_model = AdvertisingEfficiencyModel()
+        self.cogs_model = CostOfGoodsSoldModel()
+        self.total_cost_model = TotalCostModel()
 
     # =====================================================================
     # GET MISSING ELEMENTS TESTS
@@ -82,6 +93,55 @@ class TestValidationUtils(unittest.TestCase):
             check_variables_for_function(self.mock_provided, required_variables=None)
         except Exception as exc:
             self.fail(f"check_variables_for_function crashed when passed None with error: {exc}")
+
+    # =====================================================================
+    # IS MODEL SEQUENCE VALID TESTS (UPFRONT PIPELINE GUARDRAIL)
+    # =====================================================================
+
+    def test_is_model_sequence_valid_passes_perfect_linear_cascade(self):
+        """Verify that a perfectly ordered data-cascading pipeline passes validation cleanly."""
+        valid_pipeline = [
+            self.advertising_model,
+            self.cogs_model,
+            self.total_cost_model
+        ]
+        self.assertTrue(is_model_sequence_valid(valid_pipeline))
+
+    def test_is_model_sequence_valid_catches_complete_reverse_inversion(self):
+        """Verify that a backwards pipeline throws a descriptive KeyError instantly."""
+        reversed_pipeline = [
+            self.total_cost_model,
+            self.cogs_model,
+            self.advertising_model
+        ]
+
+        expected_error_msg = (
+            f"Pipeline Order Violation: '{variable_names.COST_COGS}' is generated as an output by 'CostOfGoodsSoldModel', "
+            f"but it was already consumed as a required input upstream by 'TotalCostModel'."
+        )
+
+        with self.assertRaises(KeyError) as context:
+            is_model_sequence_valid(reversed_pipeline)
+
+        self.assertIn(expected_error_msg, str(context.exception))
+
+    def test_is_model_sequence_valid_catches_partial_misplacement(self):
+        """Verify that even a small structural step inversion triggers an engineering alert."""
+        misplaced_pipeline = [
+            self.cogs_model,
+            self.advertising_model,
+            self.total_cost_model
+        ]
+
+        expected_error_msg = (
+            f"Pipeline Order Violation: '{variable_names.DEAL_ORDERS}' is generated as an output by 'AdvertisingEfficiencyModel', "
+            f"but it was already consumed as a required input upstream by 'CostOfGoodsSoldModel'."
+        )
+
+        with self.assertRaises(KeyError) as context:
+            is_model_sequence_valid(misplaced_pipeline)
+
+        self.assertIn(expected_error_msg, str(context.exception))
 
 
 if __name__ == "__main__":

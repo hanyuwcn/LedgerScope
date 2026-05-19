@@ -22,6 +22,16 @@ class TestTotalCostModel(unittest.TestCase):
         # Verify exact registered calculation footprint signatures
         self.assertEqual(model.output_names, [variable_names.COST])
 
+        # Verify explicit required and optional variable signature bounds
+        self.assertEqual(
+            model.required_variables,
+            [variable_names.COST_COGS, variable_names.COST_ADVERTISING]
+        )
+        self.assertEqual(
+            model.optional_variables,
+            [variable_names.COST_SHIPPING]
+        )
+
     # -----------------------------------------------------------------
     # 2. STATE DICTIONARY GETTER & SETTER PROPERTIES
     # -----------------------------------------------------------------
@@ -77,6 +87,7 @@ class TestTotalCostModel(unittest.TestCase):
         class DuckTypeB:
             def get_name(self):
                 return variable_names.COST_ADVERTISING
+
             def get_value(self):
                 return 2500.0
 

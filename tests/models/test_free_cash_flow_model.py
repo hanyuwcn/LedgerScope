@@ -22,6 +22,17 @@ class TestFreeCashFlowModel(unittest.TestCase):
         # Verify exact registered calculation footprint signatures
         self.assertEqual(model.output_names, [variable_names.FREE_CASH_FLOW])
 
+        # Verify explicit required and optional variable signature bounds
+        self.assertEqual(
+            model.required_variables,
+            [
+                variable_names.NET_INCOME,
+                variable_names.DEPRECIATION,
+                variable_names.CAPITAL_EXPENDITURE
+            ]
+        )
+        self.assertEqual(model.optional_variables, [])
+
     # -----------------------------------------------------------------
     # 2. STATE DICTIONARY GETTER & SETTER PROPERTIES
     # -----------------------------------------------------------------

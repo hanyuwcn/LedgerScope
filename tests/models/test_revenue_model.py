@@ -22,6 +22,20 @@ class TestRevenueModel(unittest.TestCase):
         # Verify exact registered calculation footprint signatures
         self.assertEqual(model.output_names, [variable_names.REVENUE])
 
+        # Verify explicit required and optional variable signature bounds
+        self.assertEqual(
+            model.required_variables,
+            [
+                variable_names.DEAL_SELLING_PRICE,
+                variable_names.DEAL_ORDERS,
+                variable_names.DEAL_ITEMS_PER_ORDER
+            ]
+        )
+        self.assertEqual(
+            model.optional_variables,
+            [variable_names.FINANCE_USD_TO_RMB]
+        )
+
     # -----------------------------------------------------------------
     # 2. STATE DICTIONARY GETTER & SETTER PROPERTIES
     # -----------------------------------------------------------------
@@ -77,6 +91,7 @@ class TestRevenueModel(unittest.TestCase):
         class DuckTypeB:
             def get_name(self):
                 return variable_names.FINANCE_USD_TO_RMB
+
             def get_value(self):
                 return 7.2
 

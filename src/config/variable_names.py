@@ -1,9 +1,11 @@
 ## Variable Names
 
-### Below are the common variable names
+SYSTEM_RUN_ID = "simulation_run_id"
+
+### Below are the common Variable names
 MONTHS = "Months"
 
-### Below are the variable names, which MUST matches the correspondant argument names in the aggregation functions
+### Below are the Variable names, which MUST matches the correspondant argument names in the aggregation functions
 ### Expenses
 EXPENSE = "Expense"
 EXPENSE_MONTHLY_FEE = "MonthlyFee"
@@ -47,19 +49,19 @@ ROI = "ROI"
 FREE_CASH_FLOW = "FreeCashFlow"
 
 ## Break even analysis
-BREAK_EVEN_FACTOR_NAME = "BreakEvenFactor"
-BREAK_EVEN_EXPECTED_FACTOR_VALUE = "BreakEvenExpectedFactorValue"
+BREAK_EVEN_VARIABLE_NAME = "BreakEvenVariable"
+BREAK_EVEN_EXPECTED_VARIABLE_VALUE = "BreakEvenExpectedVariableValue"
 BREAK_EVEN_EXPECTED_RESULT = "BreakEvenExpectedResult"
-BREAK_EVEN_POINT_THRESHOLD_FACTOR_VALUE = "ThresholdFactorValue"
+BREAK_EVEN_POINT_THRESHOLD_VARIABLE_VALUE = "ThresholdVariableValue"
 BREAK_EVEN_POINT_THRESHOLD_RESULT = "ThresholdResult"
 BREAK_EVEN_SAFETY_MARGIN_PERCENTAGE = "SafetyMarginPercentage"
 
 ## Comparative statics
-COMPARATIVE_STATICS_FACTOR_NAME = "ComparativeStaticsFactor"
-COMPARATIVE_STATICS_EXPECTED_FACTOR_VALUE = "ComparativeStaticsExpectedFactorValue"
+COMPARATIVE_STATICS_VARIABLE_NAME = "ComparativeStaticsVariable"
+COMPARATIVE_STATICS_EXPECTED_VARIABLE_VALUE = "ComparativeStaticsExpectedVariableValue"
 COMPARATIVE_STATICS_EXPECTED_RESULT = "ComparativeStaticsExpectedResult"
-COMPARATIVE_STATICS_MIN_FACTOR_VALUE = "ComparativeStaticsMinFactorValue"
+COMPARATIVE_STATICS_MIN_VARIABLE_VALUE = "ComparativeStaticsMinVariableValue"
 COMPARATIVE_STATICS_MIN_RESULT = "ComparativeStaticsMinResult"
-COMPARATIVE_STATICS_MAX_FACTOR_VALUE = "ComparativeStaticsMaxFactorValue"
+COMPARATIVE_STATICS_MAX_VARIABLE_VALUE = "ComparativeStaticsMaxVariableValue"
 COMPARATIVE_STATICS_MAX_RESULT = "ComparativeStaticsMaxResult"
 COMPARATIVE_STATICS_ELASTICITY = "ComparativeStaticsElasticity"

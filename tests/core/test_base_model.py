@@ -1,5 +1,8 @@
+# tests/domain/test_base_model.py
+
 import unittest
 
+# Assuming standard package mapping layout based on your imports
 from src.config import variable_names
 from src.core.base_model import Model
 
@@ -37,7 +40,6 @@ class MockRevenueModel(Model):
         Dynamically extracts parameters via keyword arguments mapping directly
         to the global configuration variable names.
         """
-        # Safely extract values using the global constant registry variables
         orders = kwargs[variable_names.DEAL_ORDERS]
         selling_price = kwargs[variable_names.DEAL_SELLING_PRICE]
 
@@ -47,7 +49,6 @@ class MockRevenueModel(Model):
         raw_revenue = orders * selling_price
         net_profit = raw_revenue * (1 - tax_rate)
 
-        # Build payload mapping directly back to central source-of-truth constants
         return {
             variable_names.REVENUE: raw_revenue,
             variable_names.PROFIT: net_profit
@@ -59,62 +60,150 @@ class MockRevenueModel(Model):
 # =====================================================================
 class TestBaseModelArchitecture(unittest.TestCase):
 
-    def test_model_initialization_state_is_clean(self):
-        """Verify basic property mapping and empty state containers initialize securely."""
+    # -----------------------------------------------------------------
+    # 1. INITIALIZATION & INITIAL STATE TESTS
+    # -----------------------------------------------------------------
+
+    def test_model_initialization_defaults_to_empty_dictionary(self):
+        """Verify that passing no inputs securely initializes input_variables to a clean dict."""
         model = MockRevenueModel()
         self.assertEqual(model.input_variables, {})
+        self.assertIsInstance(model.input_variables, dict)
 
-        # Output list must match centralized registry rules exactly
+    def test_model_initialization_with_none_safeguard(self):
+        """Verify that explicitly passing None to the constructor forces an empty dictionary fallback."""
+        model = MockRevenueModel(input_variables=None)
+        self.assertEqual(model.input_variables, {})
+
+    def test_model_initialization_retains_provided_dictionary(self):
+        """Verify that initial input dictionaries are bound correctly to the internal state container."""
+        initial_payload = {variable_names.DEAL_ORDERS: 100}
+        model = MockRevenueModel(input_variables=initial_payload)
+        self.assertEqual(model.input_variables, initial_payload)
+        self.assertEqual(model.input_variables[variable_names.DEAL_ORDERS], 100)
+
+    def test_output_names_getter(self):
+        """Verify that output_names property correctly exposes the model's registered outputs."""
+        model = MockRevenueModel()
         expected_outputs = [variable_names.REVENUE, variable_names.PROFIT]
         self.assertEqual(model.output_names, expected_outputs)
 
-    def test_polymorphic_update_input_variable_mappings(self):
-        """Verify update_input_variable accommodates both raw map entries and structured values."""
+    # -----------------------------------------------------------------
+    # 2. PROPERTY GETTER & SETTER TESTS (THE CURRENT CONTRACT)
+    # -----------------------------------------------------------------
+
+    def test_input_variables_getter_and_setter_happy_path(self):
+        """Verify the property getter/setter can completely overwrite the state with a valid dictionary."""
+        model = MockRevenueModel()
+        fresh_state = {
+            variable_names.DEAL_ORDERS: 50,
+            variable_names.DEAL_SELLING_PRICE: 20.0
+        }
+
+        # Trigger the setter
+        model.input_variables = fresh_state
+
+        # Trigger the getter and verify identity/content
+        self.assertEqual(model.input_variables, fresh_state)
+        self.assertIs(model.input_variables, fresh_state)
+
+    def test_input_variables_setter_none_fallback(self):
+        """Verify that setting input_variables property to None safely clears state to an empty dict."""
+        initial_payload = {variable_names.DEAL_ORDERS: 100}
+        model = MockRevenueModel(input_variables=initial_payload)
+
+        # Overwrite with None via setter
+        model.input_variables = None
+
+        # Verify defensive fallback kicked in
+        self.assertEqual(model.input_variables, {})
+
+    # -----------------------------------------------------------------
+    # 3. POLYMORPHIC INDIVIDUAL VARIABLE UPDATE TESTS
+    # -----------------------------------------------------------------
+
+    def test_update_input_variable_with_raw_string_key(self):
+        """Verify updating with standard raw string keys maps inputs exactly."""
+        model = MockRevenueModel()
+        model.update_input_variable("CUSTOM_VARIABLE_KEY", 999.5)
+        self.assertEqual(model.input_variables["CUSTOM_VARIABLE_KEY"], 999.5)
+
+    def test_update_input_variable_with_duck_typed_name_and_expected_value(self):
+        """Verify polymorphic update handles Domain Objects using 'name' and 'expected_value' properties."""
         model = MockRevenueModel()
 
-        # Test updating with primitive key-value inputs mapped via central registry global variables
-        model.update_input_variable(variable_names.DEAL_ORDERS, 10)
-        self.assertEqual(model.input_variables[variable_names.DEAL_ORDERS], 10)
+        class MockPropertyVariable:
+            def __init__(self):
+                self.name = variable_names.DEAL_ORDERS
+                self.expected_value = 45
 
-        # Test updating with a duck-typed structural variable object
-        class MockVariable:
+        model.update_input_variable(MockPropertyVariable())
+        self.assertEqual(model.input_variables[variable_names.DEAL_ORDERS], 45)
+
+    def test_update_input_variable_with_duck_typed_getter_methods(self):
+        """Verify polymorphic update handles Domain Objects using 'get_name()' and 'get_value()' methods."""
+        model = MockRevenueModel()
+
+        class MockMethodVariable:
             def get_name(self):
                 return variable_names.DEAL_SELLING_PRICE
 
             def get_value(self):
-                return 5000
+                return 1500.0
 
-        model.update_input_variable(MockVariable())
-        self.assertEqual(model.input_variables[variable_names.DEAL_SELLING_PRICE], 5000)
+        model.update_input_variable(MockMethodVariable())
+        self.assertEqual(model.input_variables[variable_names.DEAL_SELLING_PRICE], 1500.0)
+
+    # -----------------------------------------------------------------
+    # 4. LIFECYCLE RUNTIME & VALIDATION TESTS
+    # -----------------------------------------------------------------
 
     def test_evaluate_success_and_in_place_data_enrichment_merge(self):
-        """Verify evaluation executes correctly and merges outputs smoothly into the shared state map."""
+        """Verify successful calculation execution and structural in-place state enrichment."""
         inputs = {
             variable_names.DEAL_ORDERS: 20,
             variable_names.DEAL_SELLING_PRICE: 3000
         }
         model = MockRevenueModel(inputs)
 
-        # Execution path runs successfully using the default optional tax rate fallback (0.2)
+        # Triggers evaluation using default fallback tax rate (0.2)
         enriched_output = model.evaluate()
 
-        # Verify in-place contextual merging matches configuration variable signatures perfectly
+        # 1. Verify original input values are perfectly retained
         self.assertEqual(enriched_output[variable_names.DEAL_ORDERS], 20)
+        self.assertEqual(enriched_output[variable_names.DEAL_SELLING_PRICE], 3000)
+
+        # 2. Verify model calculation outputs are correctly appended
         self.assertEqual(enriched_output[variable_names.REVENUE], 60000)
         self.assertEqual(enriched_output[variable_names.PROFIT], 48000)
 
-        # Verify state identity holds true across execution environment context references
+        # 3. Critical verification of In-Place Merge strategy: returned dict IS the active state container
         self.assertIs(enriched_output, model.input_variables)
 
-    def test_evaluate_missing_required_variables_breaks_process(self):
-        """Verify missing mandatory execution parameters explicitly triggers an unhandled KeyError."""
+    def test_evaluate_missing_required_variables_halts_execution(self):
+        """Verify that omitting a mandatory input parameter actively raises an unhandled KeyError."""
         incomplete_inputs = {
             variable_names.DEAL_ORDERS: 20
-        }  # Missing variable_names.DEAL_SELLING_PRICE context
+        }  # Missing variable_names.DEAL_SELLING_PRICE string key identifier
         model = MockRevenueModel(incomplete_inputs)
 
         with self.assertRaises(KeyError):
             model.evaluate()
+
+    def test_evaluate_accepts_optional_variables_safely(self):
+        """Verify that passing an optional parameter bypasses default internal fallbacks cleanly."""
+        custom_inputs = {
+            variable_names.DEAL_ORDERS: 10,
+            variable_names.DEAL_SELLING_PRICE: 1000,
+            variable_names.FINANCE_TAX_RATE: 0.10  # Explicit custom optional override
+        }
+        model = MockRevenueModel(custom_inputs)
+
+        enriched_output = model.evaluate()
+
+        # Revenue = 10 * 1000 = 10000. Profit = 10000 * (1 - 0.10) = 9000
+        self.assertEqual(enriched_output[variable_names.REVENUE], 10000)
+        self.assertEqual(enriched_output[variable_names.PROFIT], 9000)
 
 
 if __name__ == "__main__":

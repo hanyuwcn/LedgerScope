@@ -7,12 +7,12 @@ Exposes explicit localization parameters, error templates, and core variable key
 governing pipeline calculations.
 """
 
-from . import error_messages
+from . import messages
 from . import settings
 from . import variable_names
 
 __all__ = [
-    "error_messages",
+    "messages.py",
     "settings",
     "variable_names",
 ]

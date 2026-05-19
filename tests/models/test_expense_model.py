@@ -22,6 +22,20 @@ class TestExpenseModel(unittest.TestCase):
         # Verify exact registered calculation footprint signatures
         self.assertEqual(model.output_names, [variable_names.EXPENSE])
 
+        # Verify explicit required and optional variable signature bounds
+        self.assertEqual(
+            model.required_variables,
+            [variable_names.MONTHS]
+        )
+        self.assertEqual(
+            model.optional_variables,
+            [
+                variable_names.EXPENSE_MONTHLY_RENT,
+                variable_names.EXPENSE_RENDER_FEE,
+                variable_names.EXPENSE_TRAVEL_FEE
+            ]
+        )
+
     # -----------------------------------------------------------------
     # 2. STATE DICTIONARY GETTER & SETTER PROPERTIES
     # -----------------------------------------------------------------
@@ -77,6 +91,7 @@ class TestExpenseModel(unittest.TestCase):
         class DuckTypeB:
             def get_name(self):
                 return variable_names.EXPENSE_RENDER_FEE
+
             def get_value(self):
                 return 350.0
 

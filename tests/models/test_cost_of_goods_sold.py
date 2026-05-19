@@ -22,6 +22,17 @@ class TestCostOfGoodsSoldModel(unittest.TestCase):
         # Verify exact registered calculation footprint signatures
         self.assertEqual(model.output_names, [variable_names.COST_COGS])
 
+        # Verify explicit required and optional variable signature bounds
+        self.assertEqual(
+            model.required_variables,
+            [
+                variable_names.DEAL_PURCHASING_PRICE,
+                variable_names.DEAL_ORDERS,
+                variable_names.DEAL_ITEMS_PER_ORDER
+            ]
+        )
+        self.assertEqual(model.optional_variables, [])
+
     # -----------------------------------------------------------------
     # 2. STATE DICTIONARY GETTER & SETTER PROPERTIES
     # -----------------------------------------------------------------

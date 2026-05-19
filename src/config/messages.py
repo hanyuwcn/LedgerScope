@@ -8,3 +8,6 @@ ERROR_VARIABLE_TYPE_NOT_SUPPORT = "Value type not supported"
 ERROR_VARIABLE_NOT_SETUP_WITH_MESSAGE = "Variable(s) not setup: {msg}"
 
 ERROR_VARIABLE_NOT_MONOTONIC_EFFECT = "{factor} has no monotonical effect on the {result}"
+
+INFO_MONTE_CARLO_SIMULATION_START = "Initiating Monte Carlo analysis: {iterations} iterations targeted."
+INFO_MONTE_CARLO_SIMULATION_FINISH = "Monte Carlo simulation completed. Captured {size} records."

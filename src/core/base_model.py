@@ -22,13 +22,33 @@ class Model:
                 it defaults securely to an empty dictionary to prevent NoneType attribute errors.
         """
         # Configuration attributes defined explicitly by specific subclasses
-        self._model_function = None  # The core executable calculation method/formula
-        self._output_names = []  # List of string keys this specific model calculates
         self._required_variables = []  # Mandatory variable names required to execute
         self._optional_variables = []  # Optional variable names that can accept defaults
+        self._model_function = None  # The core executable calculation method/formula
+        self._output_names = []  # List of string keys this specific model calculates
 
         # Initialize input container defensively to eliminate NoneType errors
         self._input_variables = input_variables if input_variables is not None else {}
+
+    @property
+    def required_variables(self) -> list:
+        """
+        Returns the list of mandatory variable names required to execute this model.
+
+        Returns:
+            list: A list of strings representing the required input keys.
+        """
+        return self._required_variables
+
+    @property
+    def optional_variables(self) -> list:
+        """
+        Returns the list of optional variable names that this model can evaluate.
+
+        Returns:
+            list: A list of strings representing the optional input keys.
+        """
+        return self._optional_variables
 
     @property
     def output_names(self) -> list:

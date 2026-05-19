@@ -22,6 +22,18 @@ class TestRoiModel(unittest.TestCase):
         # Verify exact registered calculation footprint signatures
         self.assertEqual(model.output_names, [variable_names.ROI])
 
+        # Verify explicit required and optional variable signature bounds
+        self.assertEqual(
+            model.required_variables,
+            [
+                variable_names.NET_INCOME,
+                variable_names.COST,
+                variable_names.EXPENSE,
+                variable_names.CAPITAL_EXPENDITURE
+            ]
+        )
+        self.assertEqual(model.optional_variables, [])
+
     # -----------------------------------------------------------------
     # 2. STATE DICTIONARY GETTER & SETTER PROPERTIES
     # -----------------------------------------------------------------

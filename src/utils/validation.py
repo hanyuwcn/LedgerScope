@@ -1,4 +1,4 @@
-from src.config import error_messages
+from src.config import messages
 from .formatting import list_to_element_string
 
 
@@ -48,7 +48,56 @@ def check_variables_for_function(provided_variables: dict, required_variables: l
     missing = get_missing_elements(provided_variables, req_vars)
     if missing:
         # Accessing the error template explicitly via the namespaced config file
-        error_template = error_messages.ERROR_VARIABLE_NOT_SETUP_WITH_MESSAGE
+        error_template = messages.ERROR_VARIABLE_NOT_SETUP_WITH_MESSAGE
         formatted_elements = list_to_element_string(missing)
 
         raise KeyError(error_template.format(msg=formatted_elements))
+
+
+def is_model_sequence_valid(models: list) -> bool:
+    """
+    Validates the structural sequence of a calculation pipeline to prevent point failures.
+
+    This function scans a sequence of calculation blocks chronologically to ensure
+    that data lineage remains intact. It catches 'Order of Operations' violations
+    where a model down the line attempts to calculate and overwrite a variable that
+    an earlier model already consumed as a raw, top-level baseline dependency.
+
+    Args:
+        models (list): An ordered sequence of model instances inheriting from the
+            base Model class. Each instance must expose the `required_variables`
+            and `output_names` list properties.
+
+    Raises:
+        KeyError: If a structural sequence violation is detected where a downstream
+            model's output variable name is found within the accumulated set of
+            required upstream inputs.
+
+    Returns:
+        bool: True if the pipeline sequence configuration is architecturally sound
+            and ready for safe execution.
+    """
+    seen_inputs = set()
+    input_consumers = {}  # Maps variable_name -> first_model_name_to_consume_it
+
+    for model in models:
+        model_name = model.__class__.__name__
+        model_outputs = model.output_names
+        model_inputs = model.required_variables
+
+        # 1. Catch downstream models overwriting an upstream input dependency
+        for output_name in model_outputs:
+            if output_name in seen_inputs:
+                raise KeyError(
+                    f"Pipeline Order Violation: '{output_name}' is generated as an output by '{model_name}', "
+                    f"but it was already consumed as a required input upstream by '{input_consumers[output_name]}'. "
+                    f"Please move '{model_name}' earlier in your pipeline sequence."
+                )
+
+        # 2. Record inputs to track history for the next iteration step
+        for input_name in model_inputs:
+            seen_inputs.add(input_name)
+            if input_name not in input_consumers:
+                input_consumers[input_name] = model_name
+
+    return True

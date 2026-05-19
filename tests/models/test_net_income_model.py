@@ -22,6 +22,21 @@ class TestNetIncomeModel(unittest.TestCase):
         # Verify exact registered calculation footprint signatures
         self.assertEqual(model.output_names, [variable_names.NET_INCOME])
 
+        # Verify explicit required and optional variable signature bounds
+        self.assertEqual(
+            model.required_variables,
+            [
+                variable_names.REVENUE,
+                variable_names.COST,
+                variable_names.EXPENSE,
+                variable_names.DEPRECIATION
+            ]
+        )
+        self.assertEqual(
+            model.optional_variables,
+            [variable_names.FINANCE_TAX_RATE]
+        )
+
     # -----------------------------------------------------------------
     # 2. STATE DICTIONARY GETTER & SETTER PROPERTIES
     # -----------------------------------------------------------------
