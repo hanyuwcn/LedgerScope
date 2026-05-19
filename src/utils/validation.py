@@ -1,4 +1,4 @@
-from src.config import ERROR_VARIABLE_NOT_SETUP_WITH_MESSAGE
+from src.config import error_messages
 from .formatting import list_to_element_string
 
 
@@ -32,13 +32,12 @@ def check_variables_for_function(provided_variables: dict, required_variables: l
 
     If any required keys are missing, this function constructs a clean, formatted error
     string containing the sorted missing elements and raises a KeyError back to the caller.
-    This allows upper-level business logic to determine how to handle execution failure.
 
     Args:
         provided_variables (dict): The active runtime configuration dictionary containing
             available variables and context metrics.
         required_variables (list, optional): Strings representing keys that are strictly
-            mandatory for a calculation. Defaults to None (treated safely as an empty list).
+            mandatory for a calculation. Defaults to None.
 
     Raises:
         KeyError: If one or more keys specified in `required_variables` are absent from
@@ -48,4 +47,8 @@ def check_variables_for_function(provided_variables: dict, required_variables: l
 
     missing = get_missing_elements(provided_variables, req_vars)
     if missing:
-        raise KeyError(ERROR_VARIABLE_NOT_SETUP_WITH_MESSAGE.format(msg=list_to_element_string(missing)))
+        # Accessing the error template explicitly via the namespaced config file
+        error_template = error_messages.ERROR_VARIABLE_NOT_SETUP_WITH_MESSAGE
+        formatted_elements = list_to_element_string(missing)
+
+        raise KeyError(error_template.format(msg=formatted_elements))

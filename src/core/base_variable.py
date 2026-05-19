@@ -3,11 +3,14 @@ from enum import Enum
 
 import numpy as np
 
-from src.config import ERROR_VARIABLE_CONSTRUCTION_ERROR, ERROR_VARIABLE_TYPE_NOT_SUPPORT, DECIMAL_ROUNDING
+from src.config import error_messages, settings
 from src.utils import log
 
 
 class ValueType(Enum):
+    """
+    Specifies the analytical sampling target for variable evaluation boundaries.
+    """
     MIN = "min"
     MAX = "max"
     EXPECTED = "expected"
@@ -15,14 +18,23 @@ class ValueType(Enum):
 
 
 class Variable:
+    """
+    Primitive financial parameter object tracking boundaries, defaults, 
+    and random sampling ranges for downstream sensitivity analysis.
+    """
+
     def __init__(self, expected_value=None, min_value=None, max_value=None):
         """
-        Please note the "MAX" and "MIN" does not necessarily mean on which max or min final result will be depending;
-        it only serves to give a range of such factor so that
-        on which final result can be make sensitivity analysis.
+        Initializes boundaries and default configurations. Note that 'MAX' and 'MIN' 
+        define a testing threshold rather than structural math dependencies.
 
-        :param expected_value: default value of this factor, which shall fall into the given range.
-        :param min_value, max_value: range of this factor
+        Args:
+            expected_value (float, optional): Operational default base state value.
+            min_value (float, optional): Lower metric boundary marker.
+            max_value (float, optional): Upper metric boundary marker.
+
+        Raises:
+            ValueError: If an illegal permutation of parameters is supplied.
         """
         self._name = ""
 
@@ -52,7 +64,7 @@ class Variable:
             self._max = None
             self._expected_value = None
         else:
-            log.error(ERROR_VARIABLE_CONSTRUCTION_ERROR)
+            log.error(error_messages.ERROR_VARIABLE_CONSTRUCTION_ERROR)
             raise ValueError
 
     # -----------------------------------------------------------------
@@ -79,22 +91,26 @@ class Variable:
     # -----------------------------------------------------------------
     def set_value(self, value):
         """
-        Set the expected value, min value and max value all to be the given value.
-        Current variable becomes a fixed one
+        Locks down a variable, fixing all bounds directly to a static constant.
         """
         self._expected_value = value
         self._min = value
         self._max = value
 
     def get_random_value(self):
-        return self._get_random_value_with_digits(DECIMAL_ROUNDING)
+        """
+        Randomly samples values from within the defined lower and upper bounds.
+        """
+        return self._get_random_value_with_digits(settings.DECIMAL_ROUNDING)
 
     def _get_random_value_with_digits(self, digit=2):
-        # Cleaned up to use our property attributes internally
         random_value = random.uniform(self.min_value, self.max_value)
         return round(random_value, digit)
 
     def get_value(self, value_type=ValueType.EXPECTED):
+        """
+        Extracts a targeted data value slice based on a requested strategy state.
+        """
         match value_type:
             case ValueType.EXPECTED:
                 return self.expected_value
@@ -105,9 +121,15 @@ class Variable:
             case ValueType.RANDOM:
                 return self.get_random_value()
             case _:
-                raise ValueError(ERROR_VARIABLE_TYPE_NOT_SUPPORT)
+                raise ValueError(error_messages.ERROR_VARIABLE_TYPE_NOT_SUPPORT)
 
-    def get_range_values(self, num, digits=DECIMAL_ROUNDING):
+    def get_range_values(self, num, digits=None):
+        """
+        Generates a lineary spaced numpy distribution array across boundaries.
+        """
+        if digits is None:
+            digits = settings.DECIMAL_ROUNDING
+
         values = np.linspace(self._min, self._max, num=num)
 
         if digits == 0:
