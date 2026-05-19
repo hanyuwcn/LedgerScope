@@ -1,5 +1,8 @@
 ## Variable Names
 
+### Below are the common variable names
+MONTHS = "Months"
+
 ### Below are the variable names, which MUST matches the correspondant argument names in the aggregation functions
 ### Expenses
 EXPENSE = "Expense"
@@ -7,6 +10,10 @@ EXPENSE_MONTHLY_FEE = "MonthlyFee"
 EXPENSE_MONTHLY_RENT = "Rent"
 EXPENSE_RENDER_FEE = "RenderFee"
 EXPENSE_TRAVEL_FEE = "TravelFee"
+
+### Investment
+CAPITAL_EXPENDITURE = "CapitalExpenditure"
+DEPRECIATION = "Depreciation"
 
 ### Deals
 DEAL_ORDERS = "Orders"
@@ -32,14 +39,12 @@ COST_CONVERSION_RATE = "ConversionRate"
 REVENUE = "Revenue"
 REVENUE_GOODS_SOLD = "GoodsSold"
 
-### Factors & Columns
-DEFAULT_COLUMN_NAME = "Column"
+### Metrics
 MODEL_DEFAULT_OUTPUT_NAME = "Output"
 NET_INCOME = "NetIncome"
 PROFIT = "Profit"
 ROI = "ROI"
-CAPITAL_EXPENDITURE = "CapitalExpenditure"
-DEPRECIATION = "Depreciation"
+FREE_CASH_FLOW = "FreeCashFlow"
 
 ## Break even analysis
 BREAK_EVEN_FACTOR_NAME = "BreakEvenFactor"

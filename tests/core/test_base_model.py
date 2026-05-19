@@ -1,5 +1,3 @@
-# tests/test_core/test_base_model.py
-
 import unittest
 
 from src.config import variable_names
