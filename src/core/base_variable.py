@@ -3,7 +3,7 @@ from enum import Enum
 
 import numpy as np
 
-from src.config import error_messages, settings
+from src.config import messages, settings
 from src.utils import log
 
 
@@ -64,7 +64,7 @@ class Variable:
             self._max = None
             self._expected_value = None
         else:
-            log.error(error_messages.ERROR_VARIABLE_CONSTRUCTION_ERROR)
+            log.error(messages.ERROR_VARIABLE_CONSTRUCTION_ERROR)
             raise ValueError
 
     # -----------------------------------------------------------------
@@ -121,7 +121,7 @@ class Variable:
             case ValueType.RANDOM:
                 return self.get_random_value()
             case _:
-                raise ValueError(error_messages.ERROR_VARIABLE_TYPE_NOT_SUPPORT)
+                raise ValueError(messages.ERROR_VARIABLE_TYPE_NOT_SUPPORT)
 
     def get_range_values(self, num, digits=None):
         """

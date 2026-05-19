@@ -1,3 +1,5 @@
+# src/domain/base_model.py
+
 from src.utils import log
 from src.utils.validation import check_variables_for_function
 
