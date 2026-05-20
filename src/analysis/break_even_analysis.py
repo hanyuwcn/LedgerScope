@@ -1,7 +1,7 @@
 import numpy as np
 
 from src.config import variable_names, settings, messages
-from src.engine import evaluate_chained_models
+from src.engine import evaluate_variable_scenario_sweep, evaluate_expected_scenario
 from src.utils import check_variables_for_function, is_model_sequence_valid, log
 
 
@@ -70,19 +70,17 @@ def get_break_even_analysis_for_one_variable(variables: dict, selected_variable:
     }
 
     # 1. Capture baseline model state and extract the expected outcome
-    baseline_inputs = {var_name: var_obj.get_value() for var_name, var_obj in variables.items()}
-    expected_variable_val = baseline_inputs[selected_variable]
-
-    baseline_output_payload = evaluate_chained_models(baseline_inputs, model_pipeline)
-    expected_result = baseline_output_payload[output_name]
+    expected_variable_val = variables[selected_variable].expected_value
 
     variable_analysis_report[variable_names.BREAK_EVEN_EXPECTED_VARIABLE_VALUE] = expected_variable_val
-    variable_analysis_report[variable_names.BREAK_EVEN_EXPECTED_RESULT] = expected_result
+    variable_analysis_report[variable_names.BREAK_EVEN_EXPECTED_RESULT] = \
+    evaluate_expected_scenario(variables, model_pipeline)[output_name]
 
     # 2. Simulate range scenarios for the target variable
     variable_test_range = variables[selected_variable].get_range_values(num=settings.NUMS_IN_RANGE)
-    scenario_inputs = [{**baseline_inputs, selected_variable: val} for val in variable_test_range]
-    simulated_outcomes = [evaluate_chained_models(scen, model_pipeline)[output_name] for scen in scenario_inputs]
+    variable_scenario_outcomes = evaluate_variable_scenario_sweep(variables, selected_variable, variable_test_range,
+                                                                  model_pipeline)
+    simulated_outcomes = [outcome[output_name] for outcome in variable_scenario_outcomes]
 
     try:
         impact_is_positive, impact_is_negative = determine_variable_impact_direction(simulated_outcomes)

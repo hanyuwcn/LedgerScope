@@ -2,8 +2,7 @@ import numpy as np
 from scipy import stats
 
 from src.config import settings
-from src.core import ValueType
-from src.engine import evaluate_chained_models
+from src.engine import evaluate_stochastic_iteration
 from src.utils import check_variables_for_function, is_model_sequence_valid
 
 
@@ -50,7 +49,7 @@ def stochastic_bivariate_simulation(
 
     # Execute Monte Carlo iterations to populate bivariate dataset arrays
     for _ in range(sample_size):
-        runtime_state = _sample_pipeline_state(
+        runtime_state = evaluate_stochastic_iteration(
             variables=variables,
             shuffled_inputs=shuffled_variables,
             model_pipeline=model_pipeline
@@ -67,26 +66,6 @@ def stochastic_bivariate_simulation(
     )
 
     return simulated_x_distribution, simulated_y_distribution, linear_trend_summary
-
-
-def _sample_pipeline_state(variables: dict, shuffled_inputs: list[str], model_pipeline: list) -> dict:
-    """
-    Generates a single randomized parameter environment snapshot and processes it
-    through the calculation engine logic layer.
-    """
-    sampled_inputs = {}
-
-    for var_name, var_instance in variables.items():
-        if not hasattr(var_instance, "get_value"):
-            sampled_inputs[var_name] = var_instance
-            continue
-
-        if var_name in shuffled_inputs:
-            sampled_inputs[var_name] = var_instance.get_value(ValueType.RANDOM)
-        else:
-            sampled_inputs[var_name] = var_instance.get_value(ValueType.EXPECTED)
-
-    return evaluate_chained_models(runtime_state=sampled_inputs, model_pipeline=model_pipeline)
 
 
 def _analyze_linear_trend_properties(x_values: list[float], y_values: list[float], x_label: str, y_label: str) -> dict:

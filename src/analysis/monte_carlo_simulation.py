@@ -1,6 +1,5 @@
 from src.config import messages, variable_names
-from src.core.base_variable import ValueType
-from src.engine import evaluate_chained_models
+from src.engine import evaluate_stochastic_iteration
 from src.utils import check_variables_for_function, is_model_sequence_valid
 from src.utils import log
 
@@ -36,7 +35,7 @@ def run_monte_carlo(
 
     for iteration_idx in range(1, iterations + 1):
         # 1. Evaluate a single randomized sample slice through the models
-        calculated_state = _evaluate_single_iteration(variables, shuffled_inputs, model_pipeline)
+        calculated_state = evaluate_stochastic_iteration(variables, shuffled_inputs, model_pipeline)
 
         # 2. Performance Check: Validate target tracking columns exactly once on run 1
         if iteration_idx == 1 and tracked_outputs is not None:
@@ -54,23 +53,3 @@ def run_monte_carlo(
 
     # log.info(messages.INFO_MONTE_CARLO_SIMULATION_FINISH.format(size=len(simulation_results)))
     return simulation_results
-
-
-def _evaluate_single_iteration(variables: dict, shuffled_inputs: list, model_pipeline: list) -> dict:
-    """
-    Helper function to sample inputs and execute a single iteration of the engine.
-    """
-    sampled_inputs = {}
-
-    for var_name, var_instance in variables.items():
-        if not hasattr(var_instance, "get_value"):
-            sampled_inputs[var_name] = var_instance
-            continue
-
-        # Choose sampling strategy based on parameter configuration flags
-        if var_name in shuffled_inputs:
-            sampled_inputs[var_name] = var_instance.get_value(ValueType.RANDOM)
-        else:
-            sampled_inputs[var_name] = var_instance.get_value(ValueType.EXPECTED)
-
-    return evaluate_chained_models(runtime_state=sampled_inputs, model_pipeline=model_pipeline)

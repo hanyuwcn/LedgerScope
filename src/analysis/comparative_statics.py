@@ -1,7 +1,7 @@
 import numpy as np
 
 from src.config import variable_names
-from src.engine import evaluate_chained_models
+from src.engine import evaluate_variable_scenario_sweep
 from src.utils import check_variables_for_function, is_model_sequence_valid
 
 
@@ -80,7 +80,6 @@ def get_comparative_statics_for_one_variable(
     single_variable_analysis_report = {variable_names.COMPARATIVE_STATICS_VARIABLE_NAME: selected_variable}
 
     # Extract baseline dictionary and pull specific range benchmarks under ceteris paribus constraints
-    baseline_inputs = {var_name: var_obj.get_value() for var_name, var_obj in variables.items()}
     variable_instance = variables[selected_variable]
 
     independent_variable_steps = [
@@ -90,9 +89,9 @@ def get_comparative_statics_for_one_variable(
     ]
 
     # Dynamically inject boundary modifications while holding other factors static
-    scenario_inputs = [{**baseline_inputs, selected_variable: value} for value in independent_variable_steps]
-    dependent_scenario_outcomes = [evaluate_chained_models(scen, model_pipeline)[output_name] for scen in
-                                   scenario_inputs]
+    variable_scenario_outcomes = evaluate_variable_scenario_sweep(variables, selected_variable,
+                                                                  independent_variable_steps, model_pipeline)
+    dependent_scenario_outcomes = [outcome[output_name] for outcome in variable_scenario_outcomes]
 
     # Record independent range inputs
     single_variable_analysis_report[variable_names.COMPARATIVE_STATICS_MIN_VARIABLE_VALUE] = independent_variable_steps[

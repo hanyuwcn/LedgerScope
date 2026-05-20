@@ -43,7 +43,7 @@ def run_two_way_sensitivity_analysis(
             vector should have its sorting order flipped. Defaults to False.
         reverse_y (bool, optional): Determines if the generated vertical Y-axis
             vector should have its sorting order flipped. Defaults to True to place
-            the lowest numerical values at the bottom-left corner of the grid matrix.
+            the lowest numerical values in the bottom-left corner of the grid matrix.
 
     Raises:
         ValueError: If `param_x_name` or `param_y_name` is detected inside the

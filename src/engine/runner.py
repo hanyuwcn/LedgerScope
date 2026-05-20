@@ -1,3 +1,6 @@
+from typing import Sequence
+
+from src.core import ValueType
 from src.utils import log
 
 
@@ -43,3 +46,85 @@ def evaluate_chained_models(runtime_state: dict, model_pipeline: list) -> dict:
             raise error
 
     return current_state
+
+
+def evaluate_stochastic_iteration(variables: dict, shuffled_inputs: list[str], model_pipeline: list) -> dict:
+    """
+    Samples a single randomized parameter snapshot environment by shuffling designated
+    target inputs and processes it entirely through the model pipeline execution layer.
+
+    Args:
+        variables (dict): Map of string tokens to stateful Variable domain instances.
+        shuffled_inputs (list[str]): String keys identifying parameters targeted for random sampling.
+        model_pipeline (list): Explicit, ordered sequence of calculation model classes to execute.
+
+    Returns:
+        dict: The final calculated dictionary representing the single stochastic data state.
+    """
+    sampled_inputs = {}
+
+    for var_name, var_instance in variables.items():
+        if not hasattr(var_instance, "get_value"):
+            sampled_inputs[var_name] = var_instance
+            continue
+
+        # Split logic: Shuffle target variables, pin everything else to expected baseline
+        if var_name in shuffled_inputs:
+            sampled_inputs[var_name] = var_instance.get_value(ValueType.RANDOM)
+        else:
+            sampled_inputs[var_name] = var_instance.get_value(ValueType.EXPECTED)
+
+    return evaluate_chained_models(runtime_state=sampled_inputs, model_pipeline=model_pipeline)
+
+
+def evaluate_variable_scenario_sweep(
+        variables: dict,
+        selected_variable: str,
+        target_values: Sequence[float],
+        model_pipeline: list
+) -> list[dict]:
+    """
+    Executes a multi-scenario execution sweep across a range of target values for a single
+    isolated variable, maintaining strict ceteris paribus (all else held constant) conditions.
+
+    Args:
+        variables (dict): Map of string tokens to stateful Variable domain instances.
+        selected_variable (str): The unique identifier key of the variable being isolated.
+        target_values (Sequence[float]): An iterable sequence of numeric scenarios (e.g., list or np.ndarray).
+        model_pipeline (list): Explicit, ordered sequence of model classes to execute.
+
+    Returns:
+        list[dict]: A sequence of fully evaluated state dictionaries corresponding to each scenario step.
+    """
+    # 1. Capture full baseline model environment locked at expected values
+    baseline_inputs = {var_name: var_obj.get_value() for var_name, var_obj in variables.items()}
+
+    # 2. Iteratively inject scenario values and evaluate the pipeline
+    scenario_inputs = [{**baseline_inputs, selected_variable: val} for val in target_values]
+
+    return [evaluate_chained_models(scen, model_pipeline) for scen in scenario_inputs]
+
+
+def evaluate_expected_scenario(
+        variables: dict,
+        model_pipeline: list
+) -> dict:
+    """
+    Executes a single static pipeline evaluation using the baseline expected values
+    of all registered variables.
+
+    This acts as the deterministic operational benchmark for the system. It extracts
+    the current expectation state from each Variable object to construct a baseline
+    input context, runs it through the ordered model steps, and returns the resulting
+    system state.
+
+    Args:
+        variables (dict): Map of string tokens to stateful Variable domain instances.
+        model_pipeline (list): Explicit, ordered sequence of model classes to execute.
+
+    Returns:
+        dict: A clean, isolated state dictionary representing the fully evaluated
+              expected baseline scenario.
+    """
+    input_variable = {var_name: var_obj.get_value() for var_name, var_obj in variables.items()}
+    return evaluate_chained_models(input_variable, model_pipeline)
