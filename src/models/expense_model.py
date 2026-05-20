@@ -12,11 +12,9 @@ def calculate_total_expense(**kwargs) -> dict:
     Args:
         **kwargs: Arbitrary keyword arguments containing mathematical tracking metrics:
 
-            Mandatory Keys:
-                MONTHS (int/float): The duration factor representing the fiscal timeline
-                    horizon being evaluated (e.g., 3 for quarterly, 12 for annual).
-
             Optional Keys:
+                MONTHS (int/float, optional): The duration factor representing the fiscal timeline
+                    horizon being evaluated (e.g., 3 for quarterly, 12 for annual). Defaults to 12.
                 EXPENSE_MONTHLY_RENT (float, optional): Monthly real estate lease fees. Defaults to 0.0.
                 EXPENSE_RENDER_FEE (float, optional): Monthly infrastructure/rendering overhead. Defaults to 0.0.
                 EXPENSE_TRAVEL_FEE (float, optional): Monthly team travel allowances. Defaults to 0.0.
@@ -25,10 +23,8 @@ def calculate_total_expense(**kwargs) -> dict:
         dict: A dictionary mapping the duration-scaled operating expenses directly to the source-of-truth registry.
             Example: {"Expense": 24000.0}
     """
-    # Enforce strict execution context timeline bounds
-    months = kwargs[variable_names.MONTHS]
-
-    # Safely pull operational buckets, dropping back to 0.0 if not considered for this analysis
+    # Safely pull operational buckets, dropping back to default metrics if not considered for this analysis
+    months = kwargs.get(variable_names.MONTHS, 12)
     monthly_rent = kwargs.get(variable_names.EXPENSE_MONTHLY_RENT, 0.0)
     monthly_render_fee = kwargs.get(variable_names.EXPENSE_RENDER_FEE, 0.0)
     monthly_travel_fee = kwargs.get(variable_names.EXPENSE_TRAVEL_FEE, 0.0)
@@ -59,12 +55,12 @@ class ExpenseModel(Model):
         self._model_function = calculate_total_expense
         self._output_names = [variable_names.EXPENSE]
 
-        # Enforcing time controls as mandatory while leaving line-items flexible
-        self._required_variables = [
-            variable_names.MONTHS
-        ]
+        # All variables are now optional to support rapid, zero-overhead baseline testing
+        self._required_variables = []
+
         self._optional_variables = [
             variable_names.EXPENSE_MONTHLY_RENT,
             variable_names.EXPENSE_RENDER_FEE,
-            variable_names.EXPENSE_TRAVEL_FEE
+            variable_names.EXPENSE_TRAVEL_FEE,
+            variable_names.MONTHS
         ]

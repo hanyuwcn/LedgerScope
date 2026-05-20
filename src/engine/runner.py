@@ -48,6 +48,31 @@ def evaluate_chained_models(runtime_state: dict, model_pipeline: list) -> dict:
     return current_state
 
 
+def evaluate_expected_scenario(
+        variables: dict,
+        model_pipeline: list
+) -> dict:
+    """
+    Executes a single static pipeline evaluation using the baseline expected values
+    of all registered variables.
+
+    This acts as the deterministic operational benchmark for the system. It extracts
+    the current expectation state from each Variable object to construct a baseline
+    input context, runs it through the ordered model steps, and returns the resulting
+    system state.
+
+    Args:
+        variables (dict): Map of string tokens to stateful Variable domain instances.
+        model_pipeline (list): Explicit, ordered sequence of model classes to execute.
+
+    Returns:
+        dict: A clean, isolated state dictionary representing the fully evaluated
+              expected baseline scenario.
+    """
+    input_variable = {var_name: var_obj.get_value() for var_name, var_obj in variables.items()}
+    return evaluate_chained_models(input_variable, model_pipeline)
+
+
 def evaluate_stochastic_iteration(variables: dict, shuffled_inputs: list[str], model_pipeline: list) -> dict:
     """
     Samples a single randomized parameter snapshot environment by shuffling designated
@@ -103,28 +128,3 @@ def evaluate_variable_scenario_sweep(
     scenario_inputs = [{**baseline_inputs, selected_variable: val} for val in target_values]
 
     return [evaluate_chained_models(scen, model_pipeline) for scen in scenario_inputs]
-
-
-def evaluate_expected_scenario(
-        variables: dict,
-        model_pipeline: list
-) -> dict:
-    """
-    Executes a single static pipeline evaluation using the baseline expected values
-    of all registered variables.
-
-    This acts as the deterministic operational benchmark for the system. It extracts
-    the current expectation state from each Variable object to construct a baseline
-    input context, runs it through the ordered model steps, and returns the resulting
-    system state.
-
-    Args:
-        variables (dict): Map of string tokens to stateful Variable domain instances.
-        model_pipeline (list): Explicit, ordered sequence of model classes to execute.
-
-    Returns:
-        dict: A clean, isolated state dictionary representing the fully evaluated
-              expected baseline scenario.
-    """
-    input_variable = {var_name: var_obj.get_value() for var_name, var_obj in variables.items()}
-    return evaluate_chained_models(input_variable, model_pipeline)

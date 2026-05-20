@@ -26,10 +26,10 @@ def calculate_total_cost(**kwargs) -> dict:
             Example: {"Cost": 12500.0}
     """
     cogs = kwargs[variable_names.COST_COGS]
-    ads_cost = kwargs[variable_names.COST_ADVERTISING]
 
     # Safely drops back to 0.0 if the business model defaults shipping coverage to customers
     shipping_cost = kwargs.get(variable_names.COST_SHIPPING, 0.0)
+    ads_cost = kwargs.get(variable_names.COST_ADVERTISING, 0.0)
 
     calculated_cost = cogs + ads_cost + shipping_cost
 
@@ -58,9 +58,9 @@ class TotalCostModel(Model):
 
         # Establishing dependencies for the pipeline layer
         self._required_variables = [
-            variable_names.COST_COGS,
-            variable_names.COST_ADVERTISING
+            variable_names.COST_COGS
         ]
         self._optional_variables = [
+            variable_names.COST_ADVERTISING,
             variable_names.COST_SHIPPING
         ]

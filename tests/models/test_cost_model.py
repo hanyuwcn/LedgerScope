@@ -25,11 +25,11 @@ class TestTotalCostModel(unittest.TestCase):
         # Verify explicit required and optional variable signature bounds
         self.assertEqual(
             model.required_variables,
-            [variable_names.COST_COGS, variable_names.COST_ADVERTISING]
+            [variable_names.COST_COGS]
         )
         self.assertEqual(
             model.optional_variables,
-            [variable_names.COST_SHIPPING]
+            [variable_names.COST_ADVERTISING, variable_names.COST_SHIPPING]
         )
 
     # -----------------------------------------------------------------

@@ -74,7 +74,7 @@ def get_break_even_analysis_for_one_variable(variables: dict, selected_variable:
 
     variable_analysis_report[variable_names.BREAK_EVEN_EXPECTED_VARIABLE_VALUE] = expected_variable_val
     variable_analysis_report[variable_names.BREAK_EVEN_EXPECTED_RESULT] = \
-    evaluate_expected_scenario(variables, model_pipeline)[output_name]
+        evaluate_expected_scenario(variables, model_pipeline)[output_name]
 
     # 2. Simulate range scenarios for the target variable
     variable_test_range = variables[selected_variable].get_range_values(num=settings.NUMS_IN_RANGE)

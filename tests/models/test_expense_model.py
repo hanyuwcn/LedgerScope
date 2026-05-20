@@ -25,14 +25,15 @@ class TestExpenseModel(unittest.TestCase):
         # Verify explicit required and optional variable signature bounds
         self.assertEqual(
             model.required_variables,
-            [variable_names.MONTHS]
+            []
         )
         self.assertEqual(
             model.optional_variables,
             [
                 variable_names.EXPENSE_MONTHLY_RENT,
                 variable_names.EXPENSE_RENDER_FEE,
-                variable_names.EXPENSE_TRAVEL_FEE
+                variable_names.EXPENSE_TRAVEL_FEE,
+                variable_names.MONTHS
             ]
         )
 
@@ -119,30 +120,11 @@ class TestExpenseModel(unittest.TestCase):
         mock_log.info.assert_not_called()
 
     @patch('src.core.base_model.log')
-    def test_check_variables_missing_required_logs_error_and_raises(self, mock_log):
-        """Verify check_variables logs errors and safely raises a KeyError if a requirement is absent."""
-        incomplete_inputs = {
-            variable_names.EXPENSE_MONTHLY_RENT: 2000.0
-            # Missing required variable_names.MONTHS timeline anchor!
-        }
-        model = ExpenseModel(incomplete_inputs)
+    def test_check_variables_passes_perfectly_with_completely_empty_inputs(self, mock_log):
+        """Verify check_variables logs informational alerts for optional parameters but executes without errors since nothing is mandatory."""
+        model = ExpenseModel(input_variables={})
 
-        with self.assertRaises(KeyError):
-            model.check_variables()
-
-        # Confirm structural failure logs successfully hit the logging path
-        mock_log.error.assert_called_once()
-
-    @patch('src.core.base_model.log')
-    def test_check_variables_missing_optional_logs_informational_alert(self, mock_log):
-        """Verify check_variables logs an informational trace but passes when optional metrics are absent."""
-        valid_inputs_no_optional = {
-            variable_names.MONTHS: 12
-            # Optional cost parameters are omitted intentionally!
-        }
-        model = ExpenseModel(valid_inputs_no_optional)
-
-        # Should log info alerts but verify safely without raising processing failures
+        # Because everything is optional, this must run cleanly without error
         model.check_variables()
         mock_log.error.assert_not_called()
         mock_log.info.assert_called()
@@ -152,7 +134,7 @@ class TestExpenseModel(unittest.TestCase):
     # -----------------------------------------------------------------
 
     def test_evaluate_annual_expenses_with_full_parameters(self):
-        """Verify standard 12-month annual cost scaling works perfectly."""
+        """Verify standard 12-month annual cost scaling works perfectly when explicitly provided."""
         inputs = {
             variable_names.MONTHS: 12,
             variable_names.EXPENSE_MONTHLY_RENT: 2000.0,
@@ -167,6 +149,19 @@ class TestExpenseModel(unittest.TestCase):
 
         # Ensure the in-place reference match holds true
         self.assertIs(enriched_output, model.input_variables)
+
+    def test_evaluate_uses_implicit_twelve_month_default_when_months_is_omitted(self):
+        """Verify that omitting the MONTHS variable defaults implicitly to a 12-month scaling horizon."""
+        inputs = {
+            variable_names.EXPENSE_MONTHLY_RENT: 2000.0,
+            variable_names.EXPENSE_RENDER_FEE: 500.0,
+            variable_names.EXPENSE_TRAVEL_FEE: 300.0
+        }
+        model = ExpenseModel(inputs)
+        enriched_output = model.evaluate()
+
+        # Math verification: (2000 + 500 + 300) * 12 [default] = 2800 * 12 = 33600.0
+        self.assertEqual(enriched_output[variable_names.EXPENSE], 33600.0)
 
     def test_evaluate_quarterly_expenses_with_partial_inputs(self):
         """Verify that scaling adapts dynamically to a 3-month quarterly shift with omitted fields."""
@@ -191,17 +186,6 @@ class TestExpenseModel(unittest.TestCase):
 
         # Math verification: (0 + 0 + 0) * 6 = 0.0
         self.assertEqual(enriched_output[variable_names.EXPENSE], 0.0)
-
-    def test_evaluate_missing_months_timeline_anchor_raises_key_error(self):
-        """Verify that omitting the required pipeline time horizon triggers standard validation warnings."""
-        incomplete_inputs = {
-            variable_names.EXPENSE_MONTHLY_RENT: 1500.0
-            # Missing MONTHS constraint!
-        }
-        model = ExpenseModel(incomplete_inputs)
-
-        with self.assertRaises(KeyError):
-            model.evaluate()
 
 
 if __name__ == "__main__":

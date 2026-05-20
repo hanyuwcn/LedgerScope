@@ -57,6 +57,9 @@ def stochastic_bivariate_simulation(
         simulated_x_distribution.append(runtime_state[independent_target_x])
         simulated_y_distribution.append(runtime_state[dependent_target_y])
 
+    print(simulated_x_distribution)
+    print(simulated_y_distribution)
+
     # Run linear trend post-analysis over generated datasets
     linear_trend_summary = _analyze_linear_trend_properties(
         x_values=simulated_x_distribution,
