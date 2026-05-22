@@ -24,9 +24,11 @@ class MockRevenueModel(Model):
             variable_names.DEAL_ORDERS,
             variable_names.DEAL_SELLING_PRICE
         ]
-        self._optional_variables = [
-            variable_names.FINANCE_TAX_RATE
-        ]
+
+        # Mapped to their default fallback values to support runtime lookups
+        self._optional_variables = {
+            variable_names.FINANCE_TAX_RATE: 0.2
+        }
 
         # Enforcing single source of truth keys for computational outputs
         self._output_names = [
@@ -35,16 +37,18 @@ class MockRevenueModel(Model):
         ]
         self._model_function = self._calculate_revenue
 
-    def _calculate_revenue(self, **kwargs) -> dict:
+    def _calculate_revenue(self, optional_variables: dict, **kwargs) -> dict:
         """
         Dynamically extracts parameters via keyword arguments mapping directly
-        to the global configuration variable names.
+        to the global configuration variable names. Receives the base model's
+        optional variable registry as its first parameter.
         """
         orders = kwargs[variable_names.DEAL_ORDERS]
         selling_price = kwargs[variable_names.DEAL_SELLING_PRICE]
 
-        # Fallback to an internal default metric if the optional tax parameter is omitted
-        tax_rate = kwargs.get(variable_names.FINANCE_TAX_RATE, 0.2)
+        # Fallback dynamically to the passed dictionary default if omitted from inputs
+        default_tax = optional_variables[variable_names.FINANCE_TAX_RATE]
+        tax_rate = kwargs.get(variable_names.FINANCE_TAX_RATE, default_tax)
 
         raw_revenue = orders * selling_price
         net_profit = raw_revenue * (1 - tax_rate)
@@ -87,6 +91,19 @@ class TestBaseModelArchitecture(unittest.TestCase):
         model = MockRevenueModel()
         expected_outputs = [variable_names.REVENUE, variable_names.PROFIT]
         self.assertEqual(model.output_names, expected_outputs)
+
+    def test_internal_optional_variables_is_dict(self):
+        """Verify underlying storage for optional variables transitioned cleanly to a dictionary mapping."""
+        model = MockRevenueModel()
+        self.assertIsInstance(model._optional_variables, dict)
+        self.assertEqual(model._optional_variables[variable_names.FINANCE_TAX_RATE], 0.2)
+
+    def test_public_optional_variables_returns_list_keys(self):
+        """Verify public contract exposes a flat list of keys preserving backward compatibility."""
+        model = MockRevenueModel()
+        expected_list = [variable_names.FINANCE_TAX_RATE]
+        self.assertIsInstance(model.optional_variables, list)
+        self.assertEqual(model.optional_variables, expected_list)
 
     # -----------------------------------------------------------------
     # 2. PROPERTY GETTER & SETTER TESTS (THE CURRENT CONTRACT)

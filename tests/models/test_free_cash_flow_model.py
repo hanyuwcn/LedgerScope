@@ -22,16 +22,32 @@ class TestFreeCashFlowModel(unittest.TestCase):
         # Verify exact registered calculation footprint signatures
         self.assertEqual(model.output_names, [variable_names.FREE_CASH_FLOW])
 
-        # Verify explicit required and optional variable signature bounds
+        # Verify explicit required variable signature bounds (now lean)
         self.assertEqual(
             model.required_variables,
-            [
-                variable_names.NET_INCOME,
+            [variable_names.NET_INCOME]
+        )
+
+        # Verify optional variable signature bounds align with default dictionary keys
+        self.assertEqual(
+            sorted(model.optional_variables),
+            sorted([
                 variable_names.DEPRECIATION,
                 variable_names.CAPITAL_EXPENDITURE
-            ]
+            ])
         )
-        self.assertEqual(model.optional_variables, [])
+
+    def test_internal_optional_variables_is_dict(self):
+        """Verify underlying storage for optional variables matches the dictionary footprint."""
+        model = FreeCashFlowModel()
+        self.assertIsInstance(model._optional_variables, dict)
+        self.assertEqual(
+            model._optional_variables,
+            {
+                variable_names.DEPRECIATION: 0.0,
+                variable_names.CAPITAL_EXPENDITURE: 0.0
+            }
+        )
 
     # -----------------------------------------------------------------
     # 2. STATE DICTIONARY GETTER & SETTER PROPERTIES
@@ -81,7 +97,7 @@ class TestFreeCashFlowModel(unittest.TestCase):
                 self.name = variable_names.DEPRECIATION
                 self.expected_value = 3500.0
 
-        model.update_input_variable(DuckTypeA())
+        model.update_update_input_variable = model.update_input_variable(DuckTypeA())
         self.assertEqual(model.input_variables[variable_names.DEPRECIATION], 3500.0)
 
         # Context C: Structural duck-typed object validation Type B (.get_name(), .get_value())
@@ -116,11 +132,10 @@ class TestFreeCashFlowModel(unittest.TestCase):
 
     @patch('src.core.base_model.log')
     def test_check_variables_missing_required_logs_error_and_raises(self, mock_log):
-        """Verify check_variables logs errors and safely raises a KeyError if a requirement is absent."""
+        """Verify check_variables logs errors and safely raises a KeyError if net income is absent."""
         incomplete_inputs = {
-            variable_names.NET_INCOME: 20000.0,
             variable_names.DEPRECIATION: 3000.0
-            # Missing required variable_names.CAPITAL_EXPENDITURE!
+            # Missing strictly required variable_names.NET_INCOME!
         }
         model = FreeCashFlowModel(incomplete_inputs)
 
@@ -132,23 +147,32 @@ class TestFreeCashFlowModel(unittest.TestCase):
 
     @patch('src.core.base_model.log')
     def test_check_variables_missing_optional_logs_informational_alert(self, mock_log):
-        """Verify check_variables behaves predictably when verifying parameters.
-
-        Note: If this model contains no optional execution paths, it defaults to confirming
-        the required variables and verifying that no unintended system logs are recorded.
-        """
+        """Verify check_variables logs informational traces when optional asset metrics are absent."""
         inputs = {
-            variable_names.NET_INCOME: 20000.0,
-            variable_names.DEPRECIATION: 3000.0,
-            variable_names.CAPITAL_EXPENDITURE: 5000.0
+            variable_names.NET_INCOME: 20000.0
+            # Missing optional fields (DEPRECIATION, CAPITAL_EXPENDITURE)
         }
         model = FreeCashFlowModel(inputs)
         model.check_variables()
+
         mock_log.error.assert_not_called()
+        self.assertTrue(mock_log.info.called)
 
     # -----------------------------------------------------------------
     # 5. RUNTIME CALCULATIONS & VALIDATION PASS TESTS
     # -----------------------------------------------------------------
+
+    def test_evaluate_asset_light_defaults_without_optional_parameters(self):
+        """Verify cash flow evaluates accurately using fallback zero defaults for asset-light forecasts."""
+        inputs = {
+            variable_names.NET_INCOME: 15000.0
+            # Optional DEPRECIATION and CAPITAL_EXPENDITURE omitted intentionally
+        }
+        model = FreeCashFlowModel(inputs)
+        enriched_output = model.evaluate()
+
+        # Math verification: 15000.0 + 0.0 - 0.0 = 15000.0
+        self.assertEqual(enriched_output[variable_names.FREE_CASH_FLOW], 15000.0)
 
     def test_evaluate_standard_positive_free_cash_flow(self):
         """Verify cash flow reconciles correctly when net income and depreciation outpace CapEx."""
@@ -180,11 +204,11 @@ class TestFreeCashFlowModel(unittest.TestCase):
         self.assertEqual(enriched_output[variable_names.FREE_CASH_FLOW], -8000.0)
 
     def test_missing_required_variables_halts_execution(self):
-        """Verify that omitting an structural asset variable triggers an engine error block."""
+        """Verify that omitting a structural calculation anchor like net income triggers a KeyError."""
         incomplete_inputs = {
-            variable_names.NET_INCOME: 15000.0,
-            variable_names.DEPRECIATION: 2000.0
-            # Missing CAPITAL_EXPENDITURE!
+            variable_names.DEPRECIATION: 2000.0,
+            variable_names.CAPITAL_EXPENDITURE: 0.0
+            # Missing NET_INCOME!
         }
         model = FreeCashFlowModel(incomplete_inputs)
 

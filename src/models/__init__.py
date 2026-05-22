@@ -14,7 +14,7 @@ from .cost_model import TotalCostModel
 from .cost_of_goods_sold_model import CostOfGoodsSoldModel
 # 2. Asset & Operational Cost Aggregators
 from .depreciation_model import DepreciationModel
-from .expense_model import ExpenseModel
+from .expense_model import TotalExpenseModel
 from .free_cash_flow_model import FreeCashFlowModel
 from .net_income_model import NetIncomeModel
 from .profit_model import ProfitModel
@@ -31,7 +31,7 @@ __all__ = [
     "DepreciationModel",
     "CapitalExpenditureModel",
     "CostOfGoodsSoldModel",
-    "ExpenseModel",
+    "TotalExpenseModel",
     "TotalCostModel",
 
     # Metrics / Ratios

@@ -2,7 +2,7 @@ from src.config import variable_names
 from src.core.base_model import Model
 
 
-def calculate_total_cost(**kwargs) -> dict:
+def calculate_total_cost(optional_variables: dict, **kwargs) -> dict:
     """
     Calculates the consolidated total operating cost for the business lifecycle step.
 
@@ -10,16 +10,15 @@ def calculate_total_cost(**kwargs) -> dict:
         Cost = Cogs + AdvertisingCost + ShippingCost
 
     Args:
+        optional_variables (dict): Mapped configuration containing default parameter fallbacks.
         **kwargs: Arbitrary keyword arguments containing required calculation metrics:
 
             Mandatory Keys:
                 COST_COGS (float): Total Cost of Goods Sold evaluated from product supply chains.
-                COST_ADVERTISING (float): Total budget allocated toward marketing/customer acquisition channels.
 
             Optional Keys:
+                COST_ADVERTISING (float, optional): Total budget allocated toward marketing channels.
                 COST_SHIPPING (float, optional): Operational shipping and fulfillment expenses.
-                    Defaults safely to 0.0 under the standard operational assumption that end
-                    consumers cover fulfillment fees out-of-pocket.
 
     Returns:
         dict: A dictionary mapping the consolidated cost calculations directly to the central tracking constant.
@@ -27,9 +26,13 @@ def calculate_total_cost(**kwargs) -> dict:
     """
     cogs = kwargs[variable_names.COST_COGS]
 
-    # Safely drops back to 0.0 if the business model defaults shipping coverage to customers
-    shipping_cost = kwargs.get(variable_names.COST_SHIPPING, 0.0)
-    ads_cost = kwargs.get(variable_names.COST_ADVERTISING, 0.0)
+    # Extract default fallback parameter bounds directly out of the configuration registry map
+    default_ads_cost = optional_variables[variable_names.COST_ADVERTISING]
+    default_shipping_cost = optional_variables[variable_names.COST_SHIPPING]
+
+    # Dynamically extract values from active runtime args or fallback safely to 0.0
+    ads_cost = kwargs.get(variable_names.COST_ADVERTISING, default_ads_cost)
+    shipping_cost = kwargs.get(variable_names.COST_SHIPPING, default_shipping_cost)
 
     calculated_cost = cogs + ads_cost + shipping_cost
 
@@ -40,6 +43,21 @@ class TotalCostModel(Model):
     """
     Pipeline calculation block responsible for aggregating raw product, marketing,
     and logistical fulfillment fees into a centralized total cost metric.
+
+    Description:
+        This model serves as an aggregation point for the core variable cost elements of the
+        operational cycle. It unifies baseline product procurement expenses, customer acquisition
+        outlays, and final-mile transport logistics into an all-inclusive cost figure. This
+        consolidated output is critically essential for down-funnel net margin profiling and
+        bottom-line profit modeling.
+
+    Calculation Equation:
+        total cost = Cost of goods sold + cost of advertising spend + cost of shipping
+
+        Where:
+        - "Cost of goods sold" maps to COST_COGS
+        - "cost of advertising spend" maps to COST_ADVERTISING
+        - "cost of shipping" maps to COST_SHIPPING
     """
 
     def __init__(self, input_variables: dict = None):
@@ -60,7 +78,9 @@ class TotalCostModel(Model):
         self._required_variables = [
             variable_names.COST_COGS
         ]
-        self._optional_variables = [
-            variable_names.COST_ADVERTISING,
-            variable_names.COST_SHIPPING
-        ]
+
+        # Migrated from standard list footprint to map defaults transparently to 0.0
+        self._optional_variables = {
+            variable_names.COST_ADVERTISING: 0.0,
+            variable_names.COST_SHIPPING: 0.0
+        }

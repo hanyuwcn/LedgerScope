@@ -2,7 +2,7 @@ from src.config import variable_names
 from src.core.base_model import Model
 
 
-def calculate_revenue(**kwargs) -> dict:
+def calculate_revenue(optional_variables: dict, **kwargs) -> dict:
     """
     Calculates the gross top-line operational revenue for the specific transactional cycle.
 
@@ -10,6 +10,7 @@ def calculate_revenue(**kwargs) -> dict:
         Revenue = SellingPrice * Orders * ItemsPerOrder * USDToRMB
 
     Args:
+        optional_variables (dict): Mapped configuration containing default parameter fallbacks.
         **kwargs: Arbitrary keyword arguments containing required mathematical inputs:
 
             Mandatory Keys:
@@ -20,7 +21,7 @@ def calculate_revenue(**kwargs) -> dict:
             Optional Keys:
                 FINANCE_USD_TO_RMB (float, optional): Cross-border currency conversion rate.
                     Utilized to scale top-line metrics if pricing values are tracked in USD but
-                    the ledger currency is localized to RMB. Defaults safely to 1.0 if omitted.
+                    the ledger currency is localized to RMB.
 
     Returns:
         dict: A dictionary mapping the calculated gross top-line revenue to its source-of-truth registry key.
@@ -30,8 +31,9 @@ def calculate_revenue(**kwargs) -> dict:
     orders = kwargs[variable_names.DEAL_ORDERS]
     items_per_order = kwargs[variable_names.DEAL_ITEMS_PER_ORDER]
 
-    # Defaults to 1.0 if the calculations remain purely within a single domestic currency field
-    usd_to_rmb = kwargs.get(variable_names.FINANCE_USD_TO_RMB, 1.0)
+    # Pull the default fallback exchange rate from the base configuration parameter registry
+    default_usd_to_rmb = optional_variables[variable_names.FINANCE_USD_TO_RMB]
+    usd_to_rmb = kwargs.get(variable_names.FINANCE_USD_TO_RMB, default_usd_to_rmb)
 
     calculated_revenue = selling_price * orders * items_per_order * usd_to_rmb
 
@@ -42,6 +44,21 @@ class RevenueModel(Model):
     """
     Pipeline calculation block responsible for translating sales volumes and item-level pricing
     structures into a consolidated top-line gross revenue metric.
+
+    Description:
+        This model aggregates incoming purchase signals and transactional density profiles to
+        compute top-line operating inflows. By factoring in unit volume volumes and pricing
+        denominations, it builds a standardized gross intake baseline used subsequently by tax,
+        profitability, and margin expansion evaluation models downstream.
+
+    Calculation Equation:
+        Revenue = numbers of orders * number of items per order * average sellingPrice
+
+        Where:
+        - "numbers of orders" maps to DEAL_ORDERS
+        - "number of items per order" maps to DEAL_ITEMS_PER_ORDER
+        - "average sellingPrice" maps to DEAL_SELLING_PRICE
+        - Note: The formula also integrates FINANCE_USD_TO_RMB to handle cross-border localization.
     """
 
     def __init__(self, input_variables: dict = None):
@@ -64,6 +81,8 @@ class RevenueModel(Model):
             variable_names.DEAL_ORDERS,
             variable_names.DEAL_ITEMS_PER_ORDER
         ]
-        self._optional_variables = [
-            variable_names.FINANCE_USD_TO_RMB
-        ]
+
+        # Migrated from standard list footprint to map defaults transparently
+        self._optional_variables = {
+            variable_names.FINANCE_USD_TO_RMB: 1.0
+        }

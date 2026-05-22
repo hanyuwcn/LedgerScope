@@ -2,10 +2,10 @@ import unittest
 from unittest.mock import patch
 
 from src.config import variable_names
-from src.models import ExpenseModel
+from src.models import TotalExpenseModel
 
 
-class TestExpenseModel(unittest.TestCase):
+class TestTotalExpenseModel(unittest.TestCase):
 
     # -----------------------------------------------------------------
     # 1. INITIALIZATION & METADATA GETTER PATHS
@@ -13,7 +13,7 @@ class TestExpenseModel(unittest.TestCase):
 
     def test_structural_getters_and_outputs_initialize_correctly(self):
         """Verify tracking metadata bounds, output configurations, and initial state mappings."""
-        model = ExpenseModel()
+        model = TotalExpenseModel()
 
         # Verify initial dictionary state is isolated and empty
         self.assertEqual(model.input_variables, {})
@@ -22,19 +22,21 @@ class TestExpenseModel(unittest.TestCase):
         # Verify exact registered calculation footprint signatures
         self.assertEqual(model.output_names, [variable_names.EXPENSE])
 
-        # Verify explicit required and optional variable signature bounds
+        # Verify explicit required variable signature bounds are empty
+        self.assertEqual(model.required_variables, [])
+
+    def test_internal_optional_variables_is_dict(self):
+        """Verify underlying storage for optional variables matches the dictionary mapping format."""
+        model = TotalExpenseModel()
+        self.assertIsInstance(model._optional_variables, dict)
         self.assertEqual(
-            model.required_variables,
-            []
-        )
-        self.assertEqual(
-            model.optional_variables,
-            [
-                variable_names.EXPENSE_MONTHLY_RENT,
-                variable_names.EXPENSE_RENDER_FEE,
-                variable_names.EXPENSE_TRAVEL_FEE,
-                variable_names.MONTHS
-            ]
+            model._optional_variables,
+            {
+                variable_names.EXPENSE_MONTHLY_RENT: 0.0,
+                variable_names.EXPENSE_RENDER_FEE: 0.0,
+                variable_names.EXPENSE_TRAVEL_FEE: 0.0,
+                variable_names.MONTHS: 12
+            }
         )
 
     # -----------------------------------------------------------------
@@ -43,7 +45,7 @@ class TestExpenseModel(unittest.TestCase):
 
     def test_input_variables_property_setter_happy_path(self):
         """Verify the property setter completely updates the operational variable context."""
-        model = ExpenseModel()
+        model = TotalExpenseModel()
         fresh_inputs = {
             variable_names.MONTHS: 12,
             variable_names.EXPENSE_MONTHLY_RENT: 2000.0,
@@ -60,7 +62,7 @@ class TestExpenseModel(unittest.TestCase):
     def test_input_variables_property_setter_none_defensive_fallback(self):
         """Verify setting input_variables context to None resets state safely to an empty dictionary."""
         initial_inputs = {variable_names.MONTHS: 6}
-        model = ExpenseModel(initial_inputs)
+        model = TotalExpenseModel(initial_inputs)
 
         # Set context strictly to None to test the defensive barrier
         model.input_variables = None
@@ -73,7 +75,7 @@ class TestExpenseModel(unittest.TestCase):
 
     def test_individual_variable_update_and_polymorphic_duck_typing(self):
         """Verify individual variable injection works via standard keys and structural objects."""
-        model = ExpenseModel()
+        model = TotalExpenseModel()
 
         # Context A: Explicit string key variable modification
         model.update_input_variable(variable_names.MONTHS, 24)
@@ -112,7 +114,7 @@ class TestExpenseModel(unittest.TestCase):
             variable_names.EXPENSE_RENDER_FEE: 500.0,
             variable_names.EXPENSE_TRAVEL_FEE: 300.0
         }
-        model = ExpenseModel(inputs)
+        model = TotalExpenseModel(inputs)
 
         # Should execute cleanly without throwing errors or recording telemetry failures
         model.check_variables()
@@ -122,7 +124,7 @@ class TestExpenseModel(unittest.TestCase):
     @patch('src.core.base_model.log')
     def test_check_variables_passes_perfectly_with_completely_empty_inputs(self, mock_log):
         """Verify check_variables logs informational alerts for optional parameters but executes without errors since nothing is mandatory."""
-        model = ExpenseModel(input_variables={})
+        model = TotalExpenseModel(input_variables={})
 
         # Because everything is optional, this must run cleanly without error
         model.check_variables()
@@ -141,10 +143,10 @@ class TestExpenseModel(unittest.TestCase):
             variable_names.EXPENSE_RENDER_FEE: 500.0,
             variable_names.EXPENSE_TRAVEL_FEE: 300.0
         }
-        model = ExpenseModel(inputs)
+        model = TotalExpenseModel(inputs)
         enriched_output = model.evaluate()
 
-        # Math verification: (2000 + 500 + 300) * 12 = 2800 * 12 = 33600.0
+        # Math validation: (2000 + 500 + 300) * 12 = 2800 * 12 = 33600.0
         self.assertEqual(enriched_output[variable_names.EXPENSE], 33600.0)
 
         # Ensure the in-place reference match holds true
@@ -157,10 +159,10 @@ class TestExpenseModel(unittest.TestCase):
             variable_names.EXPENSE_RENDER_FEE: 500.0,
             variable_names.EXPENSE_TRAVEL_FEE: 300.0
         }
-        model = ExpenseModel(inputs)
+        model = TotalExpenseModel(inputs)
         enriched_output = model.evaluate()
 
-        # Math verification: (2000 + 500 + 300) * 12 [default] = 2800 * 12 = 33600.0
+        # Math validation: (2000 + 500 + 300) * 12 [default] = 2800 * 12 = 33600.0
         self.assertEqual(enriched_output[variable_names.EXPENSE], 33600.0)
 
     def test_evaluate_quarterly_expenses_with_partial_inputs(self):
@@ -170,10 +172,10 @@ class TestExpenseModel(unittest.TestCase):
             variable_names.EXPENSE_MONTHLY_RENT: 1500.0
             # Render and Travel are omitted intentionally to act as zero-fallbacks
         }
-        model = ExpenseModel(inputs)
+        model = TotalExpenseModel(inputs)
         enriched_output = model.evaluate()
 
-        # Math verification: (1500 + 0 + 0) * 3 = 4500.0
+        # Math validation: (1500 + 0 + 0) * 3 = 4500.0
         self.assertEqual(enriched_output[variable_names.EXPENSE], 4500.0)
 
     def test_evaluate_fallback_when_all_expenses_are_zeroed(self):
@@ -181,10 +183,10 @@ class TestExpenseModel(unittest.TestCase):
         inputs = {
             variable_names.MONTHS: 6
         }
-        model = ExpenseModel(inputs)
+        model = TotalExpenseModel(inputs)
         enriched_output = model.evaluate()
 
-        # Math verification: (0 + 0 + 0) * 6 = 0.0
+        # Math validation: (0 + 0 + 0) * 6 = 0.0
         self.assertEqual(enriched_output[variable_names.EXPENSE], 0.0)
 
 

@@ -22,17 +22,35 @@ class TestRoiModel(unittest.TestCase):
         # Verify exact registered calculation footprint signatures
         self.assertEqual(model.output_names, [variable_names.ROI])
 
-        # Verify explicit required and optional variable signature bounds
+        # Verify explicit required variable signature bounds (now lean)
         self.assertEqual(
             model.required_variables,
             [
                 variable_names.NET_INCOME,
-                variable_names.COST,
-                variable_names.EXPENSE,
-                variable_names.CAPITAL_EXPENDITURE
+                variable_names.COST
             ]
         )
-        self.assertEqual(model.optional_variables, [])
+
+        # Verify optional variable signature bounds capture all infrastructure overhead constants
+        self.assertEqual(
+            sorted(model.optional_variables),
+            sorted([
+                variable_names.EXPENSE,
+                variable_names.CAPITAL_EXPENDITURE
+            ])
+        )
+
+    def test_internal_optional_variables_is_dict(self):
+        """Verify underlying storage for optional variables matches the dictionary footprint."""
+        model = RoiModel()
+        self.assertIsInstance(model._optional_variables, dict)
+        self.assertEqual(
+            model._optional_variables,
+            {
+                variable_names.EXPENSE: 0.0,
+                variable_names.CAPITAL_EXPENDITURE: 0.0
+            }
+        )
 
     # -----------------------------------------------------------------
     # 2. STATE DICTIONARY GETTER & SETTER PROPERTIES
@@ -119,11 +137,10 @@ class TestRoiModel(unittest.TestCase):
 
     @patch('src.core.base_model.log')
     def test_check_variables_missing_required_logs_error_and_raises(self, mock_log):
-        """Verify check_variables logs errors and safely raises a KeyError if a requirement is absent."""
+        """Verify check_variables logs errors and safely raises a KeyError if a core requirement is absent."""
         incomplete_inputs = {
-            variable_names.NET_INCOME: 15000.0,
-            variable_names.COST: 20000.0
-            # Missing required EXPENSE and CAPITAL_EXPENDITURE!
+            variable_names.NET_INCOME: 15000.0
+            # Missing strictly required variable_names.COST parameter anchor!
         }
         model = RoiModel(incomplete_inputs)
 
@@ -135,24 +152,35 @@ class TestRoiModel(unittest.TestCase):
 
     @patch('src.core.base_model.log')
     def test_check_variables_missing_optional_logs_informational_alert(self, mock_log):
-        """Verify check_variables behaves predictably when verifying parameters.
-
-        Note: If this model contains no optional execution paths, it defaults to confirming
-        the required variables and verifying that no unintended system logs are recorded.
-        """
+        """Verify check_variables logs informational trace logs when optional parameter layers are absent."""
         inputs = {
             variable_names.NET_INCOME: 15000.0,
-            variable_names.COST: 20000.0,
-            variable_names.EXPENSE: 5000.0,
-            variable_names.CAPITAL_EXPENDITURE: 5000.0
+            variable_names.COST: 20000.0
+            # Optional keys (EXPENSE, CAPITAL_EXPENDITURE) are omitted entirely
         }
         model = RoiModel(inputs)
         model.check_variables()
+
         mock_log.error.assert_not_called()
+        self.assertTrue(mock_log.info.called)
 
     # -----------------------------------------------------------------
     # 5. RUNTIME CALCULATIONS & VALIDATION PASS TESTS
     # -----------------------------------------------------------------
+
+    def test_evaluate_lean_project_roi_without_optional_parameters(self):
+        """Verify calculation works cleanly under zero-overhead lean scenarios using system fallbacks."""
+        inputs = {
+            variable_names.NET_INCOME: 5000.0,
+            variable_names.COST: 10000.0
+            # EXPENSE and CAPITAL_EXPENDITURE omitted intentionally to default to 0.0
+        }
+        model = RoiModel(inputs)
+        enriched_output = model.evaluate()
+
+        # Denominator: 10000 + 0.0 + 0.0 = 10000.0 total outlay
+        # ROI Math: 5000.0 / 10000.0 = 0.5 (50% ROI)
+        self.assertEqual(enriched_output[variable_names.ROI], 0.5)
 
     def test_evaluate_standard_positive_project_roi(self):
         """Verify ROI calculations yield standard positive fractional percentages."""
@@ -202,12 +230,11 @@ class TestRoiModel(unittest.TestCase):
         self.assertEqual(enriched_output[variable_names.ROI], 0.0)
 
     def test_missing_required_variables_halts_execution(self):
-        """Verify that omitting an allocation layer parameter aborts execution processing."""
+        """Verify that omitting a critical core pipeline anchor like Cost halts evaluation runs."""
         incomplete_inputs = {
             variable_names.NET_INCOME: 15000.0,
-            variable_names.COST: 20000.0,
             variable_names.EXPENSE: 5000.0
-            # Missing CAPITAL_EXPENDITURE!
+            # Missing strictly required COST input variable mapping!
         }
         model = RoiModel(incomplete_inputs)
 

@@ -36,6 +36,16 @@ class TestAdvertisingEfficiencyModelComprehensive(unittest.TestCase):
             [variable_names.FINANCE_USD_TO_RMB]
         )
 
+    def test_internal_optional_variables_is_dict(self):
+        """Verify underlying storage for optional variables uses the new dictionary format."""
+        model = AdvertisingEfficiencyModel()
+        self.assertIsInstance(model._optional_variables, dict)
+
+    def test_internal_optional_variables_has_correct_default_value(self):
+        """Verify that the cross-border currency conversion rate defaults to 1.0 inside the map."""
+        model = AdvertisingEfficiencyModel()
+        self.assertEqual(model._optional_variables[variable_names.FINANCE_USD_TO_RMB], 1.0)
+
     # -----------------------------------------------------------------
     # 2. STATE DICTIONARY GETTER & SETTER PROPERTIES
     # -----------------------------------------------------------------

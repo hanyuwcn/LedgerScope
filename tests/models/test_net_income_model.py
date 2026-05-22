@@ -22,19 +22,23 @@ class TestNetIncomeModel(unittest.TestCase):
         # Verify exact registered calculation footprint signatures
         self.assertEqual(model.output_names, [variable_names.NET_INCOME])
 
-        # Verify explicit required and optional variable signature bounds
+        # Verify explicit required variable signature bounds (now lean)
         self.assertEqual(
             model.required_variables,
             [
                 variable_names.REVENUE,
-                variable_names.COST,
-                variable_names.EXPENSE,
-                variable_names.DEPRECIATION
+                variable_names.COST
             ]
         )
+
+        # Verify optional variable signature bounds capture all infrastructure overhead constants
         self.assertEqual(
-            model.optional_variables,
-            [variable_names.FINANCE_TAX_RATE]
+            sorted(model.optional_variables),
+            sorted([
+                variable_names.EXPENSE,
+                variable_names.DEPRECIATION,
+                variable_names.FINANCE_TAX_RATE
+            ])
         )
 
     # -----------------------------------------------------------------
@@ -123,11 +127,10 @@ class TestNetIncomeModel(unittest.TestCase):
 
     @patch('src.core.base_model.log')
     def test_check_variables_missing_required_logs_error_and_raises(self, mock_log):
-        """Verify check_variables logs errors and safely raises a KeyError if a requirement is absent."""
+        """Verify check_variables logs errors and safely raises a KeyError if a core constraint is absent."""
         incomplete_inputs = {
-            variable_names.REVENUE: 40000.0,
-            variable_names.COST: 15000.0
-            # Missing required EXPENSE and DEPRECIATION!
+            variable_names.REVENUE: 40000.0
+            # Missing strictly required COST input parameter boundary!
         }
         model = NetIncomeModel(incomplete_inputs)
 
@@ -139,27 +142,40 @@ class TestNetIncomeModel(unittest.TestCase):
 
     @patch('src.core.base_model.log')
     def test_check_variables_missing_optional_logs_informational_alert(self, mock_log):
-        """Verify check_variables logs an informational trace but passes when optional metrics are absent."""
+        """Verify check_variables logs informational traces but passes when optional fields are absent."""
         valid_inputs_no_optional = {
             variable_names.REVENUE: 40000.0,
-            variable_names.COST: 15000.0,
-            variable_names.EXPENSE: 5000.0,
-            variable_names.DEPRECIATION: 1000.0
-            # Missing optional variable_names.FINANCE_TAX_RATE!
+            variable_names.COST: 15000.0
+            # All optional keys (EXPENSE, DEPRECIATION, FINANCE_TAX_RATE) are omitted
         }
         model = NetIncomeModel(valid_inputs_no_optional)
 
-        # Should log info but verify cleanly without process halt
+        # Should log info warnings for the missing optional variables but verify cleanly without process halt
         model.check_variables()
         mock_log.error.assert_not_called()
-        mock_log.info.assert_called_once()
+
+        # Verify that informational log triggers are tracking the missing options
+        self.assertTrue(mock_log.info.called)
 
     # -----------------------------------------------------------------
     # 5. RUNTIME CALCULATIONS & VALIDATION PASS TESTS
     # -----------------------------------------------------------------
 
+    def test_evaluate_net_income_lean_bootstrap_defaults(self):
+        """Verify model safely computes outlays under zero-overhead bootstrap fallback parameters."""
+        inputs = {
+            variable_names.REVENUE: 30000.0,
+            variable_names.COST: 10000.0
+            # EXPENSE, DEPRECIATION, and FINANCE_TAX_RATE completely omitted to rely on 0.0 defaults
+        }
+        model = NetIncomeModel(inputs)
+        enriched_output = model.evaluate()
+
+        # Math verification: (30000 - 10000 - 0.0 - 0.0) * (1 - 0.0) = 20000.0
+        self.assertEqual(enriched_output[variable_names.NET_INCOME], 20000.0)
+
     def test_evaluate_net_income_pre_tax_defaults(self):
-        """Verify calculation works cleanly when tax rate is completely omitted."""
+        """Verify calculation works cleanly when tax rate is completely omitted but parameters are supplied."""
         inputs = {
             variable_names.REVENUE: 40000.0,
             variable_names.COST: 15000.0,
@@ -209,12 +225,11 @@ class TestNetIncomeModel(unittest.TestCase):
         self.assertEqual(enriched_output[variable_names.NET_INCOME], -4400.0)
 
     def test_missing_required_parameters_raises_key_error(self):
-        """Verify that dropping a critical parameter like Depreciation halts processing execution."""
+        """Verify that dropping a critical mandatory parameter like Cost halts processing execution."""
         incomplete_inputs = {
             variable_names.REVENUE: 50000.0,
-            variable_names.COST: 20000.0,
             variable_names.EXPENSE: 5000.0
-            # Missing DEPRECIATION!
+            # Missing strictly required COST key!
         }
         model = NetIncomeModel(incomplete_inputs)
 

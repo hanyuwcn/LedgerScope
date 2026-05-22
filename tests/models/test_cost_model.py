@@ -22,14 +22,22 @@ class TestTotalCostModel(unittest.TestCase):
         # Verify exact registered calculation footprint signatures
         self.assertEqual(model.output_names, [variable_names.COST])
 
-        # Verify explicit required and optional variable signature bounds
+        # Verify explicit required variable signature bounds
         self.assertEqual(
             model.required_variables,
             [variable_names.COST_COGS]
         )
+
+    def test_internal_optional_variables_is_dict(self):
+        """Verify underlying storage for optional variables matches the dictionary mapping format."""
+        model = TotalCostModel()
+        self.assertIsInstance(model._optional_variables, dict)
         self.assertEqual(
-            model.optional_variables,
-            [variable_names.COST_ADVERTISING, variable_names.COST_SHIPPING]
+            model._optional_variables,
+            {
+                variable_names.COST_ADVERTISING: 0.0,
+                variable_names.COST_SHIPPING: 0.0
+            }
         )
 
     # -----------------------------------------------------------------

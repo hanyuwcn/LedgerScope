@@ -2,7 +2,7 @@ from src.config import variable_names
 from src.core.base_model import Model
 
 
-def calculate_cost_of_goods_sold(**kwargs) -> dict:
+def calculate_cost_of_goods_sold(optional_variables: dict, **kwargs) -> dict:
     """
     Calculates the total Cost of Goods Sold (COGS) based on physical product metrics.
 
@@ -10,6 +10,9 @@ def calculate_cost_of_goods_sold(**kwargs) -> dict:
         COGS = PurchasingPrice * Orders * ItemsPerOrder
 
     Args:
+        optional_variables (dict): Mapped configuration containing default parameter fallbacks.
+            Note: This specific model implementation does not require optional parameters,
+            but accepts the argument to maintain base interface signature compliance.
         **kwargs: Arbitrary keyword arguments containing required calculation metrics:
 
             Mandatory Keys:
@@ -34,6 +37,20 @@ def calculate_cost_of_goods_sold(**kwargs) -> dict:
 class CostOfGoodsSoldModel(Model):
     """
     Pipeline calculation block evaluating supply chain and sales volume to compute raw product cost.
+
+    Description:
+        This model evaluates total procurement and supply chain expenditure by processing unit costs
+        against baseline transaction volume metrics. It calculates the necessary direct capital
+        outlay required to fulfill pipeline orders, allowing margin analysis engines downstream
+        to evaluate true gross profit profiles.
+
+    Calculation Equation:
+        COGS = Number of Orders * Average number of items per order * average price of item(a.k.a PurchasingPrice)
+
+        Where:
+        - "Number of Orders" maps to DEAL_ORDERS
+        - "Average number of items per order" maps to DEAL_ITEMS_PER_ORDER
+        - "average price of item(a.k.a PurchasingPrice)" maps to DEAL_PURCHASING_PRICE
     """
 
     def __init__(self, input_variables: dict = None):

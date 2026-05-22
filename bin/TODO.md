@@ -11,10 +11,6 @@
 
 - wrap up messages and variable keys
 
-- Have a description for each model, can be details like Evaluating COGS from purchasing price, orders and items
-  - Reconsider the approach of making optional variables a dictionary
-  - depreciation, capEx can be set with optional
-  
 - Add solid model pipeline so that they don't have to be constructed every single times
   - They can be composed of smaller pipeline
     - Old column concept like cost, expense. 
@@ -23,13 +19,11 @@
   - they can be in a composed type like `[**cost, **revenue, **profit]` form
   - They can be created through model names creating instance as all models can have no input variables
 
-
-
 - Optimize plots
   - heap map should round axis number to 2 digits, also avoid value range being set with 1e6
   - break even data is inconsistent
     - also check use the threshold mark to highlight colors
-      - tried hardest still not achiving: dark yellow, otherwise light yellow
+      - tried hardest still not achieving: dark yellow, otherwise light yellow
       - tried softest still achieving: dark green otherwise light green
       - left BE column along. we don't pay too much attention to it
     - net necessarily use $. might be other metrics.
@@ -59,3 +53,9 @@
     - slightly modify validation functions
       - make check_variables_for_function return true and add test
       - rename is_model_sequence_valid to check_model_pipeline_topology_order
+
+    - Optimize model behaviors
+      - Have a description for each model(in docstring), 
+        - can be details like "Evaluating COGS from Cost of Goods Sold = PurchasingPrice * Orders * ItemsPerOrder"
+      - Reconsider the approach of making optional variables a dictionary
+      - depreciation, capEx can be set with optional

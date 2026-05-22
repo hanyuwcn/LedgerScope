@@ -33,6 +33,12 @@ class TestCostOfGoodsSoldModel(unittest.TestCase):
         )
         self.assertEqual(model.optional_variables, [])
 
+    def test_internal_optional_variables_is_dict(self):
+        """Verify underlying storage for optional variables matches the dictionary mapping format."""
+        model = CostOfGoodsSoldModel()
+        self.assertIsInstance(model._optional_variables, dict)
+        self.assertEqual(model._optional_variables, {})
+
     # -----------------------------------------------------------------
     # 2. STATE DICTIONARY GETTER & SETTER PROPERTIES
     # -----------------------------------------------------------------

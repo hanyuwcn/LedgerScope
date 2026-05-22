@@ -22,7 +22,7 @@ class TestRevenueModel(unittest.TestCase):
         # Verify exact registered calculation footprint signatures
         self.assertEqual(model.output_names, [variable_names.REVENUE])
 
-        # Verify explicit required and optional variable signature bounds
+        # Verify explicit required variable signature bounds
         self.assertEqual(
             model.required_variables,
             [
@@ -31,9 +31,14 @@ class TestRevenueModel(unittest.TestCase):
                 variable_names.DEAL_ITEMS_PER_ORDER
             ]
         )
+
+    def test_internal_optional_variables_is_dict(self):
+        """Verify underlying storage for optional variables matches the dictionary mapping format."""
+        model = RevenueModel()
+        self.assertIsInstance(model._optional_variables, dict)
         self.assertEqual(
-            model.optional_variables,
-            [variable_names.FINANCE_USD_TO_RMB]
+            model._optional_variables,
+            {variable_names.FINANCE_USD_TO_RMB: 1.0}
         )
 
     # -----------------------------------------------------------------

@@ -5,7 +5,7 @@ from src.analysis import break_even_analysis, comparative_statics, stochastic_bi
 from src.config import variable_names
 from src.engine import evaluate_chained_models, evaluate_variable_scenario_sweep
 from src.models import ProfitModel, CostOfGoodsSoldModel, RevenueModel, FreeCashFlowModel, \
-    CapitalExpenditureModel, DepreciationModel, ExpenseModel, NetIncomeModel, RoiModel, TotalCostModel, \
+    CapitalExpenditureModel, DepreciationModel, TotalExpenseModel, NetIncomeModel, RoiModel, TotalCostModel, \
     AdvertisingEfficiencyModel
 from src.plots import render_comparative_statics_dashboard, generate_heatmap_from_df, \
     generate_linear_regression_from_lists, generate_histogram_from_array, get_break_even_dataframe
@@ -38,7 +38,7 @@ def sample_analysis():
     cogs_model = CostOfGoodsSoldModel()
     cost_model = TotalCostModel()
     revenue_model = RevenueModel()
-    expense_model = ExpenseModel()
+    expense_model = TotalExpenseModel()
     depreciation_model = DepreciationModel()
     capital_expenditure_model = CapitalExpenditureModel()
     net_income_model = NetIncomeModel()
@@ -97,7 +97,7 @@ def sample_break_even_analysis_plots():
     cogs_model = CostOfGoodsSoldModel()
     cost_model = TotalCostModel()
     revenue_model = RevenueModel()
-    expense_model = ExpenseModel()
+    expense_model = TotalExpenseModel()
     depreciation_model = DepreciationModel()
     capital_expenditure_model = CapitalExpenditureModel()
     net_income_model = NetIncomeModel()
@@ -160,7 +160,7 @@ def sample_comparative_statics_analysis_plots():
     cogs_model = CostOfGoodsSoldModel()
     cost_model = TotalCostModel()
     revenue_model = RevenueModel()
-    expense_model = ExpenseModel()
+    expense_model = TotalExpenseModel()
     depreciation_model = DepreciationModel()
     capital_expenditure_model = CapitalExpenditureModel()
     net_income_model = NetIncomeModel()
@@ -183,7 +183,7 @@ def sample_linear_regression():
     cogs_model = CostOfGoodsSoldModel()
     cost_model = TotalCostModel()
     revenue_model = RevenueModel()
-    expense_model = ExpenseModel()
+    expense_model = TotalExpenseModel()
     depreciation_model = DepreciationModel()
     capital_expenditure_model = CapitalExpenditureModel()
     net_income_model = NetIncomeModel()
@@ -308,7 +308,7 @@ def sample_two_variables_sensitivity_analysis():
     cogs_model = CostOfGoodsSoldModel()
     cost_model = TotalCostModel()
     revenue_model = RevenueModel()
-    expense_model = ExpenseModel()
+    expense_model = TotalExpenseModel()
     depreciation_model = DepreciationModel()
     capital_expenditure_model = CapitalExpenditureModel()
     net_income_model = NetIncomeModel()
@@ -345,7 +345,7 @@ def sample_simulation_analysis():
     cogs_model = CostOfGoodsSoldModel()
     cost_model = TotalCostModel()
     revenue_model = RevenueModel()
-    expense_model = ExpenseModel()
+    expense_model = TotalExpenseModel()
     depreciation_model = DepreciationModel()
     capital_expenditure_model = CapitalExpenditureModel()
     net_income_model = NetIncomeModel()
