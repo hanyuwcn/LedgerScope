@@ -14,12 +14,6 @@
 - Have a description for each model, can be details like Evaluating COGS from purchasing price, orders and items
   - Reconsider the approach of making optional variables a dictionary
   - depreciation, capEx can be set with optional
-
-
-- slightly modify validation functions
-  - make check_variables_for_function return true and add test
-  - rename is_model_sequence_valid to check_model_pipeline_topology_order
-
   
 - Add solid model pipeline so that they don't have to be constructed every single times
   - They can be composed of smaller pipeline
@@ -61,3 +55,7 @@
       - Flow: Detecting a circle in a graph. input values of previous models cannot be later models' output
 
     - _evaluate_single_iteration shall be a public method and to be tested
+    
+    - slightly modify validation functions
+      - make check_variables_for_function return true and add test
+      - rename is_model_sequence_valid to check_model_pipeline_topology_order

@@ -25,7 +25,7 @@ def get_missing_elements(provided_factor_dict: dict, required_factors: list) -> 
     return sorted(list(missing))
 
 
-def check_variables_for_function(provided_variables: dict, required_variables: list = None) -> None:
+def check_variables_for_function(provided_variables: dict, required_variables: list = None) -> bool:
     """
     Defensively asserts that all mandatory variables are present in a context dictionary
     before allowing downstream logic execution to proceed.
@@ -42,6 +42,9 @@ def check_variables_for_function(provided_variables: dict, required_variables: l
     Raises:
         KeyError: If one or more keys specified in `required_variables` are absent from
             the keys of `provided_variables`.
+
+    Returns:
+        bool: True if all required variables are successfully verified and present.
     """
     req_vars = required_variables if required_variables is not None else []
 
@@ -53,8 +56,10 @@ def check_variables_for_function(provided_variables: dict, required_variables: l
 
         raise KeyError(error_template.format(msg=formatted_elements))
 
+    return True
 
-def is_model_sequence_valid(models: list) -> bool:
+
+def check_model_pipeline_topology_order(models: list) -> bool:
     """
     Validates the structural sequence of a calculation pipeline to prevent point failures.
 

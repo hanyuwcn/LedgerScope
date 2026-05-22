@@ -5,7 +5,7 @@ from src.models import AdvertisingEfficiencyModel, CostOfGoodsSoldModel, TotalCo
 from src.utils.validation import (
     get_missing_elements,
     check_variables_for_function,
-    is_model_sequence_valid
+    check_model_pipeline_topology_order
 )
 
 # Mocking your config error message setup locally for explicit string assertions
@@ -56,14 +56,12 @@ class TestValidationUtils(unittest.TestCase):
     # CHECK VARIABLES FOR FUNCTION TESTS
     # =====================================================================
 
-    def test_check_variables_success_path_silent(self):
-        """Verify validation passes silently if all required context items are fully provided."""
+    def test_check_variables_success_path_returns_true(self):
+        """Verify validation passes and returns True if all required context items are fully provided."""
         required = [variable_names.DEAL_ORDERS, variable_names.EXPENSE_MONTHLY_RENT]
 
-        try:
-            check_variables_for_function(self.mock_provided, required_variables=required)
-        except KeyError:
-            self.fail("check_variables_for_function raised KeyError unexpectedly when all keys were present!")
+        result = check_variables_for_function(self.mock_provided, required_variables=required)
+        self.assertTrue(result, "check_variables_for_function should return True on a successful validation pass.")
 
     def test_check_variables_missing_keys_raises_formatted_key_error(self):
         """
@@ -87,27 +85,25 @@ class TestValidationUtils(unittest.TestCase):
         # KeyErrors store their string representation slightly unique, let's look at the argument
         self.assertEqual(context.exception.args[0], expected_msg)
 
-    def test_check_variables_handles_none_inputs_safely(self):
-        """Verify default initialization mapping prevents crashes when required_variables is None."""
-        try:
-            check_variables_for_function(self.mock_provided, required_variables=None)
-        except Exception as exc:
-            self.fail(f"check_variables_for_function crashed when passed None with error: {exc}")
+    def test_check_variables_handles_none_inputs_safely_and_returns_true(self):
+        """Verify default initialization mapping prevents crashes and returns True when required_variables is None."""
+        result = check_variables_for_function(self.mock_provided, required_variables=None)
+        self.assertTrue(result, "check_variables_for_function should return True when required_variables is None.")
 
     # =====================================================================
-    # IS MODEL SEQUENCE VALID TESTS (UPFRONT PIPELINE GUARDRAIL)
+    # CHECK MODEL PIPELINE TOPOLOGY ORDER TESTS (UPFRONT PIPELINE GUARDRAIL)
     # =====================================================================
 
-    def test_is_model_sequence_valid_passes_perfect_linear_cascade(self):
+    def test_check_model_pipeline_topology_order_passes_perfect_linear_cascade(self):
         """Verify that a perfectly ordered data-cascading pipeline passes validation cleanly."""
         valid_pipeline = [
             self.advertising_model,
             self.cogs_model,
             self.total_cost_model
         ]
-        self.assertTrue(is_model_sequence_valid(valid_pipeline))
+        self.assertTrue(check_model_pipeline_topology_order(valid_pipeline))
 
-    def test_is_model_sequence_valid_catches_complete_reverse_inversion(self):
+    def test_check_model_pipeline_topology_order_catches_complete_reverse_inversion(self):
         """Verify that a backwards pipeline throws a descriptive KeyError instantly."""
         reversed_pipeline = [
             self.total_cost_model,
@@ -121,11 +117,11 @@ class TestValidationUtils(unittest.TestCase):
         )
 
         with self.assertRaises(KeyError) as context:
-            is_model_sequence_valid(reversed_pipeline)
+            check_model_pipeline_topology_order(reversed_pipeline)
 
         self.assertIn(expected_error_msg, str(context.exception))
 
-    def test_is_model_sequence_valid_catches_partial_misplacement(self):
+    def test_check_model_pipeline_topology_order_catches_partial_misplacement(self):
         """Verify that even a small structural step inversion triggers an engineering alert."""
         misplaced_pipeline = [
             self.cogs_model,
@@ -139,7 +135,7 @@ class TestValidationUtils(unittest.TestCase):
         )
 
         with self.assertRaises(KeyError) as context:
-            is_model_sequence_valid(misplaced_pipeline)
+            check_model_pipeline_topology_order(misplaced_pipeline)
 
         self.assertIn(expected_error_msg, str(context.exception))
 

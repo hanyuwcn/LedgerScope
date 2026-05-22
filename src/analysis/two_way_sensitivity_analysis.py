@@ -4,7 +4,7 @@ import pandas as pd
 
 from src.config import settings
 from src.engine import evaluate_chained_models
-from src.utils import is_model_sequence_valid
+from src.utils import check_model_pipeline_topology_order
 
 
 def run_two_way_sensitivity_analysis(
@@ -59,7 +59,7 @@ def run_two_way_sensitivity_analysis(
     """
 
     # 1. Enforce Structural Input & Pipeline Guardrails    check_variables_for_function(variables, [param_x_name, param_y_name])
-    is_model_sequence_valid(model_pipeline)
+    check_model_pipeline_topology_order(model_pipeline)
 
     # Extract baseline primitive values seamlessly
     baseline_primitives = {

@@ -2,7 +2,7 @@ import numpy as np
 
 from src.config import variable_names, settings, messages
 from src.engine import evaluate_variable_scenario_sweep, evaluate_expected_scenario
-from src.utils import check_variables_for_function, is_model_sequence_valid, log
+from src.utils import check_variables_for_function, check_model_pipeline_topology_order, log
 
 
 def break_even_analysis(variables: dict, selected_variables: list, model_pipeline: list, output_name: str,
@@ -26,7 +26,7 @@ def break_even_analysis(variables: dict, selected_variables: list, model_pipelin
                     and safety margins for each analyzed variable, structured for dashboard consumption.
     """
     check_variables_for_function(variables, selected_variables)
-    is_model_sequence_valid(model_pipeline)
+    check_model_pipeline_topology_order(model_pipeline)
 
     break_even_analysis_report = []
     for variable in selected_variables:

@@ -1,6 +1,6 @@
 from src.config import messages, variable_names
 from src.engine import evaluate_stochastic_iteration
-from src.utils import check_variables_for_function, is_model_sequence_valid
+from src.utils import check_variables_for_function, check_model_pipeline_topology_order
 from src.utils import log
 
 
@@ -28,7 +28,7 @@ def run_monte_carlo(
     """
     # Guard 1: Verify our random target parameters actually exist in our pool
     check_variables_for_function(variables, shuffled_inputs)
-    is_model_sequence_valid(model_pipeline)
+    check_model_pipeline_topology_order(model_pipeline)
 
     simulation_results = []
     log.info(messages.INFO_MONTE_CARLO_SIMULATION_START.format(iterations=iterations))

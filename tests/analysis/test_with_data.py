@@ -3,11 +3,11 @@ from matplotlib import pyplot as plt
 from src.analysis import break_even_analysis, comparative_statics, stochastic_bivariate_simulation, run_monte_carlo, \
     run_two_way_sensitivity_analysis
 from src.config import variable_names
-from src.engine import evaluate_chained_models, evaluate_variable_scenario_sweep, evaluate_expected_scenario
+from src.engine import evaluate_chained_models, evaluate_variable_scenario_sweep
 from src.models import ProfitModel, CostOfGoodsSoldModel, RevenueModel, FreeCashFlowModel, \
     CapitalExpenditureModel, DepreciationModel, ExpenseModel, NetIncomeModel, RoiModel, TotalCostModel, \
     AdvertisingEfficiencyModel
-from src.plots import render_break_even_dashboard, render_comparative_statics_dashboard, generate_heatmap_from_df, \
+from src.plots import render_comparative_statics_dashboard, generate_heatmap_from_df, \
     generate_linear_regression_from_lists, generate_histogram_from_array, get_break_even_dataframe
 from src.variables import Orders, SellingPrice, PurchasingPrice, ItemsPerOrder, USDToRMB, Rent, TaxRate, \
     CostPerAcquisition, ConversionRate, RenderFee, TravelFee, AdvertisingCost, Expense
@@ -104,7 +104,6 @@ def sample_break_even_analysis_plots():
     profit_model = ProfitModel()
     advertising_efficiency_model = AdvertisingEfficiencyModel()
 
-
     # print(evaluate_expected_scenario(variables, [advertising_efficiency_model]))
 
     break_even_analysis_report = break_even_analysis(variables, selected_variables=[variable_names.DEAL_ORDERS,
@@ -148,7 +147,6 @@ def sample_break_even_analysis_plots():
     #                                                              output_name=variable_names.PROFIT, goal=250000)
     # # print(break_even_analysis_report_highest_goal)
     # render_break_even_dashboard(break_even_analysis_report_highest_goal, variable_names.PROFIT)
-
 
 
 def sample_comparative_statics_analysis_plots():
@@ -204,7 +202,6 @@ def sample_linear_regression():
     cpa = CostPerAcquisition(min_value=12, max_value=36)
     expense = Expense(0)
 
-
     variables = {variable_names.DEAL_PURCHASING_PRICE: purchasing_price,
                  variable_names.DEAL_ORDERS: orders,
                  variable_names.FINANCE_USD_TO_RMB: usd_to_rmb,
@@ -226,7 +223,6 @@ def sample_linear_regression():
     #                                                              depreciation_model, net_income_model,
     #                                                              capital_expenditure_model, profit_model])
 
-
     # Model topology error below:
     # stochastic_bivariate_simulation(
     #     variables=variables,
@@ -241,7 +237,6 @@ def sample_linear_regression():
     #                     depreciation_model, net_income_model,
     #                     capital_expenditure_model, profit_model],
     #     sample_size=100)
-
 
     simulated_x_distribution, simulated_y_distribution, linear_trend_summary = stochastic_bivariate_simulation(
         variables=variables,
@@ -303,12 +298,12 @@ def sample_two_variables_sensitivity_analysis():
     # cpa = CostPerAcquisition(min_value=12, max_value=36)
 
     variables = {variable_names.DEAL_ORDERS: orders,
-           # variable_names.COST_CPA: cpa,
-           # variable_names.COST_CONVERSION_RATE: conversion_rate,
-           variable_names.DEAL_SELLING_PRICE: selling_price,
-           variable_names.DEAL_PURCHASING_PRICE: purchasing_price,
-           variable_names.FINANCE_USD_TO_RMB: usd_to_rmb,
-           variable_names.DEAL_ITEMS_PER_ORDER: items_per_order}
+                 # variable_names.COST_CPA: cpa,
+                 # variable_names.COST_CONVERSION_RATE: conversion_rate,
+                 variable_names.DEAL_SELLING_PRICE: selling_price,
+                 variable_names.DEAL_PURCHASING_PRICE: purchasing_price,
+                 variable_names.FINANCE_USD_TO_RMB: usd_to_rmb,
+                 variable_names.DEAL_ITEMS_PER_ORDER: items_per_order}
 
     cogs_model = CostOfGoodsSoldModel()
     cost_model = TotalCostModel()
@@ -342,10 +337,10 @@ def sample_simulation_analysis():
     purchasing_price = PurchasingPrice(min_value=1000, max_value=2000)
 
     variables = {variable_names.DEAL_PURCHASING_PRICE: purchasing_price,
-               variable_names.DEAL_ORDERS: orders,
-               variable_names.FINANCE_USD_TO_RMB: usd_to_rmb,
-               variable_names.DEAL_SELLING_PRICE: selling_price,
-               variable_names.DEAL_ITEMS_PER_ORDER: items_per_order}
+                 variable_names.DEAL_ORDERS: orders,
+                 variable_names.FINANCE_USD_TO_RMB: usd_to_rmb,
+                 variable_names.DEAL_SELLING_PRICE: selling_price,
+                 variable_names.DEAL_ITEMS_PER_ORDER: items_per_order}
 
     cogs_model = CostOfGoodsSoldModel()
     cost_model = TotalCostModel()
@@ -377,4 +372,3 @@ if __name__ == "__main__":
     # sample_two_variables_sensitivity_analysis()
     sample_linear_regression()
     # sample_simulation_analysis()
-

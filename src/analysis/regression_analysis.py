@@ -3,7 +3,7 @@ from scipy import stats
 
 from src.config import settings
 from src.engine import evaluate_stochastic_iteration
-from src.utils import check_variables_for_function, is_model_sequence_valid
+from src.utils import check_variables_for_function, check_model_pipeline_topology_order
 
 
 def stochastic_bivariate_simulation(
@@ -42,7 +42,7 @@ def stochastic_bivariate_simulation(
             3. Dict containing ordinary least squares (OLS) linear trend metrics.
     """
     check_variables_for_function(variables, shuffled_variables)
-    is_model_sequence_valid(model_pipeline)
+    check_model_pipeline_topology_order(model_pipeline)
 
     simulated_x_distribution = []
     simulated_y_distribution = []

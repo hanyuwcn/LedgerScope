@@ -2,7 +2,7 @@ import numpy as np
 
 from src.config import variable_names
 from src.engine import evaluate_variable_scenario_sweep
-from src.utils import check_variables_for_function, is_model_sequence_valid
+from src.utils import check_variables_for_function, check_model_pipeline_topology_order
 
 
 def comparative_statics(
@@ -38,7 +38,7 @@ def comparative_statics(
             outcomes, step evaluations, and calculated elasticity coefficient for a single variable.
     """
     check_variables_for_function(variables, selected_variables)
-    is_model_sequence_valid(model_pipeline)
+    check_model_pipeline_topology_order(model_pipeline)
 
     comparative_statics_report = []
     for variable_key in selected_variables:
