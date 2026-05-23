@@ -1,22 +1,24 @@
-def numeric_to_percentage(number: float, decimal: int = 1) -> str:
-    """
-    Formats a raw floating-point scalar value into a validated percentage string.
+def fmt(val, d=0, s='', p=False):
+    """Formats numeric inputs with dynamic precision, prefixes, and percentage scaling.
 
-    Example:
-        >>> numeric_to_percentage(0.045, decimal=1)
-        '4.5%'
-        >>> numeric_to_percentage(0.0456, decimal=2)
-        '4.56%'
+    Optimized for short-form brevity when mapping lambda lookup tables.
 
     Args:
-        number (float): The raw fraction or scalar value to be converted (e.g., 0.125).
-        decimal (int, optional): The precision metric defining how many trailing digits
-            to preserve past the decimal point. Defaults to 1.
+        val (int | float | str): The numeric value or string to be formatted.
+        d (int): Number of decimal digits to round and preserve. Defaults to 0.
+        s (str): Prefix symbol, typically a currency mark like '$' or '¥'. Defaults to ''.
+        p (bool): Percentage mode flag. If True, scales value by 100 and appends '%'. Defaults to False.
 
     Returns:
-        str: A clean string representation of the value post-conversion, trailing with '%'.
+        str: The fully formatted output string, or raw fallback text if parsing fails.
     """
-    return f"{number:.{decimal}%}"
+    try:
+        num = float(val)
+        if p:
+            return f"{s}{num * 100:,.{d}f}%"
+        return f"{s}{num:,.{d}f}"
+    except (ValueError, TypeError):
+        return str(val)
 
 
 def list_to_element_string(elements: list) -> str:

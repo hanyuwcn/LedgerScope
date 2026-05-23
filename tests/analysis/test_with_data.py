@@ -7,11 +7,13 @@ from src.engine import evaluate_chained_models, evaluate_variable_scenario_sweep
 from src.models import ProfitModel, CostOfGoodsSoldModel, RevenueModel, FreeCashFlowModel, \
     CapitalExpenditureModel, DepreciationModel, TotalExpenseModel, NetIncomeModel, RoiModel, TotalCostModel, \
     AdvertisingEfficiencyModel
-from src.plots import render_comparative_statics_dashboard, generate_heatmap_from_df, \
-    generate_linear_regression_from_lists, generate_histogram_from_array, get_break_even_dataframe
-from src.variables import Orders, SellingPrice, PurchasingPrice, ItemsPerOrder, USDToRMB, Rent, TaxRate, \
-    CostPerAcquisition, ConversionRate, RenderFee, TravelFee, AdvertisingCost, Expense
+from src.variables import (Orders, SellingPrice, PurchasingPrice, ItemsPerOrder, USDToRMB, Rent, TaxRate,
+                           CostPerAcquisition, ConversionRate, RenderFee, TravelFee, AdvertisingCost, Expense)
+from src.visualization import render_break_even_dashboard, generate_heatmap_from_df, generate_histogram_from_array, \
+    generate_linear_regression_from_lists, render_comparative_statics_dashboard, get_break_even_dataframe
 
+
+### New approach
 
 def sample_analysis():
     orders = Orders(min_value=20, max_value=30)
@@ -148,6 +150,9 @@ def sample_break_even_analysis_plots():
     # # print(break_even_analysis_report_highest_goal)
     # render_break_even_dashboard(break_even_analysis_report_highest_goal, variable_names.PROFIT)
 
+    # Display the dashboard inside your notebook execution runner
+    render_break_even_dashboard(break_even_analysis_report, "FreeCashFlow")
+
 
 def sample_comparative_statics_analysis_plots():
     variables = {variable_names.DEAL_ORDERS: Orders(min_value=20, max_value=30),
@@ -177,6 +182,7 @@ def sample_comparative_statics_analysis_plots():
 
     print(analysis)
     render_comparative_statics_dashboard(analysis, variable_names.PROFIT)
+    plt.show()
 
 
 def sample_linear_regression():
@@ -251,55 +257,56 @@ def sample_linear_regression():
         model_pipeline=[advertising_efficiency_model, cogs_model, revenue_model, cost_model, expense_model,
                         depreciation_model, net_income_model,
                         capital_expenditure_model, profit_model, roi_model],
-        sample_size=2)
+        sample_size=200)
+
+    # print(linear_trend_summary)
+    # fig = generate_linear_regression_from_lists(simulated_x_distribution, simulated_y_distribution,
+    #                                                variable_names.PROFIT, variable_names.ROI,
+    #                                                x_benchmark=2000000, y_benchmark=2)
+    # plt.show()
+
+    variables_2 = {variable_names.FINANCE_USD_TO_RMB: usd_to_rmb,
+                   variable_names.DEAL_SELLING_PRICE: selling_price,
+                   variable_names.DEAL_PURCHASING_PRICE: purchasing_price,
+                   variable_names.DEAL_ITEMS_PER_ORDER: items_per_order,
+                   variable_names.COST_ADVERTISING: advertising_budget,
+                   variable_names.COST_CPA: cpa,
+                   variable_names.COST_CONVERSION_RATE: conversion_rate,
+                   variable_names.EXPENSE: expense}
+
+    simulated_x_distribution, simulated_y_distribution, linear_trend_summary = stochastic_bivariate_simulation(
+        variables=variables_2,
+        independent_target_x=variable_names.COST_ADVERTISING,
+        dependent_target_y=variable_names.NET_INCOME,
+        shuffled_variables=[
+            variable_names.COST_ADVERTISING,
+            variable_names.DEAL_SELLING_PRICE,
+            variable_names.DEAL_ITEMS_PER_ORDER],
+        model_pipeline=[advertising_efficiency_model, cogs_model, revenue_model, cost_model,
+                        depreciation_model, capital_expenditure_model,
+                        net_income_model, profit_model, roi_model],
+        sample_size=100)
 
     print(linear_trend_summary)
-    fig, _ = generate_linear_regression_from_lists(simulated_x_distribution, simulated_y_distribution,
-                                                   variable_names.PROFIT, variable_names.ROI,
-                                                   x_benchmark=200000, y_benchmark=2)
+    fig = generate_linear_regression_from_lists(simulated_x_distribution, simulated_y_distribution,
+                                                variable_names.COST_ADVERTISING, variable_names.NET_INCOME)
     plt.show()
-
-    # variables_2 = {variable_names.FINANCE_USD_TO_RMB: usd_to_rmb,
-    #                variable_names.DEAL_SELLING_PRICE: selling_price,
-    #                variable_names.DEAL_PURCHASING_PRICE: purchasing_price,
-    #                variable_names.DEAL_ITEMS_PER_ORDER: items_per_order,
-    #                variable_names.COST_ADVERTISING: advertising_budget,
-    #                variable_names.COST_CPA: cpa,
-    #                variable_names.COST_CONVERSION_RATE: conversion_rate,
-    #                variable_names.EXPENSE: expense}
-    #
-    # simulated_x_distribution, simulated_y_distribution, linear_trend_summary = stochastic_bivariate_simulation(
-    #     variables=variables_2,
-    #     independent_target_x=variable_names.COST_ADVERTISING,
-    #     dependent_target_y=variable_names.NET_INCOME,
-    #     shuffled_variables=[
-    #         variable_names.COST_ADVERTISING,
-    #         variable_names.DEAL_SELLING_PRICE,
-    #         variable_names.DEAL_ITEMS_PER_ORDER],
-    #     model_pipeline=[advertising_efficiency_model, cogs_model, revenue_model, cost_model,
-    #                     depreciation_model, capital_expenditure_model,
-    #                     net_income_model, profit_model, roi_model],
-    #     sample_size=100)
-    #
-    # print(linear_trend_summary)
-    # fig, _ = generate_linear_regression_from_lists(simulated_x_distribution, simulated_y_distribution,
-    #                                                variable_names.COST_ADVERTISING, variable_names.NET_INCOME)
-    # plt.show()
 
 
 def sample_two_variables_sensitivity_analysis():
-    # advertising_budget = AdvertisingCost(min_value=10000, max_value=30000)
+    advertising_budget = AdvertisingCost(min_value=10000, max_value=30000)
     orders = Orders(min_value=20, max_value=30)
     usd_to_rmb = USDToRMB(expected_value=6.8, min_value=6.0, max_value=7.5)
     selling_price = SellingPrice(min_value=3000, max_value=6000)
     items_per_order = ItemsPerOrder(min_value=1, max_value=5)
     purchasing_price = PurchasingPrice(min_value=1000, max_value=2000)
-    # conversion_rate = ConversionRate(min_value=0.04, max_value=0.2)
-    # cpa = CostPerAcquisition(min_value=12, max_value=36)
+    conversion_rate = ConversionRate(min_value=0.04, max_value=0.2)
+    cpa = CostPerAcquisition(min_value=12, max_value=36)
 
     variables = {variable_names.DEAL_ORDERS: orders,
-                 # variable_names.COST_CPA: cpa,
-                 # variable_names.COST_CONVERSION_RATE: conversion_rate,
+                 variable_names.COST_ADVERTISING: advertising_budget,
+                 variable_names.COST_CPA: cpa,
+                 variable_names.COST_CONVERSION_RATE: conversion_rate,
                  variable_names.DEAL_SELLING_PRICE: selling_price,
                  variable_names.DEAL_PURCHASING_PRICE: purchasing_price,
                  variable_names.FINANCE_USD_TO_RMB: usd_to_rmb,
@@ -312,19 +319,39 @@ def sample_two_variables_sensitivity_analysis():
     depreciation_model = DepreciationModel()
     capital_expenditure_model = CapitalExpenditureModel()
     net_income_model = NetIncomeModel()
-    # advertising_efficiency_model = AdvertisingEfficiencyModel()
+    advertising_efficiency_model = AdvertisingEfficiencyModel()
     # free_cash_flow_model = FreeCashFlowModel()
     profit_model = ProfitModel()
     # roi_model = RoiModel()
 
-    two_way_analysis_df = run_two_way_sensitivity_analysis(variables, param_x_name=variable_names.DEAL_ORDERS,
+    # two_way_analysis_df = run_two_way_sensitivity_analysis({variable_names.DEAL_ORDERS: orders,
+    #              variable_names.COST_ADVERTISING: advertising_budget,
+    #              variable_names.COST_CPA: cpa,
+    #              variable_names.COST_CONVERSION_RATE: conversion_rate,
+    #              variable_names.DEAL_SELLING_PRICE: selling_price,
+    #              variable_names.DEAL_PURCHASING_PRICE: purchasing_price,
+    #              variable_names.FINANCE_USD_TO_RMB: usd_to_rmb,
+    #              variable_names.DEAL_ITEMS_PER_ORDER: items_per_order},
+    #                                                        param_x_name=variable_names.DEAL_ORDERS,
+    #                                                        param_y_name=variable_names.DEAL_SELLING_PRICE,
+    #                                                        model_pipeline=[
+    #                                                                        cogs_model, revenue_model, cost_model,
+    #                                                                        expense_model,
+    #                                                                        depreciation_model, net_income_model,
+    #                                                                        capital_expenditure_model, profit_model],
+    #                                                        target_output_name=variable_names.PROFIT,
+    #                                                        x_steps=5, y_steps=3)
+    two_way_analysis_df = run_two_way_sensitivity_analysis(variables, param_x_name=variable_names.COST_ADVERTISING,
                                                            param_y_name=variable_names.DEAL_SELLING_PRICE,
-                                                           model_pipeline=[cogs_model, revenue_model, cost_model,
+                                                           model_pipeline=[advertising_efficiency_model,
+                                                                           cogs_model, revenue_model, cost_model,
                                                                            expense_model,
                                                                            depreciation_model, net_income_model,
                                                                            capital_expenditure_model, profit_model],
                                                            target_output_name=variable_names.PROFIT,
                                                            x_steps=30, y_steps=20)
+    print(two_way_analysis_df)
+
     figure = generate_heatmap_from_df(two_way_analysis_df, variable_names.PROFIT)
     plt.show()
 
@@ -360,9 +387,22 @@ def sample_simulation_analysis():
                                   tracked_outputs=[variable_names.PROFIT],
                                   iterations=50)
 
+    # generate_histogram_from_array(simulations, variable_names.PROFIT)
+    # plt.show()
+
     benchmark_goal = 200000
-    generate_histogram_from_array(simulations, benchmark_goal, variable_names.PROFIT)
+    generate_histogram_from_array(simulations, variable_names.PROFIT, benchmark_goal)
     plt.show()
+
+
+def model_aggregation_pipeline():
+    cogs_model = CostOfGoodsSoldModel()
+    cost_model = TotalCostModel()
+    revenue_model = RevenueModel()
+    profit_model = ProfitModel()
+
+    print([cogs_model, cost_model, revenue_model, profit_model])
+    print(CostOfGoodsSoldModel.__new__())
 
 
 if __name__ == "__main__":
@@ -372,3 +412,5 @@ if __name__ == "__main__":
     # sample_two_variables_sensitivity_analysis()
     sample_linear_regression()
     # sample_simulation_analysis()
+
+    # model_aggregation_pipeline()

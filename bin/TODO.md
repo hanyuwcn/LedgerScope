@@ -1,15 +1,11 @@
 
 - Have a detailed design doc after the codebase is complete
 
-- Modifying default value for tax_rate does not break tests
-
 - test with same data on the old projects
 
 - test with notebook to replicate same inputs
 
 - review all the tests
-
-- wrap up messages and variable keys
 
 - Add solid model pipeline so that they don't have to be constructed every single times
   - They can be composed of smaller pipeline
@@ -18,20 +14,12 @@
     - And metrics, such as roi, fcf
   - they can be in a composed type like `[**cost, **revenue, **profit]` form
   - They can be created through model names creating instance as all models can have no input variables
-
-- Optimize plots
-  - heap map should round axis number to 2 digits, also avoid value range being set with 1e6
-  - break even data is inconsistent
-    - also check use the threshold mark to highlight colors
-      - tried hardest still not achieving: dark yellow, otherwise light yellow
-      - tried softest still achieving: dark green otherwise light green
-      - left BE column along. we don't pay too much attention to it
-    - net necessarily use $. might be other metrics.
-    - can only target on input variable, any variables later to be refreshed is meaningless
-    - Either all green or all yellow, how can they be partially green partially yellow? 
-      - Answer: purchasing price and cpa are negative factor, or sometime slices are too big  
-  - histograms x axis uses .3n style
+ 
+- Optimize plots(Ctnd)
+  - wrap up messages and variable keys
   - Add Pie chart, input could be few output results to see their percentage e.g. ["Cogs", "AdvertisingCost, Expense"]
+
+
 
 - Write final report
  - in both languages
@@ -59,3 +47,11 @@
         - can be details like "Evaluating COGS from Cost of Goods Sold = PurchasingPrice * Orders * ItemsPerOrder"
       - Reconsider the approach of making optional variables a dictionary
       - depreciation, capEx can be set with optional
+
+    - Optimize plots
+        - Should only target on input variable, any variables later to be refreshed is meaningless
+        - Either all green or all yellow, how can they be partially green partially yellow? 
+          - Answer: purchasing price and cpa are negative factor, or sometime slices are too big  
+      - methods like "_format_value", f"{elasticity_val:+.2f}", f"{num_val:,.4f}" should be written as public methods
+        - with an option by adding "¥" 
+        - Making a map from variable name to its conversion function

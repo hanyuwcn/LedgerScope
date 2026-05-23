@@ -1,35 +1,47 @@
 import unittest
 
-from src.utils.formatting import numeric_to_percentage, list_to_element_string
+# Assuming fmt is placed inside src.utils.formatting along with your other utility
+from src.utils.formatting import list_to_element_string, fmt
 
 
 class TestFormattingUtils(unittest.TestCase):
 
     # =====================================================================
-    # NUMERIC TO PERCENTAGE TESTS
+    # FMT (NUMBER FORMATTER) TESTS
     # =====================================================================
 
-    def test_numeric_to_percentage_default_precision(self):
-        """Verify that omitting the decimal parameter defaults safely to 1 decimal point."""
-        # 0.045 should scale to 4.5%
-        self.assertEqual(numeric_to_percentage(0.045), "4.5%")
-        # 0.1234 should round to 12.3%
-        self.assertEqual(numeric_to_percentage(0.1234), "12.3%")
+    def test_fmt_default_behavior(self):
+        """Verify that basic integers and floats round to 0 decimal places with commas."""
+        self.assertEqual(fmt(1234567), "1,234,567")
+        self.assertEqual(fmt(1234.56), "1,235")
 
-    def test_numeric_to_percentage_high_precision(self):
-        """Verify the formatter accurately preserves deep fractional limits for small rates."""
-        self.assertEqual(numeric_to_percentage(0.04567, decimal=3), "4.567%")
-        self.assertEqual(numeric_to_percentage(0.001234, decimal=4), "0.1234%")
+    def test_fmt_with_custom_decimals(self):
+        """Verify that precision scales exactly to the custom 'd' argument."""
+        self.assertEqual(fmt(1234.5678, d=2), "1,234.57")
+        self.assertEqual(fmt(1234, d=2), "1,234.00")
 
-    def test_numeric_to_percentage_zero_precision(self):
-        """Verify that setting decimal=0 cleanly truncates the string to a whole integer percentage."""
-        self.assertEqual(numeric_to_percentage(1.25, decimal=0), "125%")
-        self.assertEqual(numeric_to_percentage(0.8, decimal=0), "80%")
+    def test_fmt_with_currency_sign(self):
+        """Verify that currency symbols are properly prefixed to formatted outputs."""
+        self.assertEqual(fmt(1234567, d=0, s="¥"), "¥1,234,567")
+        self.assertEqual(fmt(1234.56, d=2, s="$"), "$1,234.56")
 
-    def test_numeric_to_percentage_flat_zero(self):
-        """Verify that absolute zero formats cleanly across different explicit precisions."""
-        self.assertEqual(numeric_to_percentage(0.0, decimal=2), "0.00%")
-        self.assertEqual(numeric_to_percentage(0, decimal=0), "0%")
+    def test_fmt_percentage_mode(self):
+        """Verify that numbers are scaled by 100, comma separated, and append a '%' sign."""
+        # 0.0525 * 100 = 5.25%
+        self.assertEqual(fmt(0.0525, d=2, p=True), "5.25%")
+        # 1234.56 * 100 = 123,456.0%
+        self.assertEqual(fmt(1234.56, d=1, p=True), "123,456.0%")
+
+    def test_fmt_percentage_with_currency(self):
+        """Verify that both currency symbols and scaled percentages render together gracefully."""
+        # e.g., Margin rates in absolute currency performance notation
+        self.assertEqual(fmt(0.085, d=1, s="¥", p=True), "¥8.5%")
+
+    def test_fmt_string_and_invalid_fallbacks(self):
+        """Verify that invalid inputs or text tags fail silently and return clean text strings."""
+        self.assertEqual(fmt("N/A"), "N/A")
+        self.assertEqual(fmt(None), "None")
+        self.assertEqual(fmt("1234.56", d=2), "1,234.56")  # Valid numeric strings parse correctly
 
     # =====================================================================
     # LIST TO ELEMENT STRING TESTS

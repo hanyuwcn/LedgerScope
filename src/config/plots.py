@@ -15,7 +15,20 @@ FIGURE_SIZE = (15, 8)
 TITLE_COLOR = COLOR_NAVY
 X_AXIS_COLOR = COLOR_DARK
 Y_AXIS_COLOR = COLOR_GREY
-COLOR_SET = "coolwarm"
+# COLOR_SET = "coolwarm"
+# COLOR_SET = "mako"
+COLOR_SET = "viridis_r"
+
+# Design parameters extracted cleanly out of the execution code
+Y_AXIS_ROTATION = 0
+Y_AXIS_PADDING = 45
+TITLE_PADDING = 30
+
+X_TICK_ROTATION = 45
+Y_TICK_ROTATION = 0
+
+# The scaling factor to bring the colorbar flush with the axis block.
+CBAR_SHRINK_RATIO = 1.0
 
 TITLE_FONT = {'family': 'serif',
               'color': TITLE_COLOR,
@@ -58,8 +71,8 @@ HEATMAP_TITLE = "Heatmap of impact of {factor_1} & {factor_2} on {output}"
 HISTOGRAM_TITLE_CONTEXT = "Distribution of Simulated Density Gradient of {output}"
 HISTOGRAM_X_LABEL_CONTEXT = "Simulated Values of {output}"
 HISTOGRAM_Y_LABEL_CONTEXT = "Frequency(%)"
-HISTOGRAM_VERTICAL_LINE_GOAL = "Benchmark Goal: {goal:,.0f}"
-HISTOGRAM_VERTICAL_LINE_MEAN = 'Simulations Mean: {mean:,.0f}'
+HISTOGRAM_VERTICAL_LINE_GOAL = "Benchmark Goal: {goal}"
+HISTOGRAM_VERTICAL_LINE_MEAN = 'Simulations Mean: {mean}'
 HISTOGRAM_BIN_FONT = {'bins': 40,
                       'alpha': 0.8,
                       'edgecolor': 'white',
