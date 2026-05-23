@@ -129,5 +129,5 @@ LINEAR_REGRESSION_IN_LEGENDS_TEXT_FONTS = {'loc': 'upper left',
                                            'facecolor': 'white',
                                            'edgecolor': '#dee2e6',
                                            'fontsize': 9}
-LINEAR_REGRESSION_LINE_GOAL = "{label} Benchmark ({benchmark:,.2f})"
+LINEAR_REGRESSION_LINE_GOAL = "{label} Benchmark: {benchmark}"
 LINEAR_REGRESSION_TICK_SIZE = 9

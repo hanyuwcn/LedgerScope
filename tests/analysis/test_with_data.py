@@ -289,7 +289,8 @@ def sample_linear_regression():
 
     print(linear_trend_summary)
     fig = generate_linear_regression_from_lists(simulated_x_distribution, simulated_y_distribution,
-                                                variable_names.COST_ADVERTISING, variable_names.NET_INCOME)
+                                                variable_names.COST_ADVERTISING, variable_names.NET_INCOME,
+                                                x_benchmark=20000)
     plt.show()
 
 
@@ -460,8 +461,8 @@ if __name__ == "__main__":
     # sample_break_even_analysis_plots()
     # sample_comparative_statics_analysis_plots()
     # sample_two_variables_sensitivity_analysis()
-    # sample_linear_regression()
+    sample_linear_regression()
     # sample_simulation_analysis()
-    sample_contribution_analysis()
+    # sample_contribution_analysis()
 
     # model_aggregation_pipeline()

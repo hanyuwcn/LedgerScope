@@ -51,12 +51,14 @@ def generate_linear_regression_from_lists(x_data, y_data, x_label, y_label, x_be
     b, c, r_value, p_value, std_err = stats.linregress(x, y)
     r_squared = r_value ** 2
 
-    # --- ZERO-VARIANCE SAFETY GUARD FOR X-AXIS LINSPACE ---
+    # Capture absolute limits of the data pool
     x_min, x_max = x.min(), x.max()
+    y_min, y_max = y.min(), y.max()
+
+    # --- ZERO-VARIANCE SAFETY GUARD FOR X-AXIS LINSPACE ---
     if x_min != x_max:
         x_range = np.linspace(x_min, x_max, 100)
     else:
-        # Expand boundaries by 1 unit if all X values happen to be identical
         x_range = np.linspace(x_min - 1, x_max + 1, 100)
 
     # Generate points along the regression line
@@ -67,14 +69,11 @@ def generate_linear_regression_from_lists(x_data, y_data, x_label, y_label, x_be
     equation_str = f"Eq: {y_label} = {x_label} * {b:,.2f} {sign} {abs(c):,.2f}"
 
     # --- ZERO-VARIANCE SAFETY GUARD FOR Y-AXIS SIZING ---
-    y_min, y_max = y.min(), y.max()
     if y_max != y_min:
-        # Standard Min-Max normalization mapping to config bounds
         scaled_sizes = (POINT_SIZE_MINIMUM +
                         ((y - y_min) / (y_max - y_min)) *
                         (POINT_SIZE_MAXIMUM - POINT_SIZE_MINIMUM))
     else:
-        # Fallback uniform size if all Y values happen to be identical
         scaled_sizes = np.full_like(y, 50, dtype=float)
 
     # Isolate global style elements dynamically using context configuration sandboxes
@@ -96,13 +95,30 @@ def generate_linear_regression_from_lists(x_data, y_data, x_label, y_label, x_be
         # 3. Dynamic Benchmarks Plotting (Optional) using Muted Grey
         if x_benchmark is not None:
             ax.axvline(x=x_benchmark,
-                       label=GOAL_BENCHMARK_TEMPLATE.format(label=x_label, benchmark=x_benchmark),
+                       label=GOAL_BENCHMARK_TEMPLATE.format(label=x_label,
+                                                            benchmark=_get_formatter(x_label)(x_benchmark)),
                        **plots.LINE_SETTING_BIGGER)
 
         if y_benchmark is not None:
             ax.axhline(y=y_benchmark,
-                       label=GOAL_BENCHMARK_TEMPLATE.format(label=y_label, benchmark=y_benchmark),
+                       label=GOAL_BENCHMARK_TEMPLATE.format(label=y_label,
+                                                            benchmark=_get_formatter(y_label)(y_benchmark)),
                        **plots.LINE_SETTING_SMALLER)
+
+        # --- DYNAMIC CANVAS EXTENSION GUARD ---
+        # Forces the visible plotting viewport to stretch safely if a user-supplied
+        # benchmark sits far outside the generated stochastic data pool.
+        current_xlim_min, current_xlim_max = ax.get_xlim()
+        if x_benchmark is not None:
+            new_xlim_min = min(current_xlim_min, x_benchmark - (abs(x_max - x_min) * 0.1 if x_max != x_min else 1000))
+            new_xlim_max = max(current_xlim_max, x_benchmark + (abs(x_max - x_min) * 0.1 if x_max != x_min else 1000))
+            ax.set_xlim(new_xlim_min, new_xlim_max)
+
+        current_ylim_min, current_ylim_max = ax.get_ylim()
+        if y_benchmark is not None:
+            new_ylim_min = min(current_ylim_min, y_benchmark - (abs(y_max - y_min) * 0.1 if y_max != y_min else 1))
+            new_ylim_max = max(current_ylim_max, y_benchmark + (abs(y_max - y_min) * 0.1 if y_max != y_min else 1))
+            ax.set_ylim(new_ylim_min, new_ylim_max)
 
         # 4. Clean Dashboard Styling & Grid Rules
         ax.set_title(CANVAS_MAIN_TITLE.format(x_label=x_label, y_label=y_label),
@@ -146,5 +162,4 @@ def generate_linear_regression_from_lists(x_data, y_data, x_label, y_label, x_be
 
         plt.tight_layout()
 
-        # Object is returned alive so Jupyter can fetch and render it exactly once.
         return fig
