@@ -1,7 +1,7 @@
 from matplotlib import pyplot as plt
 
 from src.analysis import break_even_analysis, comparative_statics, stochastic_bivariate_simulation, run_monte_carlo, \
-    run_two_way_sensitivity_analysis
+    run_two_way_sensitivity_analysis, stochastic_contribution_analysis
 from src.config import variable_names
 from src.engine import evaluate_chained_models, evaluate_variable_scenario_sweep
 from src.models import ProfitModel, CostOfGoodsSoldModel, RevenueModel, FreeCashFlowModel, \
@@ -395,6 +395,56 @@ def sample_simulation_analysis():
     plt.show()
 
 
+def sample_contribution_analysis():
+    advertising_budget = AdvertisingCost(min_value=10000, max_value=30000)
+    orders = Orders(min_value=20, max_value=30)
+    usd_to_rmb = USDToRMB(expected_value=6.8, min_value=6.0, max_value=7.5)
+    selling_price = SellingPrice(min_value=3000, max_value=6000)
+    items_per_order = ItemsPerOrder(min_value=1, max_value=5)
+    purchasing_price = PurchasingPrice(min_value=1000, max_value=2000)
+    conversion_rate = ConversionRate(min_value=0.04, max_value=0.2)
+    cpa = CostPerAcquisition(min_value=12, max_value=36)
+
+    variables = {variable_names.DEAL_ORDERS: orders,
+                 variable_names.COST_ADVERTISING: advertising_budget,
+                 variable_names.COST_CPA: cpa,
+                 variable_names.COST_CONVERSION_RATE: conversion_rate,
+                 variable_names.DEAL_SELLING_PRICE: selling_price,
+                 variable_names.DEAL_PURCHASING_PRICE: purchasing_price,
+                 variable_names.FINANCE_USD_TO_RMB: usd_to_rmb,
+                 variable_names.DEAL_ITEMS_PER_ORDER: items_per_order}
+
+    cogs_model = CostOfGoodsSoldModel()
+    cost_model = TotalCostModel()
+    revenue_model = RevenueModel()
+    expense_model = TotalExpenseModel()
+    depreciation_model = DepreciationModel()
+    capital_expenditure_model = CapitalExpenditureModel()
+    net_income_model = NetIncomeModel()
+    # advertising_efficiency_model = AdvertisingEfficiencyModel()
+    # free_cash_flow_model = FreeCashFlowModel()
+    profit_model = ProfitModel()
+
+    contributions = stochastic_contribution_analysis(variables=variables,
+                                                     breakdown_metrics=[variable_names.COST_ADVERTISING,
+                                                                        variable_names.COST_COGS],
+                                                     model_pipeline=[cogs_model, revenue_model, cost_model,
+                                                                     expense_model, depreciation_model,
+                                                                     capital_expenditure_model, profit_model],
+                                                     shuffled_inputs=[variable_names.DEAL_PURCHASING_PRICE,
+                                                                      variable_names.DEAL_SELLING_PRICE,
+                                                                      variable_names.COST_ADVERTISING,
+                                                                      variable_names.COST_CONVERSION_RATE,
+                                                                      variable_names.COST_CPA],
+                                                     sample_size=100)
+    print(contributions)
+
+    from src.visualization import generate_contribution_pie_chart
+
+    fig = generate_contribution_pie_chart(contributions)
+    plt.show()
+
+
 def model_aggregation_pipeline():
     cogs_model = CostOfGoodsSoldModel()
     cost_model = TotalCostModel()
@@ -410,7 +460,8 @@ if __name__ == "__main__":
     # sample_break_even_analysis_plots()
     # sample_comparative_statics_analysis_plots()
     # sample_two_variables_sensitivity_analysis()
-    sample_linear_regression()
+    # sample_linear_regression()
     # sample_simulation_analysis()
+    sample_contribution_analysis()
 
     # model_aggregation_pipeline()

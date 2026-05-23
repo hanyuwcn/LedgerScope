@@ -1,5 +1,6 @@
 from .break_even_analysis import break_even_analysis
 from .comparative_statics import comparative_statics
+from .contribution_analysis import stochastic_contribution_analysis
 from .monte_carlo_simulation import run_monte_carlo
 from .regression_analysis import stochastic_bivariate_simulation
 from .two_way_sensitivity_analysis import run_two_way_sensitivity_analysis

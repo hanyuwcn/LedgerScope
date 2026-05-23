@@ -1,5 +1,6 @@
 from .break_even_view import render_break_even_dashboard, get_break_even_dataframe
 from .comparative_statics_view import render_comparative_statics_dashboard, get_comparative_statics_dataframe
+from .contribution_pie_view import generate_contribution_pie_chart
 from .histogram_distribution_view import generate_histogram_from_array
 from .linear_regression_view import generate_linear_regression_from_lists
 from .two_way_sensitivity_heatmap_view import generate_heatmap_from_df
