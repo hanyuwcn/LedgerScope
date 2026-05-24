@@ -16,6 +16,8 @@ from .cost_of_goods_sold_model import CostOfGoodsSoldModel
 from .depreciation_model import DepreciationModel
 from .expense_model import TotalExpenseModel
 from .free_cash_flow_model import FreeCashFlowModel
+# 4. Model Composer
+from .model_composer import PipelineComposer
 from .net_income_model import NetIncomeModel
 from .profit_model import ProfitModel
 # 3. Income & Performance Metric Blocks
@@ -40,4 +42,7 @@ __all__ = [
     "ProfitModel",
     "RoiModel",
     "FreeCashFlowModel",
+
+    # Model composer
+    "PipelineComposer",
 ]

@@ -10,9 +10,11 @@ governing pipeline calculations.
 from . import messages
 from . import settings
 from . import variable_names
+from .pipelines import DYNAMIC_PIPELINE_CONFIGS
 
 __all__ = [
-    "messages.py",
+    "messages",
     "settings",
     "variable_names",
+    "DYNAMIC_PIPELINE_CONFIGS",
 ]

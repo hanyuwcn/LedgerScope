@@ -458,10 +458,10 @@ def model_aggregation_pipeline():
 
 if __name__ == "__main__":
     # sample_analysis()
-    # sample_break_even_analysis_plots()
+    sample_break_even_analysis_plots()
     # sample_comparative_statics_analysis_plots()
     # sample_two_variables_sensitivity_analysis()
-    sample_linear_regression()
+    # sample_linear_regression()
     # sample_simulation_analysis()
     # sample_contribution_analysis()
 

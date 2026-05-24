@@ -1,15 +1,8 @@
-- review all the tests
-
-- Add solid model pipeline so that they don't have to be constructed every single times
-  - They can be composed of smaller pipeline
-    - Old column concept like cost, expense. 
-    - And a higher level aggregator, such as revenue, profit. 
-    - And metrics, such as roi, fcf
-  - they can be in a composed type like `[**cost, **revenue, **profit]` form
-  - They can be created through model names creating instance as all models can have no input variables
+- Review all the tests
 
 - Optimize plots(Ctnd)
   - wrap up messages and variable keys
+  - sharing common configurations, show to ai all styles, collecting configurations and update styles one by one
 
 - Write final report
  - in both languages
@@ -48,3 +41,11 @@
         - with an option by adding "¥" 
         - Making a map from variable name to its conversion function
       - Add Pie chart, input could be few output results to see their percentage e.g. ["Cogs", "AdvertisingCost, Expense"]
+
+    - Add solid model pipeline so that they don't have to be constructed every single times
+      - They can be composed of smaller pipeline
+        - Old column concept like cost, expense. 
+        - And a higher level aggregator, such as revenue, profit. 
+        - And metrics, such as roi, fcf
+      - they can be in a composed type like `[**cost, **revenue, **profit]` form
+      - They can be created through model names creating instance as all models can have no input variables
