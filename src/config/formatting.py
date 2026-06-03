@@ -4,6 +4,13 @@ from .variable_names import *
 VARIABLE_FORMATTING_MAP = {
     MONTHS: lambda v: fmt(v),
 
+    ### Advertising
+    CONVERSION_RATE_GOOGLE_SEARCH: lambda v: fmt(v, d=2, p=True),
+    CPC_GOOGLE_SEARCH: lambda v: fmt(v, d=1, s='$'),
+    ALLOCATION_GOOGLE_SEARCH: lambda v: fmt(v, d=0, p=True),
+    CPL_GOOGLE_SEARCH: lambda v: fmt(v, d=1, s='$'),
+    CLOSE_RATE: lambda v: fmt(v, d=2, p=True),
+
     ### Expenses
     EXPENSE: lambda v: fmt(v, s='¥'),
     EXPENSE_MONTHLY_FEE: lambda v: fmt(v, s='¥'),
@@ -32,8 +39,8 @@ VARIABLE_FORMATTING_MAP = {
     COST_SHIPPING: lambda v: fmt(v, s='¥'),
     COST_COGS: lambda v: fmt(v, s='¥'),
     COST_MANAGEMENT: lambda v: fmt(v, s='¥'),
-    COST_CPA: lambda v: fmt(v, d=1, s='$'),
-    COST_CONVERSION_RATE: lambda v: fmt(v, d=2, p=True),
+    COST_CPA: lambda v: fmt(v, d=1, s='$'),  ##(TODO): to deprecate
+    COST_CONVERSION_RATE: lambda v: fmt(v, d=2, p=True),  ##(TODO): to deprecate
 
     ### Revenue
     REVENUE: lambda v: fmt(v, s='¥'),
@@ -43,5 +50,6 @@ VARIABLE_FORMATTING_MAP = {
     NET_INCOME: lambda v: fmt(v, s='¥'),
     PROFIT: lambda v: fmt(v, s='¥'),
     ROI: lambda v: fmt(v, d=2, p=True),
+    ROAS: lambda v: fmt(v, d=2, p=True),
     FREE_CASH_FLOW: lambda v: fmt(v, s='¥')
 }

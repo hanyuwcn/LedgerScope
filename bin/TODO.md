@@ -1,8 +1,10 @@
-- Review all the tests
-
 - Optimize plots(Ctnd)
   - wrap up messages and variable keys
-  - sharing common configurations, show to ai all styles, collecting configurations and update styles one by one
+  - categorize styles and views so that they don't have to be with each other.
+  - move plots from config to style as common-style. by following steps
+    1. Distributes all attributes to each style;
+    2. Collect common styles together
+    3. Organize by order
 
 - Write final report
  - in both languages
@@ -11,6 +13,10 @@
  - Use (histogram/pie chart)plot to see the variable ranges for smaller aggregate, like cost and expense. 
  - Have a detailed design doc after the codebase is complete
  - remove test and test_data in tests/analysis
+
+
+- Review all the tests
+  - Deprecate primitive ads models in cost, as more detailed ads models are implemented
 
 
     - Workflow
@@ -49,3 +55,9 @@
         - And metrics, such as roi, fcf
       - they can be in a composed type like `[**cost, **revenue, **profit]` form
       - They can be created through model names creating instance as all models can have no input variables
+
+    - Implement google search ads efficiency model
+      - Together with roas and cpl model
+
+    - categorize models into sub folders.
+      - make parent folder import all models. This makes the outer scope unaware of structural folders 

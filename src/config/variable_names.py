@@ -28,14 +28,22 @@ FINANCE_TAX_RATE = "TaxRate"
 FINANCE_USD_TO_RMB = "USDToRMB"
 FINANCE_INTEREST_RATE = "InterestRate"
 
+### Ads
+CONVERSION_RATE_GOOGLE_SEARCH = "GoogleSearchConversionRate"
+CPC_GOOGLE_SEARCH = "GoogleSearchCostPerClick"
+ALLOCATION_GOOGLE_SEARCH = "AllocationGoogleSearch"
+CPL_GOOGLE_SEARCH = "GoogleSearchCostPerLeads"
+CLOSE_RATE = "CloseRate"
+
+
 ### Costs
 COST = "Cost"
 COST_ADVERTISING = "AdvertisingCost"
 COST_SHIPPING = "ShippingCost"
 COST_COGS = "Cogs"
 COST_MANAGEMENT = "ManagementCost"
-COST_CPA = "CostPerAcquisition"
-COST_CONVERSION_RATE = "ConversionRate"
+COST_CPA = "CostPerAcquisition"  ##(TODO): to deprecate
+COST_CONVERSION_RATE = "ConversionRate"  ##(TODO): to deprecate
 
 ### Revenue
 REVENUE = "Revenue"
@@ -47,6 +55,7 @@ NET_INCOME = "NetIncome"
 PROFIT = "Profit"
 ROI = "ROI"
 FREE_CASH_FLOW = "FreeCashFlow"
+ROAS = "ROAS"
 
 ## Break even analysis
 BREAK_EVEN_VARIABLE_NAME = "BreakEvenVariable"

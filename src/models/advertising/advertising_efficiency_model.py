@@ -1,7 +1,7 @@
 from src.config import variable_names
 from src.core.base_model import Model
 
-
+##(TODO): to deprecate
 def calculate_order_from_ads_budget(optional_variables: dict, **kwargs) -> dict:
     """
     Calculates total transactional orders generated from marketing spend metrics.
@@ -44,7 +44,7 @@ def calculate_order_from_ads_budget(optional_variables: dict, **kwargs) -> dict:
 
     return {variable_names.DEAL_ORDERS: calculated_orders}
 
-
+##(TODO): to deprecate
 class AdvertisingEfficiencyModel(Model):
     """
     Pipeline calculation block evaluating marketing acquisition spend to project total orders.

@@ -1,7 +1,8 @@
 import unittest
 
-# Assuming fmt is placed inside src.utils.formatting along with your other utility
 from src.utils.formatting import list_to_element_string, fmt
+from src.config import variable_names
+from src.config.formatting import VARIABLE_FORMATTING_MAP
 
 
 class TestFormattingUtils(unittest.TestCase):
@@ -42,6 +43,42 @@ class TestFormattingUtils(unittest.TestCase):
         self.assertEqual(fmt("N/A"), "N/A")
         self.assertEqual(fmt(None), "None")
         self.assertEqual(fmt("1234.56", d=2), "1,234.56")  # Valid numeric strings parse correctly
+
+    # =====================================================================
+    # VARIABLE FORMATTING CONFIGURATION MAP TESTS
+    # =====================================================================
+
+    def test_new_advertising_and_funnel_variable_formatting(self):
+        """Verify new Google Search pipeline variables map to their designated precision rules and origin flags."""
+        # CONVERSION_RATE_GOOGLE_SEARCH -> d=2, p=True (e.g., 0.04256 -> 4.26%)
+        cvr_lambda = VARIABLE_FORMATTING_MAP[variable_names.CONVERSION_RATE_GOOGLE_SEARCH]
+        self.assertEqual(cvr_lambda(0.04256), "4.26%")
+
+        # CPC_GOOGLE_SEARCH -> d=1, s='$' (e.g., 2.54 -> $2.5)
+        cpc_lambda = VARIABLE_FORMATTING_MAP[variable_names.CPC_GOOGLE_SEARCH]
+        self.assertEqual(cpc_lambda(2.54), "$2.5")
+
+        # ALLOCATION_GOOGLE_SEARCH -> d=0, p=True (e.g., 0.60 -> 60%)
+        alloc_lambda = VARIABLE_FORMATTING_MAP[variable_names.ALLOCATION_GOOGLE_SEARCH]
+        self.assertEqual(alloc_lambda(0.60), "60%")
+
+        # CPL_GOOGLE_SEARCH -> d=1, s='$' (Conceptual dollar tag indicator verification)
+        cpl_lambda = VARIABLE_FORMATTING_MAP[variable_names.CPL_GOOGLE_SEARCH]
+        self.assertEqual(cpl_lambda(104.166), "$104.2")
+
+        # CLOSE_RATE -> d=2, p=True (e.g., 0.125 -> 12.50%)
+        close_lambda = VARIABLE_FORMATTING_MAP[variable_names.CLOSE_RATE]
+        self.assertEqual(close_lambda(0.125), "12.50%")
+
+    def test_new_performance_metrics_variable_formatting(self):
+        """Verify that performance tracking metrics retain clear fractional precision and percentage marks."""
+        # ROI -> d=2, p=True (e.g., 0.4567 -> 45.67%)
+        roi_lambda = VARIABLE_FORMATTING_MAP[variable_names.ROI]
+        self.assertEqual(roi_lambda(0.4567), "45.67%")
+
+        # ROAS -> d=2, p=True (e.g., 3.75 -> 375.00%)
+        roas_lambda = VARIABLE_FORMATTING_MAP[variable_names.ROAS]
+        self.assertEqual(roas_lambda(3.75), "375.00%")
 
     # =====================================================================
     # LIST TO ELEMENT STRING TESTS

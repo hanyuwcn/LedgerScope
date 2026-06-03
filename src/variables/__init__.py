@@ -1,5 +1,3 @@
-# src/ledgerscope/variables/__init__.py
-
 """
 LedgerScope Primitive Declarations.
 
@@ -7,7 +5,15 @@ Aggregates and exposes the unified financial and transactional variables
 across costs, logistical deals, operational overhead, and currency matrices.
 """
 
-from .costs import Cost, AdvertisingCost, CostPerAcquisition, ConversionRate
+from .advertising import (
+    AdvertisingBudget,
+    GoogleSearchConversionRate,
+    GoogleSearchCostPerClick,
+    GoogleSearchAllocationPercentage,
+    CloseRate,
+)
+from .costs import Cost, AdvertisingCost, CostPerAcquisition, \
+    ConversionRate  # CPA & ConversionRate are pending deprecation
 from .deals import Orders, ItemsPerOrder, SellingPrice, PurchasingPrice
 from .expenses import Rent, TravelFee, RenderFee, Expense
 from .finance import InterestRate, TaxRate, USDToRMB
@@ -16,8 +22,8 @@ __all__ = [
     # Costs
     "Cost",
     "AdvertisingCost",
-    "CostPerAcquisition",
-    "ConversionRate",
+    "CostPerAcquisition",  # TODO: Deprecate once new ads funnel model fully deployed
+    "ConversionRate",  # TODO: Deprecate once new ads funnel model fully deployed
 
     # Deals
     "Orders",
@@ -35,4 +41,11 @@ __all__ = [
     "InterestRate",
     "TaxRate",
     "USDToRMB",
+
+    # Performance Marketing & Advertising Funnel
+    "AdvertisingBudget",
+    "GoogleSearchConversionRate",
+    "GoogleSearchCostPerClick",
+    "GoogleSearchAllocationPercentage",
+    "CloseRate",
 ]
