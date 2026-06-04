@@ -35,7 +35,6 @@ ALLOCATION_GOOGLE_SEARCH = "AllocationGoogleSearch"
 CPL_GOOGLE_SEARCH = "GoogleSearchCostPerLeads"
 CLOSE_RATE = "CloseRate"
 
-
 ### Costs
 COST = "Cost"
 COST_ADVERTISING = "AdvertisingCost"
@@ -64,6 +63,7 @@ BREAK_EVEN_EXPECTED_RESULT = "BreakEvenExpectedResult"
 BREAK_EVEN_POINT_THRESHOLD_VARIABLE_VALUE = "ThresholdVariableValue"
 BREAK_EVEN_POINT_THRESHOLD_RESULT = "ThresholdResult"
 BREAK_EVEN_SAFETY_MARGIN_PERCENTAGE = "SafetyMarginPercentage"
+BREAK_EVEN_FEASIBILITY_STATUS = "FeasibilityStatus"
 
 ## Comparative statics
 COMPARATIVE_STATICS_VARIABLE_NAME = "ComparativeStaticsVariable"

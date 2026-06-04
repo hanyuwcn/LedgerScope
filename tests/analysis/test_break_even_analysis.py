@@ -61,7 +61,7 @@ class TestBreakEvenAnalysis(unittest.TestCase):
         report = reports[0]
 
         self.assertEqual(report[variable_names.BREAK_EVEN_VARIABLE_NAME], variable_names.COST_CONVERSION_RATE)
-        self.assertEqual(report["feasibility_status"], "CROSSOVER_FOUND")
+        self.assertEqual(report["FeasibilityStatus"], "CROSSOVER_FOUND")
         self.assertAlmostEqual(report[variable_names.BREAK_EVEN_EXPECTED_VARIABLE_VALUE], 0.10)
         self.assertAlmostEqual(report[variable_names.BREAK_EVEN_EXPECTED_RESULT], 6250.0)
 
@@ -89,7 +89,7 @@ class TestBreakEvenAnalysis(unittest.TestCase):
         )
 
         report = reports[0]
-        self.assertEqual(report["feasibility_status"], "CROSSOVER_FOUND")
+        self.assertEqual(report["FeasibilityStatus"], "CROSSOVER_FOUND")
         self.assertAlmostEqual(report[variable_names.BREAK_EVEN_POINT_THRESHOLD_VARIABLE_VALUE], 0.15)
 
         # Unified Directional Safety Margin Formula Check:
@@ -114,7 +114,7 @@ class TestBreakEvenAnalysis(unittest.TestCase):
         )
 
         report = reports[0]
-        self.assertEqual(report["feasibility_status"], "ALWAYS_FEASIBLE")
+        self.assertEqual(report["FeasibilityStatus"], "ALWAYS_FEASIBLE")
 
         # Business Rule Requirement: For increasing trends, pick index 0 (smallest absolute driver value)
         self.assertAlmostEqual(report[variable_names.BREAK_EVEN_POINT_THRESHOLD_VARIABLE_VALUE], 0.05)
@@ -141,7 +141,7 @@ class TestBreakEvenAnalysis(unittest.TestCase):
         )
 
         report = reports[0]
-        self.assertEqual(report["feasibility_status"], "UNREACHABLE")
+        self.assertEqual(report["FeasibilityStatus"], "UNREACHABLE")
 
         # Business Rule Requirement: Capture the maximum boundary driving the largest result closest to target
         self.assertAlmostEqual(report[variable_names.BREAK_EVEN_POINT_THRESHOLD_VARIABLE_VALUE], 0.15)

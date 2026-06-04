@@ -44,7 +44,8 @@ def calculate_order_from_ads_budget_via_google_search(optional_variables: dict, 
                                                      default_google_search_allocation_percentage)
 
     # Core operational funnel calculation with currency adjustments
-    calculated_orders = (ads_budget * google_search_allocation_percentage * conversion_rate * close_rate) / (cpc * usd_to_rmb)
+    calculated_orders = (ads_budget * google_search_allocation_percentage * conversion_rate * close_rate) / (
+            cpc * usd_to_rmb)
 
     return {variable_names.DEAL_ORDERS: calculated_orders}
 

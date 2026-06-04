@@ -1,10 +1,15 @@
+"""
+break_even_view.py
+Generates DataFrame models and renders high-fidelity HTML sensitivity matrices.
+"""
+
 import pandas as pd
 from IPython.display import HTML
 
-from src.config import variable_names, plots
+from src.config import variable_names, messages
 from src.config.formatting import VARIABLE_FORMATTING_MAP
 from src.utils.formatting import fmt
-from .break_even_styles import BREAK_EVEN_TABLE_STYLESHEET, BREAK_EVEN_DASHBOARD_TEMPLATE
+from ..styles import break_even_styles
 
 
 def _get_formatter(var_name):
@@ -22,10 +27,10 @@ def get_break_even_dataframe(data_list, output_name):
     for item in data_list:
         # Row 1 (Visual): Impact Results (Outputs)
         processed_rows.append({
-            plots.SENSITIVITY_VARIABLE: f"└─ {output_name}",
-            plots.BREAK_EVEN_COLUMN_NAME_BASE: item[variable_names.BREAK_EVEN_EXPECTED_RESULT],
-            plots.BREAK_EVEN_COLUMN_NAME_THRESHOLD: item[variable_names.BREAK_EVEN_POINT_THRESHOLD_RESULT],
-            plots.BREAK_EVEN_COLUMN_NAME_SAFETY_MARGIN: "-"
+            break_even_styles.SENSITIVITY_VARIABLE: f"└─ {output_name}",
+            break_even_styles.BREAK_EVEN_COLUMN_NAME_BASE: item[variable_names.BREAK_EVEN_EXPECTED_RESULT],
+            break_even_styles.BREAK_EVEN_COLUMN_NAME_THRESHOLD: item[variable_names.BREAK_EVEN_POINT_THRESHOLD_RESULT],
+            break_even_styles.BREAK_EVEN_COLUMN_NAME_SAFETY_MARGIN: "-"
         })
 
         # Safe extraction of safety margin percentage
@@ -34,17 +39,18 @@ def get_break_even_dataframe(data_list, output_name):
 
         # Row 2 (Visual): Input Values (Variables)
         processed_rows.append({
-            plots.SENSITIVITY_VARIABLE: item[variable_names.BREAK_EVEN_VARIABLE_NAME],
-            plots.BREAK_EVEN_COLUMN_NAME_BASE: item[variable_names.BREAK_EVEN_EXPECTED_VARIABLE_VALUE],
-            plots.BREAK_EVEN_COLUMN_NAME_THRESHOLD: item[variable_names.BREAK_EVEN_POINT_THRESHOLD_VARIABLE_VALUE],
-            plots.BREAK_EVEN_COLUMN_NAME_SAFETY_MARGIN: margin_str
+            break_even_styles.SENSITIVITY_VARIABLE: item[variable_names.BREAK_EVEN_VARIABLE_NAME],
+            break_even_styles.BREAK_EVEN_COLUMN_NAME_BASE: item[variable_names.BREAK_EVEN_EXPECTED_VARIABLE_VALUE],
+            break_even_styles.BREAK_EVEN_COLUMN_NAME_THRESHOLD: item[
+                variable_names.BREAK_EVEN_POINT_THRESHOLD_VARIABLE_VALUE],
+            break_even_styles.BREAK_EVEN_COLUMN_NAME_SAFETY_MARGIN: margin_str
         })
 
     columns = [
-        plots.SENSITIVITY_VARIABLE,
-        plots.BREAK_EVEN_COLUMN_NAME_BASE,
-        plots.BREAK_EVEN_COLUMN_NAME_THRESHOLD,
-        plots.BREAK_EVEN_COLUMN_NAME_SAFETY_MARGIN
+        break_even_styles.SENSITIVITY_VARIABLE,
+        break_even_styles.BREAK_EVEN_COLUMN_NAME_BASE,
+        break_even_styles.BREAK_EVEN_COLUMN_NAME_THRESHOLD,
+        break_even_styles.BREAK_EVEN_COLUMN_NAME_SAFETY_MARGIN
     ]
     return pd.DataFrame(processed_rows, columns=columns)
 
@@ -57,26 +63,31 @@ def render_break_even_dashboard(data_list, output_name):
     row_elements = []
 
     for item in data_list:
-        feasibility = item.get("feasibility_status", "CROSSOVER_FOUND")
+        feasibility = item.get(variable_names.BREAK_EVEN_FEASIBILITY_STATUS,
+                               messages.BREAK_EVEN_FEASIBILITY_STATUS_CROSSOVER)
         margin_val = item.get(variable_names.BREAK_EVEN_SAFETY_MARGIN_PERCENTAGE, 0.0)
 
-        # Assign explicit break-even contextual CSS hooks
-        if feasibility == "ALWAYS_FEASIBLE":
-            margin_class = "be-margin-safe"
-            val_thr_class = "be-val-thr"
-            res_thr_class = "be-res-thr"
-        elif feasibility == "UNREACHABLE":
-            margin_class = "be-margin-danger"
-            val_thr_class = "be-val-thr-unreachable"
-            res_thr_class = "be-res-thr-unreachable"
-        elif feasibility == "CROSSOVER_FOUND":
-            val_thr_class = "be-val-thr"
-            res_thr_class = "be-res-thr"
-            margin_class = "be-margin-caution" if margin_val >= 0 else "be-margin-warning"
-        else:
-            margin_class = "be-margin-warning"
-            val_thr_class = "be-val-thr"
-            res_thr_class = "be-res-thr"
+        # Assign explicit break-even contextual CSS hooks using structural matching
+        match feasibility:
+            case messages.BREAK_EVEN_FEASIBILITY_ALWAYS_FEASIBLE:
+                margin_class = "be-margin-safe"
+                val_thr_class = "be-val-thr"
+                res_thr_class = "be-res-thr"
+
+            case messages.BREAK_EVEN_FEASIBILITY_UNREACHABLE:
+                margin_class = "be-margin-danger"
+                val_thr_class = "be-val-thr-unreachable"
+                res_thr_class = "be-res-thr-unreachable"
+
+            case messages.BREAK_EVEN_FEASIBILITY_STATUS_CROSSOVER:
+                val_thr_class = "be-val-thr"
+                res_thr_class = "be-res-thr"
+                margin_class = "be-margin-caution" if margin_val >= 0 else "be-margin-warning"
+
+            case _:
+                margin_class = "be-margin-warning"
+                val_thr_class = "be-val-thr"
+                res_thr_class = "be-res-thr"
 
         var_name = item[variable_names.BREAK_EVEN_VARIABLE_NAME]
 
@@ -109,12 +120,12 @@ def render_break_even_dashboard(data_list, output_name):
                 <td class="{margin_class}">{margin_val:.1%}</td>
             </tr>""")
 
-    compiled_html = BREAK_EVEN_DASHBOARD_TEMPLATE.format(
-        styles=BREAK_EVEN_TABLE_STYLESHEET,
-        var_header=plots.SENSITIVITY_VARIABLE,
-        base_header=plots.BREAK_EVEN_COLUMN_NAME_BASE,
-        thr_header=plots.BREAK_EVEN_COLUMN_NAME_THRESHOLD,
-        margin_header=plots.BREAK_EVEN_COLUMN_NAME_SAFETY_MARGIN,
+    compiled_html = break_even_styles.BREAK_EVEN_DASHBOARD_TEMPLATE.format(
+        styles=break_even_styles.BREAK_EVEN_TABLE_STYLESHEET,
+        var_header=break_even_styles.SENSITIVITY_VARIABLE,
+        base_header=break_even_styles.BREAK_EVEN_COLUMN_NAME_BASE,
+        thr_header=break_even_styles.BREAK_EVEN_COLUMN_NAME_THRESHOLD,
+        margin_header=break_even_styles.BREAK_EVEN_COLUMN_NAME_SAFETY_MARGIN,
         rows="".join(row_elements)
     )
 

@@ -1,10 +1,8 @@
 - Optimize plots(Ctnd)
-  - wrap up messages and variable keys
-  - categorize styles and views so that they don't have to be with each other.
-  - move plots from config to style as common-style. by following steps
-    1. Distributes all attributes to each style;
-    2. Collect common styles together
-    3. Organize by order
+  - Resolve to-dos in the views and styles in plots
+
+- Add following aspects:
+  - Tooling cost
 
 - Write final report
  - in both languages
@@ -13,7 +11,6 @@
  - Use (histogram/pie chart)plot to see the variable ranges for smaller aggregate, like cost and expense. 
  - Have a detailed design doc after the codebase is complete
  - remove test and test_data in tests/analysis
-
 
 - Review all the tests
   - Deprecate primitive ads models in cost, as more detailed ads models are implemented
@@ -47,6 +44,12 @@
         - with an option by adding "¥" 
         - Making a map from variable name to its conversion function
       - Add Pie chart, input could be few output results to see their percentage e.g. ["Cogs", "AdvertisingCost, Expense"]
+      - wrap up messages and variable keys
+      - categorize styles and views so that they don't have to be with each other.
+      - move plots from config to style as common-style. by following steps
+        1. Distributes all attributes to each style;
+        2. Collect common styles together
+        3. Organize by order
 
     - Add solid model pipeline so that they don't have to be constructed every single times
       - They can be composed of smaller pipeline

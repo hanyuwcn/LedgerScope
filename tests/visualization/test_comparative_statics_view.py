@@ -1,75 +1,46 @@
 import unittest
-from unittest.mock import patch
-
 import numpy as np
 import pandas as pd
 from IPython.display import HTML
 
-# Target import rules
-from src.visualization.comparative_statics_view import (
+from src.config import variable_names
+from src.visualization.styles import comparative_statics_styles
+from src.visualization.views.comparative_statics_view import (
     get_comparative_statics_dataframe,
     render_comparative_statics_dashboard
 )
 
 
-class TestComparativeStaticsViewEngine(unittest.TestCase):
+class TestComparativeStaticsViewEngineComprehensive(unittest.TestCase):
 
     def setUp(self):
-        """Build isolation patches for configurations and map out target test schemas."""
-        # 1. Setup mock column/plot name mappings safely
-        self.patch_plots = patch('src.visualization.comparative_statics_view.plots')
-        self.mock_plots = self.patch_plots.start()
-
-        self.mock_plots.SENSITIVITY_VARIABLE = "Metric/Variable"
-        self.mock_plots.COMPARATIVE_STATICS_COLUMN_NAME_MIN = "Min Scenario"
-        self.mock_plots.COMPARATIVE_STATICS_COLUMN_NAME_BASE = "Baseline Scenario"
-        self.mock_plots.COMPARATIVE_STATICS_COLUMN_NAME_MAX = "Max Scenario"
-        self.mock_plots.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY = "Sensitivity Elasticity"
-
-        # Patch variable mapping keys to decouple from real data models
-        self.patch_cs_vars = patch('src.visualization.comparative_statics_view.variable_names')
-        self.mock_cs_vars = self.patch_cs_vars.start()
-
-        self.mock_cs_vars.COMPARATIVE_STATICS_MIN_RESULT = 'MinResult'
-        self.mock_cs_vars.COMPARATIVE_STATICS_EXPECTED_RESULT = 'ExpectedResult'
-        self.mock_cs_vars.COMPARATIVE_STATICS_MAX_RESULT = 'MaxResult'
-        self.mock_cs_vars.COMPARATIVE_STATICS_VARIABLE_NAME = 'VariableName'
-        self.mock_cs_vars.COMPARATIVE_STATICS_MIN_VARIABLE_VALUE = 'MinVariableValue'
-        self.mock_cs_vars.COMPARATIVE_STATICS_EXPECTED_VARIABLE_VALUE = 'ExpectedVariableValue'
-        self.mock_cs_vars.COMPARATIVE_STATICS_MAX_VARIABLE_VALUE = 'MaxVariableValue'
-        self.mock_cs_vars.COMPARATIVE_STATICS_ELASTICITY = 'Elasticity'
-
-        # 2. Setup a standard dataset capturing multiple elasticity behaviors (+ / -)
+        """Map out target test schemas using true production dictionary configurations."""
+        # Setup standard dataset capturing multiple elasticity behaviors (+ / -) using real configuration constants
         self.standard_comparative_statics_input = [
             {
-                'VariableName': 'ConversionRate',
-                'MinVariableValue': 0.02,
-                'ExpectedVariableValue': 0.03,
-                'MaxVariableValue': 0.04,
-                'MinResult': 80000.0,
-                'ExpectedResult': 120000.0,
-                'MaxResult': 160000.0,
-                'Elasticity': 1.25  # Positive elasticity path
+                variable_names.COMPARATIVE_STATICS_VARIABLE_NAME: 'ConversionRate',
+                variable_names.COMPARATIVE_STATICS_MIN_VARIABLE_VALUE: 0.02,
+                variable_names.COMPARATIVE_STATICS_EXPECTED_VARIABLE_VALUE: 0.03,
+                variable_names.COMPARATIVE_STATICS_MAX_VARIABLE_VALUE: 0.04,
+                variable_names.COMPARATIVE_STATICS_MIN_RESULT: 80000.0,
+                variable_names.COMPARATIVE_STATICS_EXPECTED_RESULT: 120000.0,
+                variable_names.COMPARATIVE_STATICS_MAX_RESULT: 160000.0,
+                variable_names.COMPARATIVE_STATICS_ELASTICITY: 1.25  # Positive elasticity path
             },
             {
-                'VariableName': 'ChurnRate',
-                'MinVariableValue': 0.01,
-                'ExpectedVariableValue': 0.02,
-                'MaxVariableValue': 0.03,
-                'MinResult': 140000.0,
-                'ExpectedResult': 120000.0,
-                'MaxResult': 95000.0,
-                'Elasticity': -0.45  # Negative elasticity path
+                variable_names.COMPARATIVE_STATICS_VARIABLE_NAME: 'ChurnRate',
+                variable_names.COMPARATIVE_STATICS_MIN_VARIABLE_VALUE: 0.01,
+                variable_names.COMPARATIVE_STATICS_EXPECTED_VARIABLE_VALUE: 0.02,
+                variable_names.COMPARATIVE_STATICS_MAX_VARIABLE_VALUE: 0.03,
+                variable_names.COMPARATIVE_STATICS_MIN_RESULT: 140000.0,
+                variable_names.COMPARATIVE_STATICS_EXPECTED_RESULT: 120000.0,
+                variable_names.COMPARATIVE_STATICS_MAX_RESULT: 95000.0,
+                variable_names.COMPARATIVE_STATICS_ELASTICITY: -0.45  # Negative elasticity path
             }
         ]
 
-    def tearDown(self):
-        """Dismantle background isolation wrappers safely."""
-        self.patch_plots.stop()
-        self.patch_cs_vars.stop()
-
     # =========================================================================
-    # MODULE STRUCTURAL TESTS: DATAFRAME GENERATION
+    # 1. DATAFRAME GENERATION LOGIC
     # =========================================================================
 
     def test_get_comparative_statics_dataframe_happy_path(self):
@@ -80,13 +51,13 @@ class TestComparativeStaticsViewEngine(unittest.TestCase):
         # 2 input metrics * 2 structural rows per item (Output Row + Input Factor Row) = 4 rows total
         self.assertEqual(len(df), 4)
 
-        # Confirm columns align directly to mocked configurations
+        # Confirm columns align directly to true architectural style variables
         expected_columns = [
-            self.mock_plots.SENSITIVITY_VARIABLE,
-            self.mock_plots.COMPARATIVE_STATICS_COLUMN_NAME_MIN,
-            self.mock_plots.COMPARATIVE_STATICS_COLUMN_NAME_BASE,
-            self.mock_plots.COMPARATIVE_STATICS_COLUMN_NAME_MAX,
-            self.mock_plots.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY
+            comparative_statics_styles.SENSITIVITY_VARIABLE,
+            comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_MIN,
+            comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_BASE,
+            comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_MAX,
+            comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY
         ]
         self.assertEqual(list(df.columns), expected_columns)
 
@@ -94,20 +65,21 @@ class TestComparativeStaticsViewEngine(unittest.TestCase):
         """Scenario 2: Verify specific structure blocks where Output rows suppress elasticity figures."""
         df = get_comparative_statics_dataframe(self.standard_comparative_statics_input, output_name="Net Value")
 
-        elasticity_col = self.mock_plots.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY
+        elasticity_col = comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY
 
-        # Row index 0 belongs to Output (Results) - verify it is a NaN/missing float value
-        self.assertTrue(np.isnan(df.iloc[0][elasticity_col]))
+        # Row index 0 belongs to Output (Results) - verify it is a missing/None element
+        # (Pandas turns None into a floating-point NaN or None depending on type tracking)
+        self.assertTrue(pd.isna(df.iloc[0][elasticity_col]))
 
         # Row index 1 belongs to the Input factor (ConversionRate) - must match assigned metric value
         self.assertEqual(df.iloc[1][elasticity_col], 1.25)
 
     # =========================================================================
-    # MODULE STRUCTURAL TESTS: HTML DASHBOARD RENDERING
+    # 2. HTML DASHBOARD RENDERING LOGIC
     # =========================================================================
 
     def test_render_comparative_statics_dashboard_html_compilation(self):
-        """Scenario 3: Verify the core table element compiles cleanly into notebook display containers."""
+        """Scenario 3: Verify the table element compiles into display containers without structural crashes."""
         html_component = render_comparative_statics_dashboard(
             self.standard_comparative_statics_input, output_name="Gross Income"
         )
@@ -117,23 +89,26 @@ class TestComparativeStaticsViewEngine(unittest.TestCase):
         raw_html = html_component._repr_html_()
         self.assertTrue(len(raw_html) > 0)
 
-        # Structural asset markers
+        # Confirm raw inputs and labels were injected cleanly into the markup data
         self.assertIn("Gross Income", raw_html)
         self.assertIn("ConversionRate", raw_html)
         self.assertIn("ChurnRate", raw_html)
 
     def test_render_comparative_statics_dashboard_elasticity_branching(self):
-        """Scenario 4: Verify positive, negative, and safe non-float types trigger correct CSS classes."""
+        """Scenario 4: Verify positive, negative, and safe non-float fallbacks handle class mappings."""
         edge_case_input = [
             {
-                'VariableName': 'FixedOverhead',
-                'MinVariableValue': 100, 'ExpectedVariableValue': 100, 'MaxVariableValue': 100,
-                'MinResult': 500, 'ExpectedResult': 500, 'MaxResult': 500,
-                'Elasticity': 'INVALID_STR_OR_NONE'  # String format crash resilience test
+                variable_names.COMPARATIVE_STATICS_VARIABLE_NAME: 'FixedOverhead',
+                variable_names.COMPARATIVE_STATICS_MIN_VARIABLE_VALUE: 100,
+                variable_names.COMPARATIVE_STATICS_EXPECTED_VARIABLE_VALUE: 100,
+                variable_names.COMPARATIVE_STATICS_MAX_VARIABLE_VALUE: 100,
+                variable_names.COMPARATIVE_STATICS_MIN_RESULT: 500,
+                variable_names.COMPARATIVE_STATICS_EXPECTED_RESULT: 500,
+                variable_names.COMPARATIVE_STATICS_MAX_RESULT: 500,
+                variable_names.COMPARATIVE_STATICS_ELASTICITY: 'INVALID_STR_OR_NONE'  # String crash resilience test
             }
         ]
 
-        # Process standard input to verify class rendering matches conditional constraints
         raw_html_standard = render_comparative_statics_dashboard(
             self.standard_comparative_statics_input, output_name="Test"
         )._repr_html_()
@@ -142,15 +117,15 @@ class TestComparativeStaticsViewEngine(unittest.TestCase):
             edge_case_input, output_name="Test"
         )._repr_html_()
 
-        # Positive elasticity should inject + indicator sign along with appropriate class hooks
+        # Positive elasticity check
         self.assertIn("elasticity-positive", raw_html_standard)
         self.assertIn("+1.25", raw_html_standard)
 
-        # Negative elasticity should inject appropriate negative class hooks
+        # Negative elasticity check
         self.assertIn("elasticity-negative", raw_html_standard)
         self.assertIn("-0.45", raw_html_standard)
 
-        # Malformed or string non-numeric metrics shouldn't crash; should fallback to 0.00 base style
+        # Fallback string test - should be caught gracefully and formatted as structural 0.00 base line
         self.assertIn("0.00", raw_html_edge)
 
 

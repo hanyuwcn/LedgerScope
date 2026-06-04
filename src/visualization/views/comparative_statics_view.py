@@ -1,10 +1,10 @@
 import pandas as pd
 from IPython.display import HTML
 
-from src.config import variable_names, plots
+from src.config import variable_names
 from src.config.formatting import VARIABLE_FORMATTING_MAP
 from src.utils.formatting import fmt
-from .comparative_statics_styles import COMPARATIVE_STATICS_STYLE
+from src.visualization.styles import comparative_statics_styles
 
 
 def _get_formatter(var_name):
@@ -22,43 +22,49 @@ def get_comparative_statics_dataframe(data_list, output_name):
     for item in data_list:
         # Row 1: The Model Outputs (Results)
         processed_rows.append({
-            plots.SENSITIVITY_VARIABLE: output_name,
-            plots.COMPARATIVE_STATICS_COLUMN_NAME_MIN: item[variable_names.COMPARATIVE_STATICS_MIN_RESULT],
-            plots.COMPARATIVE_STATICS_COLUMN_NAME_BASE: item[variable_names.COMPARATIVE_STATICS_EXPECTED_RESULT],
-            plots.COMPARATIVE_STATICS_COLUMN_NAME_MAX: item[variable_names.COMPARATIVE_STATICS_MAX_RESULT],
-            plots.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY: None
+            comparative_statics_styles.SENSITIVITY_VARIABLE: output_name,
+            comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_MIN: item[
+                variable_names.COMPARATIVE_STATICS_MIN_RESULT],
+            comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_BASE: item[
+                variable_names.COMPARATIVE_STATICS_EXPECTED_RESULT],
+            comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_MAX: item[
+                variable_names.COMPARATIVE_STATICS_MAX_RESULT],
+            comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY: None
         })
 
         # Row 2: The Input Factor Values
         processed_rows.append({
-            plots.SENSITIVITY_VARIABLE: item[variable_names.COMPARATIVE_STATICS_VARIABLE_NAME],
-            plots.COMPARATIVE_STATICS_COLUMN_NAME_MIN: item[variable_names.COMPARATIVE_STATICS_MIN_VARIABLE_VALUE],
-            plots.COMPARATIVE_STATICS_COLUMN_NAME_BASE: item[
+            comparative_statics_styles.SENSITIVITY_VARIABLE: item[variable_names.COMPARATIVE_STATICS_VARIABLE_NAME],
+            comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_MIN: item[
+                variable_names.COMPARATIVE_STATICS_MIN_VARIABLE_VALUE],
+            comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_BASE: item[
                 variable_names.COMPARATIVE_STATICS_EXPECTED_VARIABLE_VALUE],
-            plots.COMPARATIVE_STATICS_COLUMN_NAME_MAX: item[variable_names.COMPARATIVE_STATICS_MAX_VARIABLE_VALUE],
-            plots.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY: item[variable_names.COMPARATIVE_STATICS_ELASTICITY]
+            comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_MAX: item[
+                variable_names.COMPARATIVE_STATICS_MAX_VARIABLE_VALUE],
+            comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY: item[
+                variable_names.COMPARATIVE_STATICS_ELASTICITY]
         })
 
-    columns = [plots.SENSITIVITY_VARIABLE,
-               plots.COMPARATIVE_STATICS_COLUMN_NAME_MIN,
-               plots.COMPARATIVE_STATICS_COLUMN_NAME_BASE,
-               plots.COMPARATIVE_STATICS_COLUMN_NAME_MAX,
-               plots.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY]
+    columns = [comparative_statics_styles.SENSITIVITY_VARIABLE,
+               comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_MIN,
+               comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_BASE,
+               comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_MAX,
+               comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY]
     return pd.DataFrame(processed_rows, columns=columns)
 
 
 def render_comparative_statics_dashboard(data_list, output_name):
     """Generates an HTML matrix layout dashboard for comparative statics inside notebooks."""
     html = f"""
-            {COMPARATIVE_STATICS_STYLE}
+            {comparative_statics_styles.COMPARATIVE_STATICS_STYLE}
             <table class="cs-table">
                 <thead>
                     <tr>
-                        <th class="text-left">{plots.SENSITIVITY_VARIABLE}</th>
-                        <th>{plots.COMPARATIVE_STATICS_COLUMN_NAME_MIN}</th>
-                        <th>{plots.COMPARATIVE_STATICS_COLUMN_NAME_BASE}</th>
-                        <th>{plots.COMPARATIVE_STATICS_COLUMN_NAME_MAX}</th>
-                        <th>{plots.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY}</th>
+                        <th class="text-left">{comparative_statics_styles.SENSITIVITY_VARIABLE}</th>
+                        <th>{comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_MIN}</th>
+                        <th>{comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_BASE}</th>
+                        <th>{comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_MAX}</th>
+                        <th>{comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY}</th>
                     </tr>
                 </thead>
                 <tbody>"""

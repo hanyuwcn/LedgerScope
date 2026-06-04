@@ -1,18 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from src.config import plots
 from src.config.formatting import VARIABLE_FORMATTING_MAP
 from src.utils.formatting import fmt
-from .contribution_pie_styles import (
-    PIE_COLORMAP,
-    SPINE_BORDER_COLOR,
-    TITLE_FONT_CONFIGURATION,
-    IN_LEGEND_TEXT_FONTS,
-    CANVAS_FIGURE_SIZE,
-    PIE_MAIN_TITLE,
-    X_AXIS_COLOR_RULE
-)
+from src.visualization.styles import contribution_pie_styles
 
 
 def _get_formatter(var_name):
@@ -39,8 +30,6 @@ def generate_contribution_pie_chart(average_contributions: dict[str, float]) -> 
     total_sum = raw_values.sum()
 
     # --- ZERO-SUM SAFETY GUARD ---
-    # If the simulation returns all zeros, provide equal epsilon values
-    # to let matplotlib draw equal slices safely without crashing.
     if total_sum <= 0.0:
         plot_values = np.full_like(raw_values, 1e-9)
     else:
@@ -48,9 +37,9 @@ def generate_contribution_pie_chart(average_contributions: dict[str, float]) -> 
 
     # Derive balanced discrete colors along the spectrum
     if len(labels) > 1:
-        slice_colors = PIE_COLORMAP(np.linspace(0.1, 0.9, len(labels)))
+        slice_colors = contribution_pie_styles.PIE_COLORMAP(np.linspace(0.1, 0.9, len(labels)))
     else:
-        slice_colors = [PIE_COLORMAP(0.5)]
+        slice_colors = [contribution_pie_styles.PIE_COLORMAP(0.5)]
 
     graph_labels = []
     legend_labels = []
@@ -67,22 +56,16 @@ def generate_contribution_pie_chart(average_contributions: dict[str, float]) -> 
 
     # Isolate global style contexts to eliminate downstream side-effects
     with plt.rc_context():
-        fig, ax = plt.subplots(dpi=100, figsize=CANVAS_FIGURE_SIZE)
+        fig, ax = plt.subplots(dpi=100, figsize=contribution_pie_styles.CANVAS_FIGURE_SIZE)
 
+        # Fixed: Style properties are now clean variable calls sourced from the style file
         wedges, texts = ax.pie(
             plot_values,
             labels=graph_labels,
             colors=slice_colors,
-            startangle=140,
-            textprops={
-                'fontsize': plots.LINEAR_REGRESSION_TICK_SIZE,
-                'color': X_AXIS_COLOR_RULE
-            },
-            wedgeprops={
-                'edgecolor': SPINE_BORDER_COLOR,
-                'linewidth': 1,
-                'antialiased': True
-            }
+            startangle=contribution_pie_styles.PIE_START_ANGLE,
+            textprops=contribution_pie_styles.SLICE_TEXT_PROPERTIES,
+            wedgeprops=contribution_pie_styles.WEDGE_PROPERTIES
         )
 
         # Enforce strict uniform aspect ratio so the pie remains perfectly circular
@@ -90,21 +73,20 @@ def generate_contribution_pie_chart(average_contributions: dict[str, float]) -> 
 
         # Apply stylized global headers centered over the canvas
         ax.set_title(
-            PIE_MAIN_TITLE,
-            fontdict=TITLE_FONT_CONFIGURATION,
+            contribution_pie_styles.PIE_MAIN_TITLE,
+            fontdict=contribution_pie_styles.TITLE_FONT_CONFIGURATION,
             loc='center',
             pad=20
         )
 
-        # Construct legend card containing explicit names and formatted absolute values
+        # Construct legend card utilizing cleaned configuration properties
         legend = ax.legend(
             wedges,
             legend_labels,
-            title="Components",
-            **IN_LEGEND_TEXT_FONTS
+            **contribution_pie_styles.LEGEND_PROPERTIES
         )
         legend.get_frame().set_linewidth(1)
-        legend.get_frame().set_edgecolor(SPINE_BORDER_COLOR)
+        legend.get_frame().set_edgecolor(contribution_pie_styles.SPINE_BORDER_COLOR)
 
         plt.tight_layout()
 

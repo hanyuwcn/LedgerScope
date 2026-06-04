@@ -66,7 +66,7 @@ def get_break_even_analysis_for_one_variable(variables: dict, selected_variable:
     # Initialize report map with baseline structural metadata
     variable_analysis_report = {
         variable_names.BREAK_EVEN_VARIABLE_NAME: selected_variable,
-        "feasibility_status": "CROSSOVER_FOUND"  # Default status assumes a natural break-even intersection
+        variable_names.BREAK_EVEN_FEASIBILITY_STATUS: messages.BREAK_EVEN_FEASIBILITY_STATUS_CROSSOVER
     }
 
     # 1. Capture baseline model state and extract the expected outcome
@@ -90,11 +90,13 @@ def get_break_even_analysis_for_one_variable(variables: dict, selected_variable:
 
         # 3. Apply operational boundary rules
         if all_scenarios_meet_goal:
-            variable_analysis_report["feasibility_status"] = "ALWAYS_FEASIBLE"
+            variable_analysis_report[
+                variable_names.BREAK_EVEN_FEASIBILITY_STATUS] = messages.BREAK_EVEN_FEASIBILITY_ALWAYS_FEASIBLE
             break_even_index = 0 if impact_is_positive else (len(simulated_outcomes) - 1)
 
         elif no_scenarios_meet_goal:
-            variable_analysis_report["feasibility_status"] = "UNREACHABLE"
+            variable_analysis_report[
+                variable_names.BREAK_EVEN_FEASIBILITY_STATUS] = messages.BREAK_EVEN_FEASIBILITY_UNREACHABLE
             break_even_index = (len(simulated_outcomes) - 1) if impact_is_positive else 0
 
         else:
@@ -144,7 +146,7 @@ def determine_variable_impact_direction(outcomes: list[float]) -> tuple[bool, bo
     impact_is_negative = np.all(outcomes_array[:-1] >= outcomes_array[1:])
 
     if not impact_is_positive and not impact_is_negative:
-        raise ValueError("The performance curve is non-monotonic.")
+        raise ValueError
     return impact_is_positive, impact_is_negative
 
 

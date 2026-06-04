@@ -73,6 +73,7 @@ def evaluate_expected_scenario(
     return evaluate_chained_models(input_variable, model_pipeline)
 
 
+## TODO: shuffled input can be optional to allow fixed value evaluation
 def evaluate_stochastic_iteration(variables: dict, shuffled_inputs: list[str], model_pipeline: list) -> dict:
     """
     Samples a single randomized parameter snapshot environment by shuffling designated
