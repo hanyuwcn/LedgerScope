@@ -8,7 +8,6 @@ from src.variables.advertising import (
     GoogleSearchConversionRate,
     GoogleSearchCostPerClick,
     GoogleSearchAllocationPercentage,
-    CloseRate
 )
 
 
@@ -21,7 +20,6 @@ class TestAdvertisingVariables(unittest.TestCase):
         self.google_conv_rate = GoogleSearchConversionRate(min_value=0.02, max_value=0.06)
         self.google_cpc = GoogleSearchCostPerClick(min_value=1.80, expected_value=2.50, max_value=3.50)
         self.google_allocation = GoogleSearchAllocationPercentage(min_value=0.50, max_value=0.70)
-        self.close_rate = CloseRate(min_value=0.08, expected_value=0.12, max_value=0.18)
 
     # =====================================================================
     # IDENTITY & NAMING TESTS
@@ -33,7 +31,6 @@ class TestAdvertisingVariables(unittest.TestCase):
         self.assertEqual(self.google_conv_rate.name, variable_names.CONVERSION_RATE_GOOGLE_SEARCH)
         self.assertEqual(self.google_cpc.name, variable_names.CPC_GOOGLE_SEARCH)
         self.assertEqual(self.google_allocation.name, variable_names.ALLOCATION_GOOGLE_SEARCH)
-        self.assertEqual(self.close_rate.name, variable_names.CLOSE_RATE)
 
     # =====================================================================
     # BOUNDARY CONFIGURATION TESTS (Based on default presets)
@@ -66,13 +63,6 @@ class TestAdvertisingVariables(unittest.TestCase):
         self.assertAlmostEqual(self.google_allocation.min_value, 0.50)
         self.assertAlmostEqual(self.google_allocation.max_value, 0.70)
         self.assertAlmostEqual(self.google_allocation.expected_value, 0.60)  # Midpoint
-
-    def test_close_rate_explicit_range(self):
-        """Verify CloseRate retains its explicitly specified expected performance value."""
-        # Preset: min_value=8%, max_value=18%, expected_value=12%
-        self.assertAlmostEqual(self.close_rate.min_value, 0.08)
-        self.assertAlmostEqual(self.close_rate.max_value, 0.18)
-        self.assertAlmostEqual(self.close_rate.expected_value, 0.12)  # Explicitly defined
 
     # =====================================================================
     # BEHAVIORAL METHOD TESTS (Inherited from core Variable class)

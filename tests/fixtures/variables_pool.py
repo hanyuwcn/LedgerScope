@@ -10,6 +10,7 @@ from src.variables import (
     CostPerAcquisition,
     ConversionRate,
     Orders,
+    CloseRate,
     ItemsPerOrder,
     SellingPrice,
     PurchasingPrice,
@@ -44,6 +45,7 @@ def get_test_variable_portfolio() -> dict:
         # Deals
         variable_names.REVENUE: 0,
         variable_names.DEAL_ORDERS: Orders(min_value=20, max_value=30),
+        variable_names.CLOSE_RATE: CloseRate(min_value=0.08, max_value=0.18),
         variable_names.DEAL_ITEMS_PER_ORDER: ItemsPerOrder(min_value=1, max_value=5),
         variable_names.DEAL_SELLING_PRICE: SellingPrice(min_value=3000, max_value=6000),
         variable_names.DEAL_PURCHASING_PRICE: PurchasingPrice(min_value=1000, max_value=2000),

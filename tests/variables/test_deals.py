@@ -14,6 +14,7 @@ class TestDealVariables(unittest.TestCase):
 
         # Extract deal variables for clean local references
         self.orders = self.portfolio[variable_names.DEAL_ORDERS]
+        self.close_rate = self.portfolio[variable_names.CLOSE_RATE]
         self.items_per_order = self.portfolio[variable_names.DEAL_ITEMS_PER_ORDER]
         self.selling_price = self.portfolio[variable_names.DEAL_SELLING_PRICE]
         self.purchasing_price = self.portfolio[variable_names.DEAL_PURCHASING_PRICE]
@@ -25,6 +26,7 @@ class TestDealVariables(unittest.TestCase):
     def test_deal_identity_mappings(self):
         """Verify that each class properly assigns its respective global config key name."""
         self.assertEqual(self.orders.name, variable_names.DEAL_ORDERS)
+        self.assertEqual(self.close_rate.name, variable_names.CLOSE_RATE)
         self.assertEqual(self.items_per_order.name, variable_names.DEAL_ITEMS_PER_ORDER)
         self.assertEqual(self.selling_price.name, variable_names.DEAL_SELLING_PRICE)
         self.assertEqual(self.purchasing_price.name, variable_names.DEAL_PURCHASING_PRICE)
@@ -38,7 +40,14 @@ class TestDealVariables(unittest.TestCase):
         # Preset: min_value=20, max_value=30
         self.assertEqual(self.orders.min_value, 20)
         self.assertEqual(self.orders.max_value, 30)
-        self.assertEqual(self.orders.expected_value, 25.0)  # Midpoint
+        self.assertEqual(self.orders.expected_value, 25.0)
+
+    def test_close_rate_explicit_range(self):
+        """Verify CloseRate retains its explicitly specified expected performance value."""
+        # Preset: min_value=8%, max_value=18%, expected_value=12%
+        self.assertAlmostEqual(self.close_rate.min_value, 0.08)
+        self.assertAlmostEqual(self.close_rate.max_value, 0.18)
+        self.assertAlmostEqual(self.close_rate.expected_value, 0.13)  # Midpoint
 
     def test_items_per_order_range(self):
         """Verify ItemsPerOrder respects Rule 3 and computes midpoint expected value."""

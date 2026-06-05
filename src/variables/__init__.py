@@ -10,11 +10,10 @@ from .advertising import (
     GoogleSearchConversionRate,
     GoogleSearchCostPerClick,
     GoogleSearchAllocationPercentage,
-    CloseRate,
 )
 from .costs import Cost, SetupCost, AdvertisingCost, CostPerAcquisition, \
     ConversionRate  # CPA & ConversionRate are pending deprecation
-from .deals import Orders, ItemsPerOrder, SellingPrice, PurchasingPrice
+from .deals import Orders, CloseRate, ItemsPerOrder, SellingPrice, PurchasingPrice
 from .expenses import Rent, TravelFee, RenderFee, Expense
 from .finance import InterestRate, TaxRate, USDToRMB
 
@@ -28,6 +27,7 @@ __all__ = [
 
     # Deals
     "Orders",
+    "CloseRate",
     "ItemsPerOrder",
     "SellingPrice",
     "PurchasingPrice",
@@ -48,5 +48,4 @@ __all__ = [
     "GoogleSearchConversionRate",
     "GoogleSearchCostPerClick",
     "GoogleSearchAllocationPercentage",
-    "CloseRate",
 ]
