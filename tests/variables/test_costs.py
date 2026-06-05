@@ -14,6 +14,7 @@ class TestCostVariables(unittest.TestCase):
 
         # Extract cost variables for easier local reference
         self.cost = self.portfolio[variable_names.COST]
+        self.setup_cost = self.portfolio[variable_names.COST_SETUP]
         self.ad_cost = self.portfolio[variable_names.COST_ADVERTISING]
         self.cpa = self.portfolio[variable_names.COST_CPA]
         self.conv_rate = self.portfolio[variable_names.COST_CONVERSION_RATE]
@@ -38,6 +39,12 @@ class TestCostVariables(unittest.TestCase):
         self.assertIsNone(self.cost.min_value)
         self.assertIsNone(self.cost.max_value)
         self.assertIsNone(self.cost.expected_value)
+
+    def test_setup_cost_range(self):
+        """Verify Cost defaults to Rule 5 (Pure Placeholder with all None values)."""
+        self.assertEqual(self.setup_cost.min_value, 6000)
+        self.assertEqual(self.setup_cost.max_value, 15000)
+        self.assertEqual(self.setup_cost.expected_value, 10500)
 
     def test_advertising_cost_range(self):
         """Verify AdvertisingCost respects Rule 3 (Range Bound) and computes midpoint expected value."""

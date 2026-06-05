@@ -5,6 +5,7 @@ from src.variables import (
     TravelFee,
     RenderFee,
     Cost,
+    SetupCost,
     AdvertisingCost,
     CostPerAcquisition,
     ConversionRate,
@@ -35,6 +36,7 @@ def get_test_variable_portfolio() -> dict:
 
         # Costs
         variable_names.COST: Cost(),
+        variable_names.COST_SETUP: SetupCost(min_value=6000, max_value=15000),
         variable_names.COST_ADVERTISING: AdvertisingCost(min_value=10000, max_value=30000),
         variable_names.COST_CPA: CostPerAcquisition(min_value=12, max_value=36),
         variable_names.COST_CONVERSION_RATE: ConversionRate(min_value=0.04, max_value=0.2),

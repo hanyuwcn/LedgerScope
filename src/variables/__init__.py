@@ -12,7 +12,7 @@ from .advertising import (
     GoogleSearchAllocationPercentage,
     CloseRate,
 )
-from .costs import Cost, AdvertisingCost, CostPerAcquisition, \
+from .costs import Cost, SetupCost, AdvertisingCost, CostPerAcquisition, \
     ConversionRate  # CPA & ConversionRate are pending deprecation
 from .deals import Orders, ItemsPerOrder, SellingPrice, PurchasingPrice
 from .expenses import Rent, TravelFee, RenderFee, Expense
@@ -21,6 +21,7 @@ from .finance import InterestRate, TaxRate, USDToRMB
 __all__ = [
     # Costs
     "Cost",
+    "SetupCost",
     "AdvertisingCost",
     "CostPerAcquisition",  # TODO: Deprecate once new ads funnel model fully deployed
     "ConversionRate",  # TODO: Deprecate once new ads funnel model fully deployed

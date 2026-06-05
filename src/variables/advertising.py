@@ -66,6 +66,7 @@ class GoogleSearchAllocationPercentage(Variable):
         self._name = variable_names.ALLOCATION_GOOGLE_SEARCH
 
 
+## TODO: move to deals
 class CloseRate(Variable):
     """
     The downstream conversion efficiency tracking lead-to-sale generation.

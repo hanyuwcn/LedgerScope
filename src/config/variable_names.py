@@ -41,6 +41,7 @@ COST_ADVERTISING = "AdvertisingCost"
 COST_SHIPPING = "ShippingCost"
 COST_COGS = "Cogs"
 COST_MANAGEMENT = "ManagementCost"
+COST_SETUP = "SetupCost"
 COST_CPA = "CostPerAcquisition"  ##(TODO): to deprecate
 COST_CONVERSION_RATE = "ConversionRate"  ##(TODO): to deprecate
 

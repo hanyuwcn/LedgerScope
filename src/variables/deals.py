@@ -8,6 +8,7 @@ class Orders(Variable):
         self._name = variable_names.DEAL_ORDERS
 
 
+# TODO: change to UnitsPerOrder
 class ItemsPerOrder(Variable):
     def __init__(self, expected_value=None, min_value=None, max_value=None):
         super().__init__(expected_value, min_value, max_value)

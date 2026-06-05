@@ -36,7 +36,8 @@ class TestTotalCostModel(unittest.TestCase):
             model._optional_variables,
             {
                 variable_names.COST_ADVERTISING: 0.0,
-                variable_names.COST_SHIPPING: 0.0
+                variable_names.COST_SHIPPING: 0.0,
+                variable_names.COST_SETUP: 0.0  # ADDED
             }
         )
 
@@ -49,6 +50,7 @@ class TestTotalCostModel(unittest.TestCase):
         model = TotalCostModel()
         fresh_inputs = {
             variable_names.COST_COGS: 3000.0,
+            variable_names.COST_SETUP: 10000.0,  # ADDED
             variable_names.COST_ADVERTISING: 1200.0,
             variable_names.COST_SHIPPING: 150.0
         }
@@ -106,23 +108,23 @@ class TestTotalCostModel(unittest.TestCase):
     # 4. EXPLICIT DEPENDENCY CHECKING MECHANISMS
     # -----------------------------------------------------------------
 
-    @patch('src.core.base_model.log')
-    def test_check_variables_success_with_all_metrics(self, mock_log):
+    def test_check_variables_success_with_all_metrics(self):
         """Verify check_variables clears execution cleanly when every metric constraint is fully met."""
         inputs = {
             variable_names.COST_COGS: 4000.0,
+            variable_names.COST_SETUP: 10000.0,  # ADDED
             variable_names.COST_ADVERTISING: 1500.0,
             variable_names.COST_SHIPPING: 200.0
         }
         model = TotalCostModel(inputs)
 
         # Should execute cleanly without throwing errors or recording telemetry failures
-        model.check_variables()
-        mock_log.error.assert_not_called()
-        mock_log.info.assert_not_called()
+        with patch('src.core.base_model.log') as mock_log:
+            model.check_variables()
+            mock_log.error.assert_not_called()
+            mock_log.info.assert_not_called()
 
-    @patch('src.core.base_model.log')
-    def test_check_variables_missing_required_logs_error_and_raises(self, mock_log):
+    def test_check_variables_missing_required_logs_error_and_raises(self):
         """Verify check_variables logs errors and safely raises a KeyError if a requirement is absent."""
         incomplete_inputs = {
             variable_names.COST_ADVERTISING: 1500.0
@@ -130,43 +132,45 @@ class TestTotalCostModel(unittest.TestCase):
         }
         model = TotalCostModel(incomplete_inputs)
 
-        with self.assertRaises(KeyError):
-            model.check_variables()
+        with patch('src.core.base_model.log') as mock_log:
+            with self.assertRaises(KeyError):
+                model.check_variables()
+            # Confirm failure routing triggered the process logging system
+            mock_log.error.assert_called_once()
 
-        # Confirm failure routing triggered the process logging system
-        mock_log.error.assert_called_once()
-
-    @patch('src.core.base_model.log')
-    def test_check_variables_missing_optional_logs_informational_alert(self, mock_log):
+    def test_check_variables_missing_optional_logs_informational_alert(self):
         """Verify check_variables logs an informational trace but passes when optional metrics are absent."""
         valid_inputs_no_optional = {
             variable_names.COST_COGS: 5000.0,
+            variable_names.COST_SETUP: 10000.0,
             variable_names.COST_ADVERTISING: 1500.0
             # Missing optional variable_names.COST_SHIPPING!
         }
         model = TotalCostModel(valid_inputs_no_optional)
 
         # Should log info but verify cleanly without process halt
-        model.check_variables()
-        mock_log.error.assert_not_called()
-        mock_log.info.assert_called_once()
+        with patch('src.core.base_model.log') as mock_log:
+            model.check_variables()
+            mock_log.error.assert_not_called()
+            mock_log.info.assert_called_once()
 
     # -----------------------------------------------------------------
     # 5. RUNTIME CALCULATIONS & VALIDATION PASS TESTS
     # -----------------------------------------------------------------
 
     def test_evaluate_success_with_all_parameters(self):
-        """Verify cost aggregation runs cleanly when optional shipping costs are explicit."""
+        """Verify cost aggregation runs cleanly when optional parameters are explicit."""
         inputs = {
             variable_names.COST_COGS: 4500.0,
+            variable_names.COST_SETUP: 10000.0,  # ADDED
             variable_names.COST_ADVERTISING: 2000.0,
             variable_names.COST_SHIPPING: 350.0
         }
         model = TotalCostModel(inputs)
         enriched_output = model.evaluate()
 
-        # Math validation: 4500 + 2000 + 350 = 6850.0
-        self.assertEqual(enriched_output[variable_names.COST], 6850.0)
+        # Math validation: 10000 + 4500 + 2000 + 350 = 16850.0
+        self.assertEqual(enriched_output[variable_names.COST], 16850.0)
 
         # Verify context integrity remains uncorrupted
         self.assertEqual(enriched_output[variable_names.COST_COGS], 4500.0)
@@ -174,17 +178,17 @@ class TestTotalCostModel(unittest.TestCase):
         # Ensure the in-place reference match holds true
         self.assertIs(enriched_output, model.input_variables)
 
-    def test_evaluate_success_with_omitted_shipping_fallback(self):
-        """Verify cost aggregation falls back to zero when shipping costs are omitted."""
+    def test_evaluate_success_with_omitted_shipping_and_setup_fallback(self):
+        """Verify cost aggregation falls back to zero when shipping or setup values are omitted."""
         inputs = {
             variable_names.COST_COGS: 5000.0,
             variable_names.COST_ADVERTISING: 1500.0
-            # Shipping omitted intentionally
+            # Shipping and Setup omitted intentionally (defaults to 0.0)
         }
         model = TotalCostModel(inputs)
         enriched_output = model.evaluate()
 
-        # Math validation: 5000 + 1500 + 0 = 6500.0
+        # Math validation: 0.0 + 5000 + 1500 + 0.0 = 6500.0
         self.assertEqual(enriched_output[variable_names.COST], 6500.0)
 
     def test_evaluate_missing_required_variables_raises_key_error(self):
