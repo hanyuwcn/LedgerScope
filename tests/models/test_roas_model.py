@@ -2,10 +2,10 @@ import unittest
 from unittest.mock import patch
 
 from src.config import variable_names
-from src.models import ReturnOnAdvertisingSpendModel
+from src.models import RoasModel
 
 
-class TestReturnOnAdvertisingSpendModelComprehensive(unittest.TestCase):
+class TestRoasModelComprehensive(unittest.TestCase):
 
     # -----------------------------------------------------------------
     # 1. INITIALIZATION & METADATA GETTER PATHS
@@ -13,7 +13,7 @@ class TestReturnOnAdvertisingSpendModelComprehensive(unittest.TestCase):
 
     def test_structural_metadata_and_getters_initialize_correctly(self):
         """Verify tracking metadata bounds, output configurations, and initial state mappings."""
-        model = ReturnOnAdvertisingSpendModel()
+        model = RoasModel()
 
         # Verify initial dictionary state is isolated and empty
         self.assertEqual(model.input_variables, {})
@@ -40,7 +40,7 @@ class TestReturnOnAdvertisingSpendModelComprehensive(unittest.TestCase):
 
     def test_input_variables_property_setter_and_getter_happy_path(self):
         """Verify the property setter completely overwrites and binds the active state."""
-        model = ReturnOnAdvertisingSpendModel()
+        model = RoasModel()
         fresh_inputs = {
             variable_names.REVENUE: 12000.0,
             variable_names.COST_ADVERTISING: 3000.0
@@ -56,7 +56,7 @@ class TestReturnOnAdvertisingSpendModelComprehensive(unittest.TestCase):
     def test_input_variables_property_setter_none_defensive_fallback(self):
         """Verify that passing None to the property setter securely defaults to an empty dictionary."""
         initial_inputs = {variable_names.REVENUE: 5000.0}
-        model = ReturnOnAdvertisingSpendModel(initial_inputs)
+        model = RoasModel(initial_inputs)
 
         # Overwrite context explicitly with None via property assign
         model.input_variables = None
@@ -69,13 +69,13 @@ class TestReturnOnAdvertisingSpendModelComprehensive(unittest.TestCase):
 
     def test_update_input_variable_with_raw_string_key(self):
         """Verify individual metric updates when providing raw string identities and values."""
-        model = ReturnOnAdvertisingSpendModel()
+        model = RoasModel()
         model.update_input_variable(variable_names.REVENUE, 15000.0)
         self.assertEqual(model.input_variables[variable_names.REVENUE], 15000.0)
 
     def test_update_input_variable_with_duck_typed_properties(self):
         """Verify individual metric updates using domain variable Type A objects (.name, .expected_value)."""
-        model = ReturnOnAdvertisingSpendModel()
+        model = RoasModel()
 
         class DuckTypeA:
             def __init__(self):
@@ -87,7 +87,7 @@ class TestReturnOnAdvertisingSpendModelComprehensive(unittest.TestCase):
 
     def test_update_input_variable_with_duck_typed_getters(self):
         """Verify individual metric updates using domain variable Type B objects (.get_name(), .get_value())."""
-        model = ReturnOnAdvertisingSpendModel()
+        model = RoasModel()
 
         class DuckTypeB:
             def get_name(self):
@@ -110,7 +110,7 @@ class TestReturnOnAdvertisingSpendModelComprehensive(unittest.TestCase):
             variable_names.REVENUE: 10000.0,
             variable_names.COST_ADVERTISING: 2000.0
         }
-        model = ReturnOnAdvertisingSpendModel(inputs)
+        model = RoasModel(inputs)
 
         # Should clear without raising exceptions or logging errors
         model.check_variables()
@@ -124,7 +124,7 @@ class TestReturnOnAdvertisingSpendModelComprehensive(unittest.TestCase):
             variable_names.REVENUE: 10000.0
             # Missing variable_names.COST_ADVERTISING!
         }
-        model = ReturnOnAdvertisingSpendModel(incomplete_inputs)
+        model = RoasModel(incomplete_inputs)
 
         with self.assertRaises(KeyError):
             model.check_variables()
@@ -144,7 +144,7 @@ class TestReturnOnAdvertisingSpendModelComprehensive(unittest.TestCase):
             variable_names.REVENUE: 10000.0,
             variable_names.COST_ADVERTISING: 2500.0
         }
-        model = ReturnOnAdvertisingSpendModel(inputs)
+        model = RoasModel(inputs)
         enriched_output = model.evaluate()
 
         # Calculation Check: ROAS = 10000.0 / 2500.0 = 4.0
@@ -160,7 +160,7 @@ class TestReturnOnAdvertisingSpendModelComprehensive(unittest.TestCase):
             variable_names.REVENUE: 11250.0,
             variable_names.COST_ADVERTISING: 3000.0
         }
-        model = ReturnOnAdvertisingSpendModel(inputs)
+        model = RoasModel(inputs)
         enriched_output = model.evaluate()
 
         self.assertAlmostEqual(enriched_output[variable_names.ROAS], 3.75, places=4)

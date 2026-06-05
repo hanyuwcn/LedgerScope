@@ -20,16 +20,15 @@ class TestAdvertisingEfficiencyGoogleSearchModelComprehensive(unittest.TestCase)
         self.assertIsInstance(model.input_variables, dict)
 
         # Verify exact registered calculation footprint signatures
-        self.assertEqual(model.output_names, [variable_names.DEAL_ORDERS])
+        self.assertEqual(model.output_names, [variable_names.LEADS])
 
-        # Verify explicit required variable signature bounds for the upgraded funnel
+        # Verify explicit required variable signature bounds for the upgraded lead funnel
         self.assertEqual(
             model.required_variables,
             [
                 variable_names.COST_ADVERTISING,
                 variable_names.CPC_GOOGLE_SEARCH,
-                variable_names.CONVERSION_RATE_GOOGLE_SEARCH,
-                variable_names.CLOSE_RATE
+                variable_names.CONVERSION_RATE_GOOGLE_SEARCH
             ]
         )
 
@@ -60,8 +59,7 @@ class TestAdvertisingEfficiencyGoogleSearchModelComprehensive(unittest.TestCase)
         fresh_inputs = {
             variable_names.COST_ADVERTISING: 2250.0,
             variable_names.CPC_GOOGLE_SEARCH: 2.50,
-            variable_names.CONVERSION_RATE_GOOGLE_SEARCH: 0.04,
-            variable_names.CLOSE_RATE: 0.12
+            variable_names.CONVERSION_RATE_GOOGLE_SEARCH: 0.04
         }
 
         # Fire property setter
@@ -121,73 +119,63 @@ class TestAdvertisingEfficiencyGoogleSearchModelComprehensive(unittest.TestCase)
     # 4. EXPLICIT DEPENDENCY CHECKING MECHANISMS
     # -----------------------------------------------------------------
 
-    @patch('src.core.base_model.log')
-    def test_check_variables_success_with_all_metrics(self, mock_log):
+    def test_check_variables_success_with_all_metrics(self):
         """Verify check_variables clears execution cleanly when every metric constraint is fully met."""
         inputs = {
             variable_names.COST_ADVERTISING: 2250.0,
             variable_names.CPC_GOOGLE_SEARCH: 2.50,
             variable_names.CONVERSION_RATE_GOOGLE_SEARCH: 0.04,
-            variable_names.CLOSE_RATE: 0.12,
             variable_names.ALLOCATION_GOOGLE_SEARCH: 0.60,
             variable_names.FINANCE_USD_TO_RMB: 1.0
         }
         model = AdvertisingEfficiencyGoogleSearchModel(inputs)
 
         # Should clear without raising exceptions or logging errors
-        model.check_variables()
-        mock_log.error.assert_not_called()
-        mock_log.info.assert_not_called()
+        with patch('src.core.base_model.log') as mock_log:
+            model.check_variables()
+            mock_log.error.assert_not_called()
+            mock_log.info.assert_not_called()
 
-    @patch('src.core.base_model.log')
-    def test_check_variables_missing_required_logs_error_and_raises(self, mock_log):
+    def test_check_variables_missing_required_logs_error_and_raises(self):
         """Verify check_variables triggers error logs and raises a KeyError if a requirement is absent."""
         incomplete_inputs = {
             variable_names.COST_ADVERTISING: 2250.0,
-            variable_names.CPC_GOOGLE_SEARCH: 2.50,
-            variable_names.CONVERSION_RATE_GOOGLE_SEARCH: 0.04
-            # Missing variable_names.CLOSE_RATE!
+            variable_names.CPC_GOOGLE_SEARCH: 2.50
+            # Missing variable_names.CONVERSION_RATE_GOOGLE_SEARCH!
         }
         model = AdvertisingEfficiencyGoogleSearchModel(incomplete_inputs)
 
-        with self.assertRaises(KeyError):
-            model.check_variables()
+        with patch('src.core.base_model.log') as mock_log:
+            with self.assertRaises(KeyError):
+                model.check_variables()
+            mock_log.error.assert_called_once()
 
-        # Assert the internal framework captured the structural omission via error logger
-        mock_log.error.assert_called_once()
-
-    @patch('src.core.base_model.log')
-    def test_check_variables_missing_optional_logs_informational_alert(self, mock_log):
+    def test_check_variables_missing_optional_logs_informational_alert(self):
         """Verify check_variables registers an informational alert but lets processing pass if optionals are absent."""
         valid_inputs_no_optionals = {
             variable_names.COST_ADVERTISING: 2250.0,
             variable_names.CPC_GOOGLE_SEARCH: 2.50,
-            variable_names.CONVERSION_RATE_GOOGLE_SEARCH: 0.04,
-            variable_names.CLOSE_RATE: 0.12
-            # Missing optional optionals: ALLOCATION_GOOGLE_SEARCH and FINANCE_USD_TO_RMB!
+            variable_names.CONVERSION_RATE_GOOGLE_SEARCH: 0.04
+            # Missing optional optionsals: ALLOCATION_GOOGLE_SEARCH and FINANCE_USD_TO_RMB!
         }
         model = AdvertisingEfficiencyGoogleSearchModel(valid_inputs_no_optionals)
 
         # Execution must pass seamlessly
-        model.check_variables()
-
-        # Verify tracking system noted the omission gracefully
-        mock_log.error.assert_not_called()
-        self.assertEqual(mock_log.info.call_count, 1)  # Generates an info log entry for each missing optional
+        with patch('src.core.base_model.log') as mock_log:
+            model.check_variables()
+            mock_log.error.assert_not_called()
+            self.assertEqual(mock_log.info.call_count, 1)
 
     # -----------------------------------------------------------------
-    # 5. RUNTIME MATHEMATICAL EVALUATIONS
+    # 5. RUNTIME MATHEMATICAL EVALUATIONS & DIVISION HEALTH GUARDS
     # -----------------------------------------------------------------
 
     def test_evaluate_success_with_all_parameters(self):
         """Verify formula execution targets established default parameters and currency adjustments accurately."""
-        # Setup using established midpoint/expected value presets:
-        # Budget = 2250.0, CPC = 2.50, Conversion Rate = 0.04, Close Rate = 0.12, Allocation = 0.60, USD/RMB = 1.0
         inputs = {
             variable_names.COST_ADVERTISING: 2250.0,
             variable_names.CPC_GOOGLE_SEARCH: 2.50,
             variable_names.CONVERSION_RATE_GOOGLE_SEARCH: 0.04,
-            variable_names.CLOSE_RATE: 0.12,
             variable_names.ALLOCATION_GOOGLE_SEARCH: 0.60,
             variable_names.FINANCE_USD_TO_RMB: 1.0
         }
@@ -197,29 +185,39 @@ class TestAdvertisingEfficiencyGoogleSearchModelComprehensive(unittest.TestCase)
         # Calculation Check:
         # Clicks = (2250.0 * 0.60) / (2.50 * 1.0) = 1350 / 2.5 = 540 Clicks
         # Leads  = 540 * 0.04 = 21.6 Leads
-        # Orders = 21.6 * 0.12 = 2.592 Orders
-        expected_orders = (2250.0 * 0.60 * 0.04 * 0.12) / (2.50 * 1.0)
-        self.assertAlmostEqual(enriched_output[variable_names.DEAL_ORDERS], expected_orders, places=4)
-        self.assertAlmostEqual(enriched_output[variable_names.DEAL_ORDERS], 2.592, places=4)
+        expected_leads = (2250.0 * 0.60 * 0.04) / (2.50 * 1.0)
+        self.assertAlmostEqual(enriched_output[variable_names.LEADS], expected_leads, places=4)
+        self.assertAlmostEqual(enriched_output[variable_names.LEADS], 21.6, places=4)
 
         # Verify in-place structural validation rule
         self.assertIs(enriched_output, model.input_variables)
 
     def test_evaluate_success_with_omitted_optional_fallbacks(self):
         """Verify formula execution defaults back to 1.0 scalars if optional parameters are completely omitted."""
-        # Omit allocation and exchange rate, meaning both fallback to 1.0 inside the formula calculation
         inputs = {
             variable_names.COST_ADVERTISING: 2000.0,
             variable_names.CPC_GOOGLE_SEARCH: 2.00,
-            variable_names.CONVERSION_RATE_GOOGLE_SEARCH: 0.05,
-            variable_names.CLOSE_RATE: 0.10
+            variable_names.CONVERSION_RATE_GOOGLE_SEARCH: 0.05
         }
         model = AdvertisingEfficiencyGoogleSearchModel(inputs)
         enriched_output = model.evaluate()
 
         # Calculation Check with fallbacks:
-        # Orders = (2000.0 * 1.0 * 0.05 * 0.10) / (2.00 * 1.0) = 10 / 2 = 5.0 Orders
-        self.assertAlmostEqual(enriched_output[variable_names.DEAL_ORDERS], 5.0, places=4)
+        # Leads = (2000.0 * 1.0 * 0.05) / (2.00 * 1.0) = 100 / 2 = 50.0 Leads
+        self.assertAlmostEqual(enriched_output[variable_names.LEADS], 50.0, places=4)
+
+    def test_evaluate_zero_denominator_handles_division_by_zero_safely(self):
+        """Verify that the engine falls back safely to 0.0 Leads when the denominator products evaluate to zero."""
+        inputs_zero_cpc = {
+            variable_names.COST_ADVERTISING: 2000.0,
+            variable_names.CPC_GOOGLE_SEARCH: 0.0,  # Boundary test case denominator anchor
+            variable_names.CONVERSION_RATE_GOOGLE_SEARCH: 0.05
+        }
+        model = AdvertisingEfficiencyGoogleSearchModel(inputs_zero_cpc)
+        enriched_output = model.evaluate()
+
+        # Assert crash guard catches evaluation loop safely
+        self.assertEqual(enriched_output[variable_names.LEADS], 0.0)
 
 
 if __name__ == "__main__":

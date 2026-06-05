@@ -19,6 +19,7 @@ DEPRECIATION = "Depreciation"
 
 ### Deals
 DEAL_ORDERS = "Orders"
+CLOSE_RATE = "CloseRate"
 DEAL_ITEMS_PER_ORDER = "ItemsPerOrder"
 DEAL_SELLING_PRICE = "SellingPrice"
 DEAL_PURCHASING_PRICE = "PurchasingPrice"
@@ -33,7 +34,7 @@ CONVERSION_RATE_GOOGLE_SEARCH = "GoogleSearchConversionRate"
 CPC_GOOGLE_SEARCH = "GoogleSearchCostPerClick"
 ALLOCATION_GOOGLE_SEARCH = "AllocationGoogleSearch"
 CPL_GOOGLE_SEARCH = "GoogleSearchCostPerLeads"
-CLOSE_RATE = "CloseRate"
+LEADS = "Leads"
 
 ### Costs
 COST = "Cost"
@@ -55,7 +56,9 @@ NET_INCOME = "NetIncome"
 PROFIT = "Profit"
 ROI = "ROI"
 FREE_CASH_FLOW = "FreeCashFlow"
-ROAS = "ROAS"
+ROAS = "ReturnOnAdvertisingSpend"
+CAC = "CustomerAcquisitionCost"
+UNIT_CONTRIBUTION_MARGIN = "UnitContributionMargin"
 
 ## Break even analysis
 BREAK_EVEN_VARIABLE_NAME = "BreakEvenVariable"

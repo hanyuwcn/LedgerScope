@@ -2,10 +2,10 @@ import unittest
 from unittest.mock import patch
 
 from src.config import variable_names
-from src.models import RoiModel
+from src.models import OrderModel
 
 
-class TestRoiModel(unittest.TestCase):
+class TestOrderModel(unittest.TestCase):
 
     # -----------------------------------------------------------------
     # 1. INITIALIZATION & METADATA GETTER PATHS
@@ -13,25 +13,25 @@ class TestRoiModel(unittest.TestCase):
 
     def test_structural_getters_and_outputs_initialize_correctly(self):
         """Verify tracking metadata bounds, output configurations, and initial state mappings."""
-        model = RoiModel()
+        model = OrderModel()
 
         # Verify initial dictionary state is isolated and empty
         self.assertEqual(model.input_variables, {})
         self.assertIsInstance(model.input_variables, dict)
 
         # Verify exact registered calculation footprint signatures
-        self.assertEqual(model.output_names, [variable_names.ROI])
+        self.assertEqual(model.output_names, [variable_names.DEAL_ORDERS])
 
         # Verify explicit required variable signature bounds
         expected_requirements = [
-            variable_names.NET_INCOME,
-            variable_names.COST_SETUP
+            variable_names.LEADS,
+            variable_names.CLOSE_RATE
         ]
         self.assertEqual(sorted(model.required_variables), sorted(expected_requirements))
 
     def test_internal_optional_variables_is_dict(self):
         """Verify underlying storage for optional variables matches the empty dictionary default."""
-        model = RoiModel()
+        model = OrderModel()
         self.assertIsInstance(model._optional_variables, dict)
         self.assertEqual(model._optional_variables, {})
 
@@ -41,10 +41,10 @@ class TestRoiModel(unittest.TestCase):
 
     def test_input_variables_property_setter_happy_path(self):
         """Verify the property setter completely updates the operational variable context."""
-        model = RoiModel()
+        model = OrderModel()
         fresh_inputs = {
-            variable_names.NET_INCOME: 5000.0,
-            variable_names.COST_SETUP: 10000.0
+            variable_names.LEADS: 500.0,
+            variable_names.CLOSE_RATE: 0.15
         }
 
         # Execute property assignment
@@ -54,22 +54,32 @@ class TestRoiModel(unittest.TestCase):
         self.assertEqual(model.input_variables, fresh_inputs)
         self.assertIs(model.input_variables, fresh_inputs)
 
+    def test_input_variables_property_setter_none_defensive_fallback(self):
+        """Verify setting input_variables context to None resets state safely to an empty dictionary."""
+        initial_inputs = {variable_names.LEADS: 150.0}
+        model = OrderModel(initial_inputs)
+
+        # Set context strictly to None to test the defensive barrier
+        model.input_variables = None
+
+        self.assertEqual(model.input_variables, {})
+
     # -----------------------------------------------------------------
     # 3. INDIVIDUAL PARAMETER MUTATION (POLYMORPHIC CORES)
     # -----------------------------------------------------------------
 
     def test_individual_variable_update_via_duck_typing(self):
         """Verify individual variable injection works via structural duck-typed objects."""
-        model = RoiModel()
+        model = OrderModel()
 
         class DuckVariable:
             def __init__(self, name, val):
                 self.name = name
                 self.expected_value = val
 
-        # Update Setup Cost via duck-typed structural variable
-        model.update_input_variable(DuckVariable(variable_names.COST_SETUP, 15000.0))
-        self.assertEqual(model.input_variables[variable_names.COST_SETUP], 15000.0)
+        # Update Close Rate via duck-typed structural variable
+        model.update_input_variable(DuckVariable(variable_names.CLOSE_RATE, 0.08))
+        self.assertEqual(model.input_variables[variable_names.CLOSE_RATE], 0.08)
 
     # -----------------------------------------------------------------
     # 4. EXPLICIT DEPENDENCY CHECKING MECHANISMS
@@ -78,10 +88,10 @@ class TestRoiModel(unittest.TestCase):
     def test_check_variables_success_with_all_metrics(self):
         """Verify check_variables clears execution cleanly when every metric constraint is met."""
         inputs = {
-            variable_names.NET_INCOME: 3000.0,
-            variable_names.COST_SETUP: 6000.0
+            variable_names.LEADS: 1200.0,
+            variable_names.CLOSE_RATE: 0.05
         }
-        model = RoiModel(inputs)
+        model = OrderModel(inputs)
 
         with patch('src.core.base_model.log') as mock_log:
             model.check_variables()
@@ -90,10 +100,10 @@ class TestRoiModel(unittest.TestCase):
     def test_check_variables_missing_required_raises_key_error(self):
         """Verify check_variables logs errors and raises KeyError if a core driver is absent."""
         incomplete_inputs = {
-            variable_names.NET_INCOME: 4000.0
-            # Missing COST_SETUP!
+            variable_names.LEADS: 350.0
+            # Missing CLOSE_RATE!
         }
-        model = RoiModel(incomplete_inputs)
+        model = OrderModel(incomplete_inputs)
 
         with patch('src.core.base_model.log') as mock_log:
             with self.assertRaises(KeyError):
@@ -101,41 +111,41 @@ class TestRoiModel(unittest.TestCase):
             mock_log.error.assert_called_once()
 
     # -----------------------------------------------------------------
-    # 5. RUNTIME CALCULATIONS & DIVISION DEFENSE PASS TESTS
+    # 5. RUNTIME MATHEMATICAL EVALUATIONS
     # -----------------------------------------------------------------
 
     def test_evaluate_success_with_all_parameters(self):
-        """Verify ROI calculation runs cleanly under standard parameter bounds."""
+        """Verify lead-to-order pipeline conversion runs cleanly under standard parameter bounds."""
         inputs = {
-            variable_names.NET_INCOME: 2500.0,
-            variable_names.COST_SETUP: 10000.0
+            variable_names.LEADS: 250.0,
+            variable_names.CLOSE_RATE: 0.12
         }
-        model = RoiModel(inputs)
+        model = OrderModel(inputs)
         enriched_output = model.evaluate()
 
-        # Math validation: 2500 / 10000 = 0.25 (25% return)
-        self.assertEqual(enriched_output[variable_names.ROI], 0.25)
+        # Math validation: 250 * 0.12 = 30.0 Orders
+        self.assertAlmostEqual(enriched_output[variable_names.DEAL_ORDERS], 30.0, places=4)
         self.assertIs(enriched_output, model.input_variables)
 
-    def test_evaluate_zero_setup_cost_handles_division_by_zero_safely(self):
-        """Verify the engine falls back to 0.0 ROI when setup cost is zero to prevent crashes."""
+    def test_evaluate_handles_zero_leads_or_close_rate_safely(self):
+        """Verify the math module evaluates correctly when baseline metrics drop to absolute zero."""
         inputs = {
-            variable_names.NET_INCOME: 5000.0,
-            variable_names.COST_SETUP: 0.0  # Zero denominator test edge case
+            variable_names.LEADS: 0.0,
+            variable_names.CLOSE_RATE: 0.20
         }
-        model = RoiModel(inputs)
+        model = OrderModel(inputs)
         enriched_output = model.evaluate()
 
-        # Should return 0.0 rather than raising ZeroDivisionError
-        self.assertEqual(enriched_output[variable_names.ROI], 0.0)
+        # Math validation: 0 * 0.20 = 0.0 Orders
+        self.assertEqual(enriched_output[variable_names.DEAL_ORDERS], 0.0)
 
     def test_evaluate_missing_required_variables_raises_key_error(self):
-        """Verify omitting an operational pillar variable triggers an immediate lookup error."""
+        """Verify omitting an operational driver variable triggers an immediate lookup error."""
         incomplete_inputs = {
-            variable_names.COST_SETUP: 12000.0
-            # Missing NET_INCOME!
+            variable_names.CLOSE_RATE: 0.10
+            # Missing LEADS!
         }
-        model = RoiModel(incomplete_inputs)
+        model = OrderModel(incomplete_inputs)
 
         with self.assertRaises(KeyError):
             model.evaluate()

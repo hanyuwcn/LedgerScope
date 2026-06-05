@@ -2,7 +2,7 @@ from src.config import variable_names
 from src.core.base_model import Model
 
 
-def calculate_roas(optional_variables: dict, **kwargs) -> dict:
+def calculate_return_on_advertising_spend(optional_variables: dict, **kwargs) -> dict:
     """
     Calculates the Return on Advertising Spend (ROAS) metric for marketing performance tracking.
 
@@ -36,7 +36,7 @@ def calculate_roas(optional_variables: dict, **kwargs) -> dict:
     return {variable_names.ROAS: calculated_roas}
 
 
-class ReturnOnAdvertisingSpendModel(Model):
+class RoasModel(Model):
     """
     Pipeline calculation block evaluating top-line capital returns against total marketing spend.
 
@@ -66,7 +66,7 @@ class ReturnOnAdvertisingSpendModel(Model):
         super().__init__(input_variables)
 
         # Binding calculation identity and specifying the explicit output registry signature
-        self._model_function = calculate_roas
+        self._model_function = calculate_return_on_advertising_spend
         self._output_names = [variable_names.ROAS]
 
         # Enforcing configuration dependency boundaries

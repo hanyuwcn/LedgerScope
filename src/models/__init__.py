@@ -18,16 +18,19 @@ from .aggregators.expense_model import TotalExpenseModel
 from .aggregators.capital_expenditure_model import CapitalExpenditureModel
 from .aggregators.cost_model import TotalCostModel
 from .aggregators.cost_of_goods_sold_model import CostOfGoodsSoldModel
+from .aggregators.order_model import OrderModel
 
 # 3. Revenue, Profit and Income
 from .income.free_cash_flow_model import FreeCashFlowModel
 from .income.net_income_model import NetIncomeModel
 from .income.profit_model import ProfitModel
 from .income.revenue_model import RevenueModel
+from .income.unit_contribution_margin_model import UnitContributionMarginModel
 
 # 4. Performance Metric Blocks
 from .metrics.roi_model import RoiModel
-from .metrics.roas_model import ReturnOnAdvertisingSpendModel
+from .metrics.roas_model import RoasModel
+from .metrics.cac_model import CacModel
 
 # 5. Model Composer
 from .composer.model_composer import PipelineComposer
@@ -40,6 +43,7 @@ __all__ = [
     "CostPerLeadGoogleSearchModel",
 
     # 2. Aggregators
+    "OrderModel",
     "DepreciationModel",
     "CapitalExpenditureModel",
     "CostOfGoodsSoldModel",
@@ -51,10 +55,12 @@ __all__ = [
     "NetIncomeModel",
     "ProfitModel",
     "FreeCashFlowModel",
+    "UnitContributionMarginModel",
 
     # 4. Performance Metrics / Ratios
     "RoiModel",
-    "ReturnOnAdvertisingSpendModel",
+    "RoasModel",
+    "CacModel",
 
     # 5. Model Composer
     "PipelineComposer",
