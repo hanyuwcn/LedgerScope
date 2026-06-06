@@ -91,4 +91,5 @@ def generate_linear_regression_from_lists(x_data, y_data, x_label, y_label, x_be
         linear_regression_styles.apply_regression_theme(ax, x_label, y_label, x_formatter, y_formatter)
 
         plt.tight_layout()
+        # plt.close()
         return fig

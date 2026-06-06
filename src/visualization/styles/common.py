@@ -57,12 +57,12 @@ Y_AXIS_FONT = {
 LINE_SETTING_BIGGER = {'color': X_AXIS_COLOR,
                        'linestyle': '-.',
                        'linewidth': 2,
-                       'zorder': 5}
+                       'zorder': 4}
 
 LINE_SETTING_SMALLER = {'color': Y_AXIS_COLOR,
                         'linestyle': ':',
                         'linewidth': 2,
-                        'zorder': 3}
+                        'zorder': 4}
 
 LEGENDS_TEXT_FONTS = {'loc': 'upper left',
                       'frameon': True,

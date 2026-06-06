@@ -1,16 +1,11 @@
 - Optimize plots(Ctnd)
   - Resolve to-dos in the views and styles in plots
+  - Figure out proper time to plot.close()
+  - Two way sensitivity output matrix, can be rendered into dataframe and heatmap
+
 
 - Add following aspects:
   - Tooling cost
-
-- Write final report
- - in both languages
- - write description for every variable setting, explain what it is and where the ranges evaluation is coming from
- - Write description and formula for models
- - Use (histogram/pie chart)plot to see the variable ranges for smaller aggregate, like cost and expense. 
- - Have a detailed design doc after the codebase is complete
- - remove test and test_data in tests/analysis
 
 - Review all the tests
   - Deprecate primitive ads models in cost, as more detailed ads models are implemented
@@ -63,4 +58,11 @@
       - Together with roas and cpl model
 
     - categorize models into sub folders.
-      - make parent folder import all models. This makes the outer scope unaware of structural folders 
+      - make parent folder import all models. This makes the outer scope unaware of structural folders
+
+    - Write final report
+      - in both languages
+      - write description for every variable setting, explain what it is and where the ranges evaluation is coming from
+      - Write description and formula for models
+      - Use (histogram/pie chart)plot to see the variable ranges for smaller aggregate, like cost and expense. 
+      - Have a detailed design doc after the codebase is complete

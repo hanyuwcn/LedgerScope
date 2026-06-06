@@ -31,21 +31,20 @@ class TestCostPerLeadGoogleSearchModelComprehensive(unittest.TestCase):
             ]
         )
 
-        # Verify custom optional array mappings
+        # Verify custom optional array mappings include allocation weights without exchange rates
         self.assertEqual(
-            sorted(model.optional_variables),
-            sorted([variable_names.FINANCE_USD_TO_RMB, variable_names.ALLOCATION_GOOGLE_SEARCH])
+            list(model.optional_variables),
+            [variable_names.ALLOCATION_GOOGLE_SEARCH]
         )
 
     def test_internal_optional_variables_is_dict(self):
-        """Verify underlying storage for optional variables uses the new dictionary format."""
+        """Verify underlying storage for optional variables uses the expected dictionary format."""
         model = CostPerLeadGoogleSearchModel()
         self.assertIsInstance(model._optional_variables, dict)
 
     def test_internal_optional_variables_have_correct_default_values(self):
-        """Verify that the cross-border currency rate and search allocation default to 1.0."""
+        """Verify that the search allocation defaults securely to 1.0."""
         model = CostPerLeadGoogleSearchModel()
-        self.assertEqual(model._optional_variables[variable_names.FINANCE_USD_TO_RMB], 1.0)
         self.assertEqual(model._optional_variables[variable_names.ALLOCATION_GOOGLE_SEARCH], 1.0)
 
     # -----------------------------------------------------------------
@@ -117,24 +116,22 @@ class TestCostPerLeadGoogleSearchModelComprehensive(unittest.TestCase):
     # 4. EXPLICIT DEPENDENCY CHECKING MECHANISMS
     # -----------------------------------------------------------------
 
-    @patch('src.core.base_model.log')
-    def test_check_variables_success_with_all_metrics(self, mock_log):
+    def test_check_variables_success_with_all_metrics(self):
         """Verify check_variables clears execution cleanly when every metric constraint is fully met."""
         inputs = {
             variable_names.CPC_GOOGLE_SEARCH: 2.50,
             variable_names.CONVERSION_RATE_GOOGLE_SEARCH: 0.04,
-            variable_names.ALLOCATION_GOOGLE_SEARCH: 0.60,
-            variable_names.FINANCE_USD_TO_RMB: 1.0
+            variable_names.ALLOCATION_GOOGLE_SEARCH: 0.60
         }
         model = CostPerLeadGoogleSearchModel(inputs)
 
         # Should clear without raising exceptions or logging errors
-        model.check_variables()
-        mock_log.error.assert_not_called()
-        mock_log.info.assert_not_called()
+        with patch('src.core.base_model.log') as mock_log:
+            model.check_variables()
+            mock_log.error.assert_not_called()
+            mock_log.info.assert_not_called()
 
-    @patch('src.core.base_model.log')
-    def test_check_variables_missing_required_logs_error_and_raises(self, mock_log):
+    def test_check_variables_missing_required_logs_error_and_raises(self):
         """Verify check_variables triggers error logs and raises a KeyError if a requirement is absent."""
         incomplete_inputs = {
             variable_names.CPC_GOOGLE_SEARCH: 2.50
@@ -142,49 +139,43 @@ class TestCostPerLeadGoogleSearchModelComprehensive(unittest.TestCase):
         }
         model = CostPerLeadGoogleSearchModel(incomplete_inputs)
 
-        with self.assertRaises(KeyError):
-            model.check_variables()
+        with patch('src.core.base_model.log') as mock_log:
+            with self.assertRaises(KeyError):
+                model.check_variables()
+            mock_log.error.assert_called_once()
 
-        # Assert the internal framework captured the structural omission via error logger
-        mock_log.error.assert_called_once()
-
-    @patch('src.core.base_model.log')
-    def test_check_variables_missing_optional_logs_informational_alert(self, mock_log):
+    def test_check_variables_missing_optional_logs_informational_alert(self):
         """Verify check_variables registers an informational alert but lets processing pass if optionals are absent."""
         valid_inputs_no_optionals = {
             variable_names.CPC_GOOGLE_SEARCH: 2.50,
             variable_names.CONVERSION_RATE_GOOGLE_SEARCH: 0.04
-            # Missing optional optionsals: ALLOCATION_GOOGLE_SEARCH and FINANCE_USD_TO_RMB!
+            # Missing optional optionsals: ALLOCATION_GOOGLE_SEARCH
         }
         model = CostPerLeadGoogleSearchModel(valid_inputs_no_optionals)
 
         # Execution must pass seamlessly
-        model.check_variables()
-
-        # Verify tracking system noted the omission gracefully
-        mock_log.error.assert_not_called()
-        self.assertEqual(mock_log.info.call_count, 1)  # Generates an info log entry for each missing optional
+        with patch('src.core.base_model.log') as mock_log:
+            model.check_variables()
+            mock_log.error.assert_not_called()
+            self.assertEqual(mock_log.info.call_count, 1)
 
     # -----------------------------------------------------------------
-    # 5. RUNTIME MATHEMATICAL EVALUATIONS
+    # 5. RUNTIME MATHEMATICAL EVALUATIONS & DIVISION HEALTH GUARDS
     # -----------------------------------------------------------------
 
     def test_evaluate_success_with_all_parameters(self):
-        """Verify formula execution targets established default parameters and currency adjustments accurately."""
-        # Setup using established midpoint/expected value presets:
-        # CPC = 2.50, Conversion Rate = 0.04, Allocation = 0.60, USD/RMB = 1.0
+        """Verify formula execution targets blended multi-channel budget metrics accurately in USD."""
         inputs = {
             variable_names.CPC_GOOGLE_SEARCH: 2.50,
             variable_names.CONVERSION_RATE_GOOGLE_SEARCH: 0.04,
-            variable_names.ALLOCATION_GOOGLE_SEARCH: 0.60,
-            variable_names.FINANCE_USD_TO_RMB: 1.0
+            variable_names.ALLOCATION_GOOGLE_SEARCH: 0.60
         }
         model = CostPerLeadGoogleSearchModel(inputs)
         enriched_output = model.evaluate()
 
         # Calculation Check:
-        # CPL = (2.50 * 1.0) / (0.04 * 0.60) = 2.50 / 0.024 = 104.16666...
-        expected_cpl = (2.50 * 1.0) / (0.04 * 0.60)
+        # Blended CPL = 2.50 / (0.04 * 0.60) = 2.50 / 0.024 = 104.16666...
+        expected_cpl = 2.50 / (0.04 * 0.60)
         self.assertAlmostEqual(enriched_output[variable_names.CPL_GOOGLE_SEARCH], expected_cpl, places=4)
         self.assertAlmostEqual(enriched_output[variable_names.CPL_GOOGLE_SEARCH], 104.1667, places=4)
 
@@ -192,9 +183,7 @@ class TestCostPerLeadGoogleSearchModelComprehensive(unittest.TestCase):
         self.assertIs(enriched_output, model.input_variables)
 
     def test_evaluate_success_with_omitted_optional_fallbacks(self):
-        """Verify formula execution defaults back to 1.0 scalars if optional parameters are completely omitted."""
-        # Omit allocation and exchange rate, meaning both fallback to 1.0 inside the formula calculation
-        # Using upper bounds to verify flexibility: CPC = 3.50, Conversion Rate = 0.05
+        """Verify formula execution defaults back to 1.0 allocation scalar if optional parameters are completely omitted."""
         inputs = {
             variable_names.CPC_GOOGLE_SEARCH: 3.50,
             variable_names.CONVERSION_RATE_GOOGLE_SEARCH: 0.05
@@ -202,9 +191,22 @@ class TestCostPerLeadGoogleSearchModelComprehensive(unittest.TestCase):
         model = CostPerLeadGoogleSearchModel(inputs)
         enriched_output = model.evaluate()
 
-        # Calculation Check with fallbacks:
-        # CPL = (3.50 * 1.0) / (0.05 * 1.0) = 3.50 / 0.05 = 70.0 RMB
+        # Calculation Check with fallback allocation = 1.0:
+        # CPL = 3.50 / (0.05 * 1.0) = 3.50 / 0.05 = 70.0 USD
         self.assertAlmostEqual(enriched_output[variable_names.CPL_GOOGLE_SEARCH], 70.0, places=4)
+
+    def test_evaluate_zero_denominator_product_handles_division_by_zero_safely(self):
+        """Verify that the engine falls back safely to 0.0 CPL when a denominator metric zeros out."""
+        inputs_zero_allocation = {
+            variable_names.CPC_GOOGLE_SEARCH: 2.50,
+            variable_names.CONVERSION_RATE_GOOGLE_SEARCH: 0.04,
+            variable_names.ALLOCATION_GOOGLE_SEARCH: 0.0  # Zero denominator edge case
+        }
+        model = CostPerLeadGoogleSearchModel(inputs_zero_allocation)
+        enriched_output = model.evaluate()
+
+        # Assert zero crash guard handles processing cleanly
+        self.assertEqual(enriched_output[variable_names.CPL_GOOGLE_SEARCH], 0.0)
 
 
 if __name__ == "__main__":

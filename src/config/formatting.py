@@ -9,7 +9,7 @@ VARIABLE_FORMATTING_MAP = {
     CPC_GOOGLE_SEARCH: lambda v: fmt(v, d=1, s='$'),
     ALLOCATION_GOOGLE_SEARCH: lambda v: fmt(v, d=0, p=True),
     CPL_GOOGLE_SEARCH: lambda v: fmt(v, d=1, s='$'),
-    CLOSE_RATE: lambda v: fmt(v, d=2, p=True),
+    LEADS: lambda v: fmt(v, d=1),
 
     ### Expenses
     EXPENSE: lambda v: fmt(v, s='¥'),
@@ -24,6 +24,7 @@ VARIABLE_FORMATTING_MAP = {
 
     ### Deals
     DEAL_ORDERS: lambda v: fmt(v, d=1),
+    CLOSE_RATE: lambda v: fmt(v, d=2, p=True),
     DEAL_ITEMS_PER_ORDER: lambda v: fmt(v, d=1),
     DEAL_SELLING_PRICE: lambda v: fmt(v, s='$'),
     DEAL_PURCHASING_PRICE: lambda v: fmt(v, s='¥'),
@@ -45,11 +46,13 @@ VARIABLE_FORMATTING_MAP = {
     ### Revenue
     REVENUE: lambda v: fmt(v, s='¥'),
     REVENUE_GOODS_SOLD: lambda v: fmt(v, s='¥'),
-
-    ### Metrics
     NET_INCOME: lambda v: fmt(v, s='¥'),
     PROFIT: lambda v: fmt(v, s='¥'),
+    FREE_CASH_FLOW: lambda v: fmt(v, s='¥'),
+
+    ### Metrics
     ROI: lambda v: fmt(v, d=2, p=True),
-    ROAS: lambda v: fmt(v, d=2, p=True),
-    FREE_CASH_FLOW: lambda v: fmt(v, s='¥')
+    ROAS: lambda v: fmt(v, d=1, p=True),
+    CAC: lambda v: fmt(v, d=1, s='¥'),
+    UNIT_CONTRIBUTION_MARGIN: lambda v: fmt(v, s='¥'),
 }

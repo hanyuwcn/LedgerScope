@@ -78,7 +78,7 @@ class TestFormattingUtils(unittest.TestCase):
 
         # ROAS -> d=2, p=True (e.g., 3.75 -> 375.00%)
         roas_lambda = VARIABLE_FORMATTING_MAP[variable_names.ROAS]
-        self.assertEqual(roas_lambda(3.75), "375.00%")
+        self.assertEqual(roas_lambda(3.75), "375.0%")
 
     # =====================================================================
     # LIST TO ELEMENT STRING TESTS

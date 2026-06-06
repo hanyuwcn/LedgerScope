@@ -63,4 +63,5 @@ def generate_heatmap_from_df(df, output_name=variable_names.MODEL_DEFAULT_OUTPUT
             y_formatter=y_formatter
         )
 
+    # plt.close()
     return fig

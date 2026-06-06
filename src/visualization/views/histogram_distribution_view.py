@@ -78,5 +78,5 @@ def generate_histogram_from_array(simulations, output_name, goal=None):
         # 8. Structural Layout Cleanup
         sns.despine(ax=ax)
         fig.tight_layout()
-
+        # plt.close()
         return fig

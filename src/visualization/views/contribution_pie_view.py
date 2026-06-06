@@ -89,5 +89,5 @@ def generate_contribution_pie_chart(average_contributions: dict[str, float]) -> 
         legend.get_frame().set_edgecolor(contribution_pie_styles.SPINE_BORDER_COLOR)
 
         plt.tight_layout()
-
+        # plt.close()
         return fig

@@ -25,14 +25,14 @@ SPINE_BORDER_COLOR = '#dee2e6'
 TREND_LINE_PROPERTIES = {
     'color': common.COLOR_NAVY,
     'linewidth': 1.5,
-    'zorder': 2
+    'zorder': 5
 }
 
 DATA_POINT_PROPERTIES = {
     'cmap': common.COLOR_SET,
     'edgecolor': 'none',
     'alpha': 0.9,
-    'zorder': 4
+    'zorder': 3
 }
 
 # 4. Typography Hierarchy Configs

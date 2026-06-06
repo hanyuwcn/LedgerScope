@@ -110,4 +110,7 @@ def run_two_way_sensitivity_analysis(
     analysis_df.index.name = param_y_name
     analysis_df.columns.name = param_x_name
 
+    # matrix = [[int(ele) for ele in row] for row in sensitivity_grid]
+    # print(matrix)
+
     return analysis_df
