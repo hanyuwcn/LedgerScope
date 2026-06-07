@@ -1,9 +1,9 @@
 import numpy as np
 import pandas as pd
 
+from src.config import variable_names
 from src.config.formatting import VARIABLE_FORMATTING_MAP
 from src.utils.formatting import fmt
-from src.config import variable_names
 from src.visualization.styles import comparative_statics_styles
 
 

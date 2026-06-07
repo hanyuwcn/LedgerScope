@@ -103,6 +103,50 @@ COLOR_ALERT_SUCCESS_TXT = "#155724"
 COLOR_ALERT_DANGER_BG = "#f8d7da"
 COLOR_ALERT_DANGER_TXT = "#721c24"
 
-# Shared dataframe settings
-## TODO: apply common table style for both break even analysis and comparative statics
 
+# =====================================================================
+# Shared dataframe settings
+# =====================================================================
+def get_base_table_layout_css(header_bg, text_navy, border_light, border_row):
+    """
+    Generates the core structural layout and typography specifications
+    for LedgerScope dashboard data tables, ensuring global UI alignment.
+    """
+    return [
+        {
+            'selector': '',
+            'props': [
+                ('border-collapse', 'collapse'),
+                ('width', '100%'),
+                ('margin', '15px 0'),
+                ('border', f'1px solid {border_light}')
+            ]
+        },
+        {
+            'selector': 'th',
+            'props': [
+                ('background-color', header_bg),
+                ('color', text_navy),
+                ('padding', '12px 15px'),
+                ('border-bottom', f'2px solid {border_light}'),
+                ('text-align', 'right !important'),
+                ('text-transform', 'uppercase'),
+                ('font-size', '0.85rem')
+            ]
+        },
+        {
+            'selector': 'td',
+            'props': [
+                ('padding', '10px 15px'),
+                ('border-bottom', f'1px solid {border_row}'),
+                ('text-align', 'right'),
+                ('font-variant-numeric', 'tabular-nums')
+            ]
+        },
+        {
+            'selector': 'th.col0',
+            'props': [
+                ('text-align', 'right !important')
+            ]
+        }
+    ]

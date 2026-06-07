@@ -6,24 +6,21 @@ import pandas as pd
 
 from .common import (
     COLOR_NAVY,
-    WEB_FONT_FAMILY,
     WEB_COLOR_BORDER_LIGHT,
     WEB_COLOR_BORDER_ROW,
     WEB_COLOR_HEADER_BG,
-    WEB_COLOR_SUB_LABEL,
-    COLOR_BLACK,
     COLOR_WHITE,
     COLOR_HIGHLIGHT_EXP_VAL,
     COLOR_HIGHLIGHT_EXP_RES,
-    COLOR_HIGHLIGHT_EXP_BORDER,
     COLOR_HIGHLIGHT_THR_VAL,
     COLOR_HIGHLIGHT_THR_RES,
-    COLOR_HIGHLIGHT_THR_TXT,
     COLOR_HIGHLIGHT_THR_RES_TXT,
     COLOR_ALERT_SUCCESS_BG,
     COLOR_ALERT_SUCCESS_TXT,
     COLOR_ALERT_DANGER_BG,
     COLOR_ALERT_DANGER_TXT,
+
+    get_base_table_layout_css
 )
 
 # ==========================================
@@ -43,49 +40,8 @@ COMPARATIVE_STATICS_ROW_TYPE_OUTPUT = "Output"
 
 
 def get_table_layout_css():
-    """Generates the static layout structure dictionary configs for Pandas Styler."""
-    return [
-        # 1. Main Table Styling (.cs-table)
-        {
-            'selector': '',
-            'props': [
-                ('border-collapse', 'collapse'),
-                ('width', '100%'),
-                ('margin', '15px 0'),
-                ('border', f'1px solid {WEB_COLOR_BORDER_LIGHT}')
-            ]
-        },
-        # 2. Complete Table Header Component Styling (.cs-table th)
-        {
-            'selector': 'th',
-            'props': [
-                ('background-color', WEB_COLOR_HEADER_BG),
-                ('color', COLOR_NAVY),
-                ('padding', '12px 15px'),
-                ('border-bottom', f'2px solid {WEB_COLOR_BORDER_LIGHT}'),
-                ('text-align', 'right !important'),
-                ('text-transform', 'uppercase'),
-                ('font-size', '0.85rem')
-            ]
-        },
-        # 3. Complete Data Cell Component Styling (.cs-table td)
-        {
-            'selector': 'td',
-            'props': [
-                ('padding', '10px 15px'),
-                ('border-bottom', f'1px solid {WEB_COLOR_BORDER_ROW}'),
-                ('text-align', 'right'),
-                ('font-variant-numeric', 'tabular-nums')
-            ]
-        },
-        # 4. First column header alignment adjustment (.text-left)
-        {
-            'selector': 'th.col0',
-            'props': [
-                ('text-align', 'right !important')
-            ]
-        }
-    ]
+    """Fetches the unified global design system grid layout."""
+    return get_base_table_layout_css(WEB_COLOR_HEADER_BG, COLOR_NAVY, WEB_COLOR_BORDER_LIGHT, WEB_COLOR_BORDER_ROW)
 
 
 def generate_matrix_cell_styles(df_slice, row_vars, output_name):

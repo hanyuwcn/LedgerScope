@@ -5,6 +5,7 @@ Clean design tokens and layout engines for linear regression visualizations.
 
 from matplotlib import cm
 from matplotlib.ticker import FuncFormatter
+
 from . import common
 
 # Re-expose common line weight tokens for benchmark lines

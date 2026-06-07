@@ -1,8 +1,6 @@
 - Optimize plots(Ctnd)
-  - Resolve to-dos in the views and styles in plots
   - Figure out proper time to plot.close()
-  - Two way sensitivity output matrix, can be rendered into dataframe and heatmap
-  - Last attempt to replace html with dataframe plot
+  - Two-way sensitivity output matrix, can be rendered into dataframe and heatmap
 
 - Add following aspects:
   - Setup cost
@@ -41,6 +39,8 @@
         - Making a map from variable name to its conversion function
       - Add Pie chart, input could be few output results to see their percentage e.g. ["Cogs", "AdvertisingCost, Expense"]
       - wrap up messages and variable keys
+      - Resolve to-dos in the views and styles in plots
+      - Replace html with dataframe plot
       - categorize styles and views so that they don't have to be with each other.
       - move plots from config to style as common-style. by following steps
         1. Distributes all attributes to each style;

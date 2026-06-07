@@ -22,7 +22,9 @@ from .common import (
     COLOR_ALERT_SUCCESS_BG,
     COLOR_ALERT_SUCCESS_TXT,
     COLOR_ALERT_DANGER_BG,
-    COLOR_ALERT_DANGER_TXT
+    COLOR_ALERT_DANGER_TXT,
+
+    get_base_table_layout_css,
 )
 
 SENSITIVITY_VARIABLE = "Sensitivity Variable"
@@ -33,18 +35,8 @@ BREAK_EVEN_COLUMN_NAME_SAFETY_MARGIN = 'Safety Margin %'
 
 
 def get_table_layout_css():
-    """Generates the static layout structure dictionary configurations for Pandas Styler."""
-    return [
-        {'selector': '', 'props': [('border-collapse', 'collapse'), ('width', '100%'), ('margin', '15px 0'),
-                                   ('border', f'1px solid {WEB_COLOR_BORDER_LIGHT}')]},
-        {'selector': 'th',
-         'props': [('background-color', WEB_COLOR_HEADER_BG), ('color', COLOR_NAVY), ('padding', '12px'),
-                   ('border-bottom', f'2px solid {WEB_COLOR_BORDER_LIGHT}'), ('text-align', 'right !important'),
-                   ('text-transform', 'uppercase'), ('font-size', '0.85rem')]},
-        {'selector': 'td', 'props': [('padding', '10px 15px'), ('border-bottom', f'1px solid {WEB_COLOR_BORDER_ROW}'),
-                                     ('text-align', 'right'), ('font-variant-numeric', 'tabular-nums')]},
-        {'selector': 'th.col0', 'props': [('text-align', 'right !important')]}
-    ]
+    """Fetches the unified global design system grid layout."""
+    return get_base_table_layout_css(WEB_COLOR_HEADER_BG, COLOR_NAVY, WEB_COLOR_BORDER_LIGHT, WEB_COLOR_BORDER_ROW)
 
 
 def generate_break_even_matrix_styles(df_slice, data_list):

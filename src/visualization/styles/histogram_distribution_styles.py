@@ -3,7 +3,6 @@ histogram_distribution_styles.py
 Aesthetic tokens and presentation engines for distribution visualizations.
 """
 
-import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 from matplotlib import cm
 from matplotlib.ticker import FuncFormatter

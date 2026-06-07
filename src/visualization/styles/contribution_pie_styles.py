@@ -1,4 +1,5 @@
 from matplotlib import cm
+
 from . import common
 
 # Color Palette Mapping Strategy
