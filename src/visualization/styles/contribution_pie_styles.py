@@ -1,19 +1,19 @@
 from matplotlib import cm
 
-from . import common
+from . import common_styles
 
 # Color Palette Mapping Strategy
 PIE_COLORMAP = cm.viridis_r
 SPINE_BORDER_COLOR = '#dee2e6'
 
 # Font Sizing and Element Configuration Rules Mapping
-TITLE_FONT_CONFIGURATION = common.TITLE_FONT
-IN_LEGEND_TEXT_FONTS = common.LEGENDS_TEXT_FONTS
+TITLE_FONT_CONFIGURATION = common_styles.TITLE_FONT
+IN_LEGEND_TEXT_FONTS = common_styles.LEGENDS_TEXT_FONTS
 CANVAS_FIGURE_SIZE = (9, 5.5)
 
 # Typography Labels and Color Rules
 PIE_MAIN_TITLE = "Stochastic Contribution Analysis Breakdowns"
-X_AXIS_COLOR_RULE = common.X_AXIS_COLOR
+X_AXIS_COLOR_RULE = common_styles.X_AXIS_COLOR
 TICK_SIZE = 9
 
 PIE_START_ANGLE = 140

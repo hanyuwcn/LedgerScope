@@ -9,18 +9,18 @@ from matplotlib.ticker import FuncFormatter
 
 from src.config.formatting import VARIABLE_FORMATTING_MAP
 from src.utils.formatting import fmt
-from . import common
+from . import common_styles
 
 # Re-expose common core tokens
-TITLE_FONT = common.TITLE_FONT
-X_AXIS_COLOR = common.X_AXIS_COLOR
-Y_AXIS_COLOR = common.Y_AXIS_COLOR
-X_AXIS_FONT = common.X_AXIS_FONT
-Y_AXIS_FONT = common.Y_AXIS_FONT
-FIGURE_SIZE = common.FIGURE_SIZE
-TICK_SIZE = common.TICK_SIZE
-LINE_SETTING_SMALLER = common.LINE_SETTING_SMALLER
-LINE_SETTING_BIGGER = common.LINE_SETTING_BIGGER
+TITLE_FONT = common_styles.TITLE_FONT
+X_AXIS_COLOR = common_styles.X_AXIS_COLOR
+Y_AXIS_COLOR = common_styles.Y_AXIS_COLOR
+X_AXIS_FONT = common_styles.X_AXIS_FONT
+Y_AXIS_FONT = common_styles.Y_AXIS_FONT
+FIGURE_SIZE = common_styles.FIGURE_SIZE
+TICK_SIZE = common_styles.TICK_SIZE
+LINE_SETTING_SMALLER = common_styles.LINE_SETTING_SMALLER
+LINE_SETTING_BIGGER = common_styles.LINE_SETTING_BIGGER
 
 # Label contexts
 HISTOGRAM_TITLE_CONTEXT = "Distribution of Simulated Density Gradient of {output}"
@@ -43,7 +43,7 @@ HISTOGRAM_IN_LEGENDS_TEXT_FONTS = {
     'prop': {'family': 'serif', 'size': 10},
     'frameon': True,
     'facecolor': 'white',
-    'edgecolor': common.COLOR_DARK
+    'edgecolor': common_styles.COLOR_DARK
 }
 
 

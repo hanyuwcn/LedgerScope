@@ -2,14 +2,9 @@ import numpy as np
 import pandas as pd
 
 from src.config import variable_names
-from src.config.formatting import VARIABLE_FORMATTING_MAP
 from src.utils.formatting import fmt
 from src.visualization.styles import comparative_statics_styles
-
-
-def _get_formatter(var_name):
-    """Retrieves the assigned lambda from the map, falling back to a safe layout."""
-    return VARIABLE_FORMATTING_MAP.get(var_name, lambda v: fmt(v, d=2))
+from .common_view import apply_custom_variable_formatting
 
 
 def get_comparative_statics_dataframe(data_list, output_name):
@@ -46,30 +41,28 @@ def get_comparative_statics_dataframe(data_list, output_name):
 
 
 def apply_variable_formatting(row):
-    variable_name = row[comparative_statics_styles.SENSITIVITY_VARIABLE]
-    formatter = _get_formatter(variable_name)
-
+    """Proxies to the shared core utility with Comparative Statics columns."""
     cols_to_format = [
         comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_MIN,
         comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_BASE,
         comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_MAX
     ]
-    for col in cols_to_format:
-        row[col] = formatter(row[col])
-    return row
+    return apply_custom_variable_formatting(
+        row,
+        variable_col=comparative_statics_styles.SENSITIVITY_VARIABLE,
+        target_cols=cols_to_format
+    )
 
 
 def apply_elasticity_formatting(row):
     """Transforms numeric elasticity variables into explicitly signed string tokens."""
     elasticity = row[comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY]
 
-    # Fast exit for structural empty placeholders (like on Output rows)
     if elasticity == "" or pd.isna(elasticity):
         return row
 
     try:
         numeric_elasticity = float(elasticity)
-
         if numeric_elasticity > 0:
             row[comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY] = fmt(numeric_elasticity, s='+',
                                                                                              d=2)
@@ -77,7 +70,6 @@ def apply_elasticity_formatting(row):
             row[comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY] = fmt(numeric_elasticity, d=2)
         else:
             row[comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY] = "0.00"
-
     except (ValueError, TypeError):
         row[comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY] = ""
 
@@ -87,16 +79,12 @@ def apply_elasticity_formatting(row):
 def render_comparative_statics_dashboard(data_list, output_name):
     """Renders directly inside notebooks/PyCharm using native Pandas Styling."""
     raw_df = get_comparative_statics_dataframe(data_list, output_name)
-
-    # Resolve vectors needed for style calculation references
     row_vars = raw_df[comparative_statics_styles.SENSITIVITY_VARIABLE].values
 
-    # Pre-format underlying raw elements exactly like your workable solution
     formatted_df = raw_df.fillna("")
     formatted_df = formatted_df.apply(apply_variable_formatting, axis=1)
     formatted_df = formatted_df.apply(apply_elasticity_formatting, axis=1)
 
-    # Pipe directly to styles module components cleanly
     styled_pipeline = (
         formatted_df.style
         .apply(comparative_statics_styles.generate_matrix_cell_styles, row_vars=row_vars, output_name=output_name,
@@ -104,5 +92,4 @@ def render_comparative_statics_dashboard(data_list, output_name):
         .set_table_styles(comparative_statics_styles.get_table_layout_css())
         .hide(axis='index')
     )
-
     return styled_pipeline

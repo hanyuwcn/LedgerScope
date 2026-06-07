@@ -4,7 +4,7 @@ Houses naming constants and visual color tokens. All native HTML strings removed
 """
 import pandas as pd
 
-from .common import (
+from .common_styles import (
     COLOR_NAVY,
     WEB_COLOR_BORDER_LIGHT,
     WEB_COLOR_BORDER_ROW,

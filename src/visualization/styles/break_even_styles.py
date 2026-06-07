@@ -6,7 +6,7 @@ Dedicated design system and HTML components for Break-Even / Sensitivity tables.
 import pandas as pd
 
 from src.config import variable_names, messages
-from .common import (
+from .common_styles import (
     COLOR_NAVY,
     WEB_COLOR_BORDER_LIGHT,
     WEB_COLOR_BORDER_ROW,
