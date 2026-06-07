@@ -1,14 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from src.config.formatting import VARIABLE_FORMATTING_MAP
-from src.utils.formatting import fmt
 from src.visualization.styles import contribution_pie_styles
-
-
-def _get_formatter(var_name):
-    """Retrieves the assigned lambda from the map, falling back to a safe layout."""
-    return VARIABLE_FORMATTING_MAP.get(var_name, lambda v: fmt(v, d=2))
+from .common_view import get_formatter
 
 
 def generate_contribution_pie_chart(average_contributions: dict[str, float]) -> plt.Figure:
@@ -45,7 +39,7 @@ def generate_contribution_pie_chart(average_contributions: dict[str, float]) -> 
     legend_labels = []
 
     for var_name, val in average_contributions.items():
-        formatter = _get_formatter(var_name)
+        formatter = get_formatter(var_name)
         formatted_val = formatter(val)
 
         # Calculate percentage safely from division by zero errors
@@ -89,5 +83,4 @@ def generate_contribution_pie_chart(average_contributions: dict[str, float]) -> 
         legend.get_frame().set_edgecolor(contribution_pie_styles.SPINE_BORDER_COLOR)
 
         plt.tight_layout()
-        # plt.close()
         return fig

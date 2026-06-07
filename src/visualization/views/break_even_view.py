@@ -4,7 +4,7 @@ import pandas as pd
 from src.config import variable_names
 from src.utils.formatting import fmt
 from src.visualization.styles import break_even_styles
-from src.visualization.views.common_view import apply_custom_variable_formatting
+from .common_view import apply_custom_variable_formatting
 
 
 def get_break_even_dataframe(data_list, output_name):

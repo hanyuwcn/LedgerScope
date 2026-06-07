@@ -7,14 +7,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy import stats
 
-from src.config.formatting import VARIABLE_FORMATTING_MAP
-from src.utils.formatting import fmt
 from src.visualization.styles import linear_regression_styles
-
-
-def _get_formatter(var_name):
-    """Retrieves the assigned lambda from the map, falling back to a safe layout."""
-    return VARIABLE_FORMATTING_MAP.get(var_name, lambda v: fmt(v, d=2))
+from .common_view import get_formatter
 
 
 def generate_linear_regression_from_lists(x_data, y_data, x_label, y_label, x_benchmark=None, y_benchmark=None):
@@ -47,8 +41,8 @@ def generate_linear_regression_from_lists(x_data, y_data, x_label, y_label, x_be
         scaled_sizes = np.full_like(y, 50, dtype=float)
 
     # Dynamic formatters
-    x_formatter = _get_formatter(x_label)
-    y_formatter = _get_formatter(y_label)
+    x_formatter = get_formatter(x_label)
+    y_formatter = get_formatter(y_label)
 
     # 2. Isolate global style contexts safely
     with plt.rc_context():
@@ -91,5 +85,4 @@ def generate_linear_regression_from_lists(x_data, y_data, x_label, y_label, x_be
         linear_regression_styles.apply_regression_theme(ax, x_label, y_label, x_formatter, y_formatter)
 
         plt.tight_layout()
-        # plt.close()
         return fig

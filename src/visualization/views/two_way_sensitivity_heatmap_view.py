@@ -8,14 +8,8 @@ import seaborn as sns
 from matplotlib.ticker import FuncFormatter
 
 from src.config import variable_names
-from src.config.formatting import VARIABLE_FORMATTING_MAP
-from src.utils.formatting import fmt
 from src.visualization.styles import two_way_sensitivity_heatmap_styles
-
-
-def _get_formatter(var_name):
-    """Retrieves the assigned lambda from the map, falling back to a safe layout."""
-    return VARIABLE_FORMATTING_MAP.get(var_name, lambda v: fmt(v, d=2))
+from .common_view import get_formatter
 
 
 def generate_heatmap_from_df(df, output_name=variable_names.MODEL_DEFAULT_OUTPUT_NAME):
@@ -28,9 +22,9 @@ def generate_heatmap_from_df(df, output_name=variable_names.MODEL_DEFAULT_OUTPUT
     y_var_name = df.index.name or "Variable Y"
 
     # 2. Extract corresponding formatting rules dynamically via configuration lookup maps
-    output_formatter = _get_formatter(output_name)
-    x_formatter = _get_formatter(x_var_name)
-    y_formatter = _get_formatter(y_var_name)
+    output_formatter = get_formatter(output_name)
+    x_formatter = get_formatter(x_var_name)
+    y_formatter = get_formatter(y_var_name)
 
     cbar_axis_formatter = FuncFormatter(lambda x, pos: output_formatter(x))
 
@@ -63,5 +57,4 @@ def generate_heatmap_from_df(df, output_name=variable_names.MODEL_DEFAULT_OUTPUT
             y_formatter=y_formatter
         )
 
-    # plt.close()
     return fig

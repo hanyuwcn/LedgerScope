@@ -1,6 +1,3 @@
-- Optimize plots(Ctnd)
-  - Figure out proper time to plot.close()
-  - Two-way sensitivity output matrix, can be rendered into dataframe and heatmap
 
 - Add following aspects:
   - Setup cost
@@ -46,6 +43,7 @@
         1. Distributes all attributes to each style;
         2. Collect common styles together
         3. Organize by order
+      - Figure out proper time to plot.close()
 
     - Add solid model pipeline so that they don't have to be constructed every single times
       - They can be composed of smaller pipeline
