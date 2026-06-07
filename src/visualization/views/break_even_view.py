@@ -1,15 +1,14 @@
 """
 break_even_view.py
-Generates DataFrame models and renders high-fidelity HTML sensitivity matrices.
+Generates DataFrame models and renders high-fidelity sensitivity matrices using native Pandas Styling.
 """
-
+import numpy as np
 import pandas as pd
-from IPython.display import HTML
 
-from src.config import variable_names, messages
+from src.config import variable_names
 from src.config.formatting import VARIABLE_FORMATTING_MAP
 from src.utils.formatting import fmt
-from ..styles import break_even_styles
+from src.visualization.styles import break_even_styles
 
 
 def _get_formatter(var_name):
@@ -25,108 +24,82 @@ def get_break_even_dataframe(data_list, output_name):
     processed_rows = []
 
     for item in data_list:
+        var_name = item[variable_names.BREAK_EVEN_VARIABLE_NAME]
+
         # Row 1 (Visual): Impact Results (Outputs)
         processed_rows.append({
-            break_even_styles.SENSITIVITY_VARIABLE: f"└─ {output_name}",
+            break_even_styles.SENSITIVITY_VARIABLE: output_name,
             break_even_styles.BREAK_EVEN_COLUMN_NAME_BASE: item[variable_names.BREAK_EVEN_EXPECTED_RESULT],
             break_even_styles.BREAK_EVEN_COLUMN_NAME_THRESHOLD: item[variable_names.BREAK_EVEN_POINT_THRESHOLD_RESULT],
-            break_even_styles.BREAK_EVEN_COLUMN_NAME_SAFETY_MARGIN: "-"
+            break_even_styles.BREAK_EVEN_COLUMN_NAME_SAFETY_MARGIN: np.nan
         })
-
-        # Safe extraction of safety margin percentage
-        margin_raw = item.get(variable_names.BREAK_EVEN_SAFETY_MARGIN_PERCENTAGE)
-        margin_str = f"{margin_raw:.1%}" if margin_raw is not None else "N/A"
 
         # Row 2 (Visual): Input Values (Variables)
         processed_rows.append({
-            break_even_styles.SENSITIVITY_VARIABLE: item[variable_names.BREAK_EVEN_VARIABLE_NAME],
+            break_even_styles.SENSITIVITY_VARIABLE: var_name,
             break_even_styles.BREAK_EVEN_COLUMN_NAME_BASE: item[variable_names.BREAK_EVEN_EXPECTED_VARIABLE_VALUE],
             break_even_styles.BREAK_EVEN_COLUMN_NAME_THRESHOLD: item[
                 variable_names.BREAK_EVEN_POINT_THRESHOLD_VARIABLE_VALUE],
-            break_even_styles.BREAK_EVEN_COLUMN_NAME_SAFETY_MARGIN: margin_str
+            break_even_styles.BREAK_EVEN_COLUMN_NAME_SAFETY_MARGIN: item.get(
+                variable_names.BREAK_EVEN_SAFETY_MARGIN_PERCENTAGE, np.nan)
         })
 
-    columns = [
-        break_even_styles.SENSITIVITY_VARIABLE,
+    return pd.DataFrame(processed_rows)
+
+
+def apply_variable_formatting(row):
+    """Maps custom configurations to metrics columns with a robust safe fallback."""
+    variable_name = row[break_even_styles.SENSITIVITY_VARIABLE]
+    formatter = _get_formatter(variable_name)
+
+    cols_to_format = [
         break_even_styles.BREAK_EVEN_COLUMN_NAME_BASE,
         break_even_styles.BREAK_EVEN_COLUMN_NAME_THRESHOLD,
-        break_even_styles.BREAK_EVEN_COLUMN_NAME_SAFETY_MARGIN
     ]
-    return pd.DataFrame(processed_rows, columns=columns)
+    for col in cols_to_format:
+        val = row[col]
+        # Handle NaN values locally with an intentional dash token
+        row[col] = formatter(val) if pd.notna(val) else "-"
+    return row
+
+
+def apply_safety_margin_formatting(row):
+    """Transforms numeric safety margin variables into formatted percentage tokens."""
+    safety_margin = row[break_even_styles.BREAK_EVEN_COLUMN_NAME_SAFETY_MARGIN]
+
+    # Catch raw NaN, missing, or structural output row tokens early here
+    if pd.isna(safety_margin) or safety_margin == "":
+        row[break_even_styles.BREAK_EVEN_COLUMN_NAME_SAFETY_MARGIN] = ""
+        return row
+
+    try:
+        numeric_safety_margin = float(safety_margin)
+        row[break_even_styles.BREAK_EVEN_COLUMN_NAME_SAFETY_MARGIN] = fmt(numeric_safety_margin, d=1, p=True)
+    except (ValueError, TypeError):
+        # Fall back to an empty string on invalid strings
+        row[break_even_styles.BREAK_EVEN_COLUMN_NAME_SAFETY_MARGIN] = ""
+
+    return row
 
 
 def render_break_even_dashboard(data_list, output_name):
     """
-    Generates a high-fidelity HTML component table with color-coded alerts
-    mapped directly to centralized dictionary formatting configurations.
+    Generates a native Pandas Styler dashboard utilizing table layouts and CSS definitions
+    imported straight from break_even_styles.
     """
-    row_elements = []
+    # 1. Gather raw data structures from raw data list dictionaries
+    raw_df = get_break_even_dataframe(data_list, output_name)
 
-    for item in data_list:
-        feasibility = item.get(variable_names.BREAK_EVEN_FEASIBILITY_STATUS,
-                               messages.BREAK_EVEN_FEASIBILITY_STATUS_CROSSOVER)
-        margin_val = item.get(variable_names.BREAK_EVEN_SAFETY_MARGIN_PERCENTAGE, 0.0)
+    # 2. Localized format sanitization sweeps without an external global fillna()
+    formatted_df = raw_df.apply(apply_variable_formatting, axis=1)
+    formatted_df = formatted_df.apply(apply_safety_margin_formatting, axis=1)
 
-        # Assign explicit break-even contextual CSS hooks using structural matching
-        match feasibility:
-            case messages.BREAK_EVEN_FEASIBILITY_ALWAYS_FEASIBLE:
-                margin_class = "be-margin-safe"
-                val_thr_class = "be-val-thr"
-                res_thr_class = "be-res-thr"
-
-            case messages.BREAK_EVEN_FEASIBILITY_UNREACHABLE:
-                margin_class = "be-margin-danger"
-                val_thr_class = "be-val-thr-unreachable"
-                res_thr_class = "be-res-thr-unreachable"
-
-            case messages.BREAK_EVEN_FEASIBILITY_STATUS_CROSSOVER:
-                val_thr_class = "be-val-thr"
-                res_thr_class = "be-res-thr"
-                margin_class = "be-margin-caution" if margin_val >= 0 else "be-margin-warning"
-
-            case _:
-                margin_class = "be-margin-warning"
-                val_thr_class = "be-val-thr"
-                res_thr_class = "be-res-thr"
-
-        var_name = item[variable_names.BREAK_EVEN_VARIABLE_NAME]
-
-        # Resolve format rules dynamically from your centralized dictionary map
-        output_formatter = _get_formatter(output_name)
-        input_formatter = _get_formatter(var_name)
-
-        # Format variables & results seamlessly without checking types manually
-        fmt_exp_res = output_formatter(item[variable_names.BREAK_EVEN_EXPECTED_RESULT])
-        fmt_thr_res = output_formatter(item[variable_names.BREAK_EVEN_POINT_THRESHOLD_RESULT])
-
-        fmt_exp_val = input_formatter(item[variable_names.BREAK_EVEN_EXPECTED_VARIABLE_VALUE])
-        fmt_thr_val = input_formatter(item[variable_names.BREAK_EVEN_POINT_THRESHOLD_VARIABLE_VALUE])
-
-        # Compile Output Row (Results)
-        row_elements.append(f"""
-            <tr class="be-output-row">
-                <td class="be-text-left be-sub-label">{output_name}</td>
-                <td class="be-res-exp">{fmt_exp_res}</td>
-                <td class="{res_thr_class}">{fmt_thr_res}</td>
-                <td>&nbsp;</td>
-            </tr>""")
-
-        # Compile Input Row (Variables)
-        row_elements.append(f"""
-            <tr>
-                <td class="be-text-left"><strong>{var_name}</strong></td>
-                <td class="be-val-exp">{fmt_exp_val}</td>
-                <td class="{val_thr_class}">{fmt_thr_val}</td>
-                <td class="{margin_class}">{margin_val:.1%}</td>
-            </tr>""")
-
-    compiled_html = break_even_styles.BREAK_EVEN_DASHBOARD_TEMPLATE.format(
-        styles=break_even_styles.BREAK_EVEN_TABLE_STYLESHEET,
-        var_header=break_even_styles.SENSITIVITY_VARIABLE,
-        base_header=break_even_styles.BREAK_EVEN_COLUMN_NAME_BASE,
-        thr_header=break_even_styles.BREAK_EVEN_COLUMN_NAME_THRESHOLD,
-        margin_header=break_even_styles.BREAK_EVEN_COLUMN_NAME_SAFETY_MARGIN,
-        rows="".join(row_elements)
+    # 3. Pipe directly to style engine components cleanly
+    styled_pipeline = (
+        formatted_df.style
+        .apply(break_even_styles.generate_break_even_matrix_styles, data_list=data_list, axis=None)
+        .set_table_styles(break_even_styles.get_table_layout_css())
+        .hide(axis='index')
     )
 
-    return HTML(compiled_html)
+    return styled_pipeline

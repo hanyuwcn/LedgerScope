@@ -1,7 +1,7 @@
 import unittest
 
 import pandas as pd
-from IPython.display import HTML
+from pandas.io.formats.style import Styler
 
 from src.config import variable_names, messages
 from src.visualization.styles import break_even_styles
@@ -57,7 +57,7 @@ class TestBreakEvenViewEngineComprehensive(unittest.TestCase):
         self.assertEqual(list(df.columns), expected_columns)
 
     def test_get_break_even_dataframe_missing_margin_fallback(self):
-        """Scenario 2: Validate fallback to N/A string when safety margin properties are missing."""
+        """Scenario 2: Validate raw dataframe leaves missing safety margin values as NaN."""
         stripped_input = [{
             variable_names.BREAK_EVEN_VARIABLE_NAME: 'CAC',
             variable_names.BREAK_EVEN_EXPECTED_VARIABLE_VALUE: 150.0,
@@ -68,23 +68,24 @@ class TestBreakEvenViewEngineComprehensive(unittest.TestCase):
         }]
         df = get_break_even_dataframe(stripped_input, output_name="Net Margin")
 
-        # Index 0 is the metadata placeholder row ("-"). Index 1 is the metric tracking value row -> should show "N/A"
+        # In the decoupled framework, the raw dataframe keeps missing items as NaN.
+        # It's downstream formatters like apply_safety_margin_formatting that convert them to "".
         margin_column_name = break_even_styles.BREAK_EVEN_COLUMN_NAME_SAFETY_MARGIN
-        self.assertEqual(df.iloc[1][margin_column_name], "N/A")
+        self.assertTrue(pd.isna(df.iloc[1][margin_column_name]))
 
     # =========================================================================
-    # 2. HTML DASHBOARD RENDERING LOGIC
+    # 2. PANDAS STYLER RENDERING LOGIC
     # =========================================================================
 
-    def test_render_break_even_dashboard_html_compilation(self):
-        """Scenario 3: Verify template formatter runs cleanly to generate executable HTML components."""
-        html_component = render_break_even_dashboard(self.standard_break_even_input, output_name="EBITDA")
+    def test_render_break_even_dashboard_styler_compilation(self):
+        """Scenario 3: Verify the system generates a native Pandas Styler pipeline object cleanly."""
+        styler_component = render_break_even_dashboard(self.standard_break_even_input, output_name="EBITDA")
 
-        # Verify output matches target display classes without checking layout frames
-        self.assertIsInstance(html_component, HTML)
+        # Verify output matches the modern Styler framework instead of raw IPython markup
+        self.assertIsInstance(styler_component, Styler)
 
         # Extract underlying HTML string layout tracking signature
-        raw_html = html_component._repr_html_()
+        raw_html = styler_component.to_html()
         self.assertTrue(len(raw_html) > 0)
 
         # Ensure core matrix values compiled inside the table string cleanly
@@ -104,8 +105,8 @@ class TestBreakEvenViewEngineComprehensive(unittest.TestCase):
             variable_names.BREAK_EVEN_SAFETY_MARGIN_PERCENTAGE: -0.98
         }]
 
-        html_component = render_break_even_dashboard(unreachable_input, output_name="Net Margin")
-        raw_html = html_component._repr_html_()
+        styler_component = render_break_even_dashboard(unreachable_input, output_name="Net Margin")
+        raw_html = styler_component.to_html()
 
         # Structural presence assertion—verifies compilation without locking onto styling frames
         self.assertTrue(len(raw_html) > 0)

@@ -104,46 +104,5 @@ COLOR_ALERT_DANGER_BG = "#f8d7da"
 COLOR_ALERT_DANGER_TXT = "#721c24"
 
 # Shared dataframe settings
-## TODO: apply this table style for break even analysis and comparative statics
-SHARED_TABLE_BASE_STYLE = f"""
-    .ls-dashboard-table {{
-        border-collapse: collapse;
-        font-family: {WEB_FONT_FAMILY};
-        width: 100%;
-        margin: 15px 0;
-        border: 1px solid {WEB_COLOR_BORDER_LIGHT};
-    }}
-    .ls-dashboard-table th {{
-        background-color: {WEB_COLOR_HEADER_BG};
-        color: {COLOR_NAVY};
-        padding: 12px 15px;
-        border-bottom: 2px solid {WEB_COLOR_BORDER_LIGHT};
-        text-align: right;
-        text-transform: uppercase;
-        font-size: 0.85rem;
-    }}
-    .ls-dashboard-table td {{
-        padding: 10px 15px;
-        border-bottom: 1px solid {WEB_COLOR_BORDER_ROW};
-        text-align: right;
-        font-variant-numeric: tabular-nums;
-    }}
-    .text-left {{ text-align: left !important; }}
-    .sub-label {{ padding-left: 25px !important; color: {WEB_COLOR_SUB_LABEL}; font-style: italic; font-size: 0.9rem; }}
-"""
+## TODO: apply common table style for both break even analysis and comparative statics
 
-# Optimized HTML framework reusable by any matrix view layer
-## TODO: apply this table style for break even analysis and comparative statics
-SHARED_DASHBOARD_HTML_TEMPLATE = """
-{styles}
-<table class="ls-dashboard-table">
-    <thead>
-        <tr>
-            {headers}
-        </tr>
-    </thead>
-    <tbody>
-        {rows}
-    </tbody>
-</table>
-"""
