@@ -1,7 +1,8 @@
 """
-CSS Layout Configuration for Comparative Statics Dashboard.
-Following the project's isolated view styling pattern.
+Design Token and Configuration Map for Comparative Statics Dashboard.
+Houses naming constants and visual color tokens. All native HTML strings removed.
 """
+import pandas as pd
 
 from .common import (
     COLOR_NAVY,
@@ -10,6 +11,8 @@ from .common import (
     WEB_COLOR_BORDER_ROW,
     WEB_COLOR_HEADER_BG,
     WEB_COLOR_SUB_LABEL,
+    COLOR_BLACK,
+    COLOR_WHITE,
     COLOR_HIGHLIGHT_EXP_VAL,
     COLOR_HIGHLIGHT_EXP_RES,
     COLOR_HIGHLIGHT_EXP_BORDER,
@@ -21,9 +24,11 @@ from .common import (
     COLOR_ALERT_SUCCESS_TXT,
     COLOR_ALERT_DANGER_BG,
     COLOR_ALERT_DANGER_TXT,
-
 )
 
+# ==========================================
+# 1. Column Naming Schema
+# ==========================================
 SENSITIVITY_VARIABLE = "Sensitivity Variable"
 
 COMPARATIVE_STATICS_COLUMN_NAME_MIN = 'Min State'
@@ -31,66 +36,91 @@ COMPARATIVE_STATICS_COLUMN_NAME_BASE = 'Base (Expected)'
 COMPARATIVE_STATICS_COLUMN_NAME_MAX = 'Max State'
 COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY = "Elasticity"
 
-# High-fidelity component stylesheet reading from centralized tokens
-COMPARATIVE_STATICS_STYLE = f"""
-<style>
-    .cs-table {{
-        border-collapse: collapse;
-        font-family: {WEB_FONT_FAMILY};
-        width: 100%;
-        margin: 15px 0;
-        border: 1px solid {WEB_COLOR_BORDER_LIGHT};
-    }}
-    .cs-table th {{
-        background-color: {WEB_COLOR_HEADER_BG};
-        color: {COLOR_NAVY};
-        padding: 12px 15px;
-        border-bottom: 2px solid {WEB_COLOR_BORDER_LIGHT};
-        text-align: right;
-        text-transform: uppercase;
-        font-size: 0.85rem;
-    }}
-    .cs-table td {{
-        padding: 10px 15px;
-        border-bottom: 1px solid {WEB_COLOR_BORDER_ROW};
-        text-align: right;
-        font-variant-numeric: tabular-nums;
-    }}
+COMPARATIVE_STATICS_VARIABLE_NAME = "Variable Name"
+COMPARATIVE_STATICS_ROW_TYPE = "Row Type"
+COMPARATIVE_STATICS_ROW_TYPE_FACTOR = "Factor"
+COMPARATIVE_STATICS_ROW_TYPE_OUTPUT = "Output"
 
-    .text-left {{ text-align: left !important; }}
-    .sub-label {{ padding-left: 25px !important; color: {WEB_COLOR_SUB_LABEL}; font-style: italic; font-size: 0.9rem; }}
 
-    /* Row Base Overrides */
-    .row-factor {{ background-color: #f8f9fa; }}
-    .row-output {{ background-color: #ffffff; }}
+def get_table_layout_css():
+    """Generates the static layout structure dictionary configs for Pandas Styler."""
+    return [
+        # 1. Main Table Styling (.cs-table)
+        {
+            'selector': '',
+            'props': [
+                ('border-collapse', 'collapse'),
+                ('width', '100%'),
+                ('margin', '15px 0'),
+                ('border', f'1px solid {WEB_COLOR_BORDER_LIGHT}')
+            ]
+        },
+        # 2. Complete Table Header Component Styling (.cs-table th)
+        {
+            'selector': 'th',
+            'props': [
+                ('background-color', WEB_COLOR_HEADER_BG),
+                ('color', COLOR_NAVY),
+                ('padding', '12px 15px'),
+                ('border-bottom', f'2px solid {WEB_COLOR_BORDER_LIGHT}'),
+                ('text-align', 'right !important'),
+                ('text-transform', 'uppercase'),
+                ('font-size', '0.85rem')
+            ]
+        },
+        # 3. Complete Data Cell Component Styling (.cs-table td)
+        {
+            'selector': 'td',
+            'props': [
+                ('padding', '10px 15px'),
+                ('border-bottom', f'1px solid {WEB_COLOR_BORDER_ROW}'),
+                ('text-align', 'right'),
+                ('font-variant-numeric', 'tabular-nums')
+            ]
+        },
+        # 4. First column header alignment adjustment (.text-left)
+        {
+            'selector': 'th.col0',
+            'props': [
+                ('text-align', 'right !important')
+            ]
+        }
+    ]
 
-    /* Color Configurations */
-    .val-heavy-blue {{ background-color: {COLOR_HIGHLIGHT_EXP_VAL}; color: white; font-weight: bold; }}
-    .res-light-blue {{ background-color: {COLOR_HIGHLIGHT_EXP_RES}; border-right: 1px solid {COLOR_HIGHLIGHT_EXP_BORDER}; font-weight: bold; }}
 
-    .val-light-yellow {{ background-color: {COLOR_HIGHLIGHT_THR_VAL}; color: {COLOR_HIGHLIGHT_THR_TXT}; font-weight: bold; }}
-    .res-dark-yellow {{ background-color: {COLOR_HIGHLIGHT_THR_RES}; color: {COLOR_HIGHLIGHT_THR_RES_TXT}; font-weight: bold; border-right: 1px solid {COLOR_HIGHLIGHT_THR_RES}; }}
+def generate_matrix_cell_styles(df_slice, row_vars, output_name):
+    """Builds a cell-by-cell style configuration matrix using style sheet token metrics."""
+    style_matrix = pd.DataFrame('', index=df_slice.index, columns=df_slice.columns)
 
-    .elasticity-positive {{ background-color: {COLOR_ALERT_SUCCESS_BG}; color: {COLOR_ALERT_SUCCESS_TXT}; font-weight: bold; }}
-    .elasticity-negative {{ background-color: {COLOR_ALERT_DANGER_BG}; color: {COLOR_ALERT_DANGER_TXT}; font-weight: bold; }}
-</style>
-"""
+    for idx in range(len(df_slice)):
+        is_output = row_vars[idx] == output_name
 
-## TODO: apply this template for comparative statics, even better apply the `SHARED_DASHBOARD_HTML_TEMPLATE` from common
-COMPARATIVE_STATICS_DASHBOARD_TEMPLATE = """
-{styles}
-<table class="cs-table">
-    <thead>
-        <tr>
-            <th class="text-left">{var_header}</th>
-            <th>{min_header}</th>
-            <th>{base_header}</th>
-            <th>{max_header}</th>
-            <th>{elasticity_header}</th>
-        </tr>
-    </thead>
-    <tbody>
-        {rows}
-    </tbody>
-</table>
-"""
+        # Map colors from global style design file tokens natively
+        background_color_min_max = COLOR_HIGHLIGHT_THR_RES if is_output else COLOR_HIGHLIGHT_THR_VAL
+        background_color_base = COLOR_HIGHLIGHT_EXP_RES if is_output else COLOR_HIGHLIGHT_EXP_VAL
+
+        text_color_min_max = COLOR_HIGHLIGHT_THR_RES_TXT
+        text_color_base = COLOR_NAVY if is_output else COLOR_WHITE
+
+        # Handle typography states
+        style_matrix.iloc[
+            idx, 0] = "text-align: left; font-weight: bold;" if not is_output else "text-align: left; font-style: italic;"
+        style_matrix.iloc[
+            idx, 1] = f"background-color: {background_color_min_max}; color: {text_color_min_max}; font-weight: bold;"
+        style_matrix.iloc[
+            idx, 2] = f"background-color: {background_color_base}; color: {text_color_base}; font-weight: bold;"
+        style_matrix.iloc[
+            idx, 3] = f"background-color: {background_color_min_max}; color: {text_color_min_max}; font-weight: bold;"
+
+        # Handle conditional alerts matching string patterns
+        if not is_output:
+            elasticity = df_slice.iloc[idx, 4]
+            if isinstance(elasticity, str):
+                if elasticity.startswith('+'):
+                    style_matrix.iloc[
+                        idx, 4] = f"background-color: {COLOR_ALERT_SUCCESS_BG}; color: {COLOR_ALERT_SUCCESS_TXT}; font-weight: bold;"
+                elif elasticity.startswith('-'):
+                    style_matrix.iloc[
+                        idx, 4] = f"background-color: {COLOR_ALERT_DANGER_BG}; color: {COLOR_ALERT_DANGER_TXT}; font-weight: bold;"
+
+    return style_matrix

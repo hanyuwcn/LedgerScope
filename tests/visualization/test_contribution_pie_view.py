@@ -1,4 +1,5 @@
 import unittest
+
 import matplotlib.pyplot as plt
 
 from src.visualization.styles import contribution_pie_styles

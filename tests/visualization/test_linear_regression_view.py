@@ -1,5 +1,7 @@
 import unittest
+
 import matplotlib.pyplot as plt
+
 from src.visualization.views.linear_regression_view import generate_linear_regression_from_lists
 
 

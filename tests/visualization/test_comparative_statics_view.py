@@ -1,10 +1,10 @@
 import unittest
-import numpy as np
+
 import pandas as pd
-from IPython.display import HTML
+from pandas.io.formats.style import Styler
 
 from src.config import variable_names
-from src.visualization.styles import comparative_statics_styles
+from src.visualization.styles import comparative_statics_styles as cs_style
 from src.visualization.views.comparative_statics_view import (
     get_comparative_statics_dataframe,
     render_comparative_statics_dashboard
@@ -53,11 +53,11 @@ class TestComparativeStaticsViewEngineComprehensive(unittest.TestCase):
 
         # Confirm columns align directly to true architectural style variables
         expected_columns = [
-            comparative_statics_styles.SENSITIVITY_VARIABLE,
-            comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_MIN,
-            comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_BASE,
-            comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_MAX,
-            comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY
+            cs_style.SENSITIVITY_VARIABLE,
+            cs_style.COMPARATIVE_STATICS_COLUMN_NAME_MIN,
+            cs_style.COMPARATIVE_STATICS_COLUMN_NAME_BASE,
+            cs_style.COMPARATIVE_STATICS_COLUMN_NAME_MAX,
+            cs_style.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY
         ]
         self.assertEqual(list(df.columns), expected_columns)
 
@@ -65,37 +65,38 @@ class TestComparativeStaticsViewEngineComprehensive(unittest.TestCase):
         """Scenario 2: Verify specific structure blocks where Output rows suppress elasticity figures."""
         df = get_comparative_statics_dataframe(self.standard_comparative_statics_input, output_name="Net Value")
 
-        elasticity_col = comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY
+        elasticity_col = cs_style.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY
 
-        # Row index 0 belongs to Output (Results) - verify it is a missing/None element
-        # (Pandas turns None into a floating-point NaN or None depending on type tracking)
+        # Row index 0 belongs to Output (Results) - verify it is an empty or missing element
         self.assertTrue(pd.isna(df.iloc[0][elasticity_col]))
 
         # Row index 1 belongs to the Input factor (ConversionRate) - must match assigned metric value
         self.assertEqual(df.iloc[1][elasticity_col], 1.25)
 
     # =========================================================================
-    # 2. HTML DASHBOARD RENDERING LOGIC
+    # 2. PANDAS STYLER DASHBOARD RENDERING LOGIC
     # =========================================================================
 
-    def test_render_comparative_statics_dashboard_html_compilation(self):
-        """Scenario 3: Verify the table element compiles into display containers without structural crashes."""
-        html_component = render_comparative_statics_dashboard(
+    def test_render_comparative_statics_dashboard_styler_compilation(self):
+        """Scenario 3: Verify the dashboard compiles into a Pandas Styler object without structural crashes."""
+        styler_component = render_comparative_statics_dashboard(
             self.standard_comparative_statics_input, output_name="Gross Income"
         )
 
-        self.assertIsInstance(html_component, HTML)
+        # Assert it returns the modern Styler pipeline instead of raw HTML class wrapper
+        self.assertIsInstance(styler_component, Styler)
 
-        raw_html = html_component._repr_html_()
+        # Render layout to raw markup validation string
+        raw_html = styler_component.to_html()
         self.assertTrue(len(raw_html) > 0)
 
-        # Confirm raw inputs and labels were injected cleanly into the markup data
+        # Confirm raw inputs and labels were processed cleanly into output structures
         self.assertIn("Gross Income", raw_html)
         self.assertIn("ConversionRate", raw_html)
         self.assertIn("ChurnRate", raw_html)
 
     def test_render_comparative_statics_dashboard_elasticity_branching(self):
-        """Scenario 4: Verify positive, negative, and safe non-float fallbacks handle class mappings."""
+        """Scenario 4: Verify positive, negative, and safe non-float fallbacks handle output string generation."""
         edge_case_input = [
             {
                 variable_names.COMPARATIVE_STATICS_VARIABLE_NAME: 'FixedOverhead',
@@ -111,22 +112,21 @@ class TestComparativeStaticsViewEngineComprehensive(unittest.TestCase):
 
         raw_html_standard = render_comparative_statics_dashboard(
             self.standard_comparative_statics_input, output_name="Test"
-        )._repr_html_()
+        ).to_html()
 
         raw_html_edge = render_comparative_statics_dashboard(
             edge_case_input, output_name="Test"
-        )._repr_html_()
+        ).to_html()
 
-        # Positive elasticity check
-        self.assertIn("elasticity-positive", raw_html_standard)
+        # Positive elasticity check - verifies custom layout token string format logic (+ sign)
         self.assertIn("+1.25", raw_html_standard)
 
-        # Negative elasticity check
-        self.assertIn("elasticity-negative", raw_html_standard)
+        # Negative elasticity check - verifies regular negative sign persistence
         self.assertIn("-0.45", raw_html_standard)
 
-        # Fallback string test - should be caught gracefully and formatted as structural 0.00 base line
-        self.assertIn("0.00", raw_html_edge)
+        # Fallback string test - because we added type safeguards to `apply_elasticity_formatting`,
+        # invalid values are bypassed and filled as blank strings via `fillna("")` without throwing an error.
+        self.assertIn('FixedOverhead', raw_html_edge)
 
 
 if __name__ == '__main__':

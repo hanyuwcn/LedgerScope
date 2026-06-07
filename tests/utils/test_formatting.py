@@ -1,8 +1,8 @@
 import unittest
 
-from src.utils.formatting import list_to_element_string, fmt
 from src.config import variable_names
 from src.config.formatting import VARIABLE_FORMATTING_MAP
+from src.utils.formatting import list_to_element_string, fmt
 
 
 class TestFormattingUtils(unittest.TestCase):

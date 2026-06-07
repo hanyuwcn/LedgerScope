@@ -1,7 +1,6 @@
 # =====================================================================
 # MATPLOTLIB CHART DESIGN TOKENS (Keep as raw numbers)
 # =====================================================================
-
 TICK_SIZE = 12
 LABEL_SIZE = 16
 TITLE_SIZE = 25
@@ -84,6 +83,9 @@ WEB_COLOR_BORDER_LIGHT = "#dee2e6"
 WEB_COLOR_BORDER_ROW = "#eee"
 WEB_COLOR_HEADER_BG = "#f1f3f5"
 WEB_COLOR_SUB_LABEL = "#6c757d"
+
+COLOR_WHITE = "white"
+COLOR_BLACK = "black"
 
 # Shared Financial Grid Highlight Palettes
 COLOR_HIGHLIGHT_EXP_VAL = "#4682B4"  # Heavy steel blue for expected inputs

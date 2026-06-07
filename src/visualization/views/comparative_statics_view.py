@@ -1,9 +1,9 @@
+import numpy as np
 import pandas as pd
-from IPython.display import HTML
 
-from src.config import variable_names
 from src.config.formatting import VARIABLE_FORMATTING_MAP
 from src.utils.formatting import fmt
+from src.config import variable_names
 from src.visualization.styles import comparative_statics_styles
 
 
@@ -13,13 +13,11 @@ def _get_formatter(var_name):
 
 
 def get_comparative_statics_dataframe(data_list, output_name):
-    """
-    Transforms a list of comparative statics dictionaries into a
-    structured DataFrame using configured column constants.
-    """
+    """Transforms a list of comparative statics dictionaries into a structured DataFrame."""
     processed_rows = []
-
     for item in data_list:
+        var_name = item[variable_names.COMPARATIVE_STATICS_VARIABLE_NAME]
+
         # Row 1: The Model Outputs (Results)
         processed_rows.append({
             comparative_statics_styles.SENSITIVITY_VARIABLE: output_name,
@@ -29,12 +27,12 @@ def get_comparative_statics_dataframe(data_list, output_name):
                 variable_names.COMPARATIVE_STATICS_EXPECTED_RESULT],
             comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_MAX: item[
                 variable_names.COMPARATIVE_STATICS_MAX_RESULT],
-            comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY: None
+            comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY: np.nan
         })
 
         # Row 2: The Input Factor Values
         processed_rows.append({
-            comparative_statics_styles.SENSITIVITY_VARIABLE: item[variable_names.COMPARATIVE_STATICS_VARIABLE_NAME],
+            comparative_statics_styles.SENSITIVITY_VARIABLE: var_name,
             comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_MIN: item[
                 variable_names.COMPARATIVE_STATICS_MIN_VARIABLE_VALUE],
             comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_BASE: item[
@@ -44,78 +42,67 @@ def get_comparative_statics_dataframe(data_list, output_name):
             comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY: item[
                 variable_names.COMPARATIVE_STATICS_ELASTICITY]
         })
+    return pd.DataFrame(processed_rows)
 
-    columns = [comparative_statics_styles.SENSITIVITY_VARIABLE,
-               comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_MIN,
-               comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_BASE,
-               comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_MAX,
-               comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY]
-    return pd.DataFrame(processed_rows, columns=columns)
+
+def apply_variable_formatting(row):
+    variable_name = row[comparative_statics_styles.SENSITIVITY_VARIABLE]
+    formatter = _get_formatter(variable_name)
+
+    cols_to_format = [
+        comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_MIN,
+        comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_BASE,
+        comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_MAX
+    ]
+    for col in cols_to_format:
+        row[col] = formatter(row[col])
+    return row
+
+
+def apply_elasticity_formatting(row):
+    """Transforms numeric elasticity variables into explicitly signed string tokens."""
+    elasticity = row[comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY]
+
+    # Fast exit for structural empty placeholders (like on Output rows)
+    if elasticity == "" or pd.isna(elasticity):
+        return row
+
+    try:
+        numeric_elasticity = float(elasticity)
+
+        if numeric_elasticity > 0:
+            row[comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY] = fmt(numeric_elasticity, s='+',
+                                                                                             d=2)
+        elif numeric_elasticity < 0:
+            row[comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY] = fmt(numeric_elasticity, d=2)
+        else:
+            row[comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY] = "0.00"
+
+    except (ValueError, TypeError):
+        row[comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY] = ""
+
+    return row
 
 
 def render_comparative_statics_dashboard(data_list, output_name):
-    """Generates an HTML matrix layout dashboard for comparative statics inside notebooks."""
-    html = f"""
-            {comparative_statics_styles.COMPARATIVE_STATICS_STYLE}
-            <table class="cs-table">
-                <thead>
-                    <tr>
-                        <th class="text-left">{comparative_statics_styles.SENSITIVITY_VARIABLE}</th>
-                        <th>{comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_MIN}</th>
-                        <th>{comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_BASE}</th>
-                        <th>{comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_MAX}</th>
-                        <th>{comparative_statics_styles.COMPARATIVE_STATICS_COLUMN_NAME_ELASTICITY}</th>
-                    </tr>
-                </thead>
-                <tbody>"""
+    """Renders directly inside notebooks/PyCharm using native Pandas Styling."""
+    raw_df = get_comparative_statics_dataframe(data_list, output_name)
 
-    for item in data_list:
-        try:
-            elasticity_val = float(item.get(variable_names.COMPARATIVE_STATICS_ELASTICITY, 0.0))
-        except (ValueError, TypeError):
-            elasticity_val = 0.0
+    # Resolve vectors needed for style calculation references
+    row_vars = raw_df[comparative_statics_styles.SENSITIVITY_VARIABLE].values
 
-        if elasticity_val > 0:
-            elasticity_class = "elasticity-positive"
-            elasticity_str = f"{elasticity_val:+.2f}"
-        elif elasticity_val < 0:
-            elasticity_class = "elasticity-negative"
-            elasticity_str = f"{elasticity_val:+.2f}"
-        else:
-            elasticity_class = ""
-            elasticity_str = "0.00"
+    # Pre-format underlying raw elements exactly like your workable solution
+    formatted_df = raw_df.fillna("")
+    formatted_df = formatted_df.apply(apply_variable_formatting, axis=1)
+    formatted_df = formatted_df.apply(apply_elasticity_formatting, axis=1)
 
-        var_name = item[variable_names.COMPARATIVE_STATICS_VARIABLE_NAME]
+    # Pipe directly to styles module components cleanly
+    styled_pipeline = (
+        formatted_df.style
+        .apply(comparative_statics_styles.generate_matrix_cell_styles, row_vars=row_vars, output_name=output_name,
+               axis=None)
+        .set_table_styles(comparative_statics_styles.get_table_layout_css())
+        .hide(axis='index')
+    )
 
-        # Resolve formatting rules dynamically from your configuration map
-        output_formatter = _get_formatter(output_name)
-        input_formatter = _get_formatter(var_name)
-
-        # Apply formatting map rules effortlessly to results (outputs)
-        min_res = output_formatter(item[variable_names.COMPARATIVE_STATICS_MIN_RESULT])
-        base_res = output_formatter(item[variable_names.COMPARATIVE_STATICS_EXPECTED_RESULT])
-        max_res = output_formatter(item[variable_names.COMPARATIVE_STATICS_MAX_RESULT])
-
-        # Apply formatting map rules effortlessly to input variables
-        min_val = input_formatter(item[variable_names.COMPARATIVE_STATICS_MIN_VARIABLE_VALUE])
-        base_val = input_formatter(item[variable_names.COMPARATIVE_STATICS_EXPECTED_VARIABLE_VALUE])
-        max_val = input_formatter(item[variable_names.COMPARATIVE_STATICS_MAX_VARIABLE_VALUE])
-
-        html += f"""
-                <tr class="row-output">
-                    <td class="text-left sub-label">{output_name}</td>
-                    <td class="res-dark-yellow">{min_res}</td>
-                    <td class="res-light-blue">{base_res}</td>
-                    <td class="res-dark-yellow">{max_res}</td>
-                    <td style="border-bottom: 2px solid #dee2e6;">&nbsp;</td>
-                </tr>
-                <tr class="row-factor">
-                    <td class="text-left"><strong>{var_name}</strong></td>
-                    <td class="val-light-yellow">{min_val}</td>
-                    <td class="val-heavy-blue">{base_val}</td>
-                    <td class="val-light-yellow">{max_val}</td>
-                    <td class="{elasticity_class}">{elasticity_str}</td>
-                </tr>"""
-
-    html += "</tbody></table>"
-    return HTML(html)
+    return styled_pipeline

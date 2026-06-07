@@ -15,9 +15,6 @@ PIE_MAIN_TITLE = "Stochastic Contribution Analysis Breakdowns"
 X_AXIS_COLOR_RULE = common.X_AXIS_COLOR
 TICK_SIZE = 9
 
-# =========================================================================
-# CONFIGURATION PROPERTIES EXTRACTED FROM THE VIEW LAYER (FIXES THE TODOs)
-# =========================================================================
 PIE_START_ANGLE = 140
 
 # Gather standard text property settings for slice labels

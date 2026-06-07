@@ -2,10 +2,11 @@
   - Resolve to-dos in the views and styles in plots
   - Figure out proper time to plot.close()
   - Two way sensitivity output matrix, can be rendered into dataframe and heatmap
-
+  - Last attempt to replace html with dataframe plot
 
 - Add following aspects:
-  - Tooling cost
+  - Setup cost
+  - Discount rate
 
 - Review all the tests
   - Deprecate primitive ads models in cost, as more detailed ads models are implemented

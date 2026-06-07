@@ -1,5 +1,7 @@
 import unittest
+
 import matplotlib.pyplot as plt
+
 from src.visualization.views.histogram_distribution_view import generate_histogram_from_array
 
 
