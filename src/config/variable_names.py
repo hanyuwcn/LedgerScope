@@ -63,6 +63,7 @@ FREE_CASH_FLOW = "FreeCashFlow"
 ROAS = "ReturnOnAdvertisingSpend"
 CAC = "CustomerAcquisitionCost"
 UNIT_CONTRIBUTION_MARGIN = "UnitContributionMargin"
+MARKET_PRICE = "MarketPrice"
 
 ## Break even analysis
 BREAK_EVEN_VARIABLE_NAME = "BreakEvenVariable"

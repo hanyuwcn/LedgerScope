@@ -22,16 +22,6 @@ class TaxRate(Variable):
         self._name = variable_names.TAX_RATE
 
 
-class FinanceRate(Variable):
-    """
-    Custom tariff baseline rate representing regional macro-economic cost modifiers.
-    """
-
-    def __init__(self, min=None, exp=settings.DEFAULT_TARIFF_RATE, max=None):
-        super().__init__(min, exp, max)
-        self._name = variable_names.TARIFF_RATE
-
-
 class USDToRMB(Variable):
     """
     Currency conversion coefficient mapping cross-border financial translation states.
@@ -40,6 +30,16 @@ class USDToRMB(Variable):
     def __init__(self, min=None, exp=settings.DEFAULT_CURRENCY_RATE, max=None):
         super().__init__(min, exp, max)
         self._name = variable_names.USD_TO_RMB
+
+
+class TariffRate(Variable):
+    """
+    Represents the macro-economic import customs duty rate applied to incoming product shipments.
+    """
+
+    def __init__(self, min=None, exp=settings.DEFAULT_TARIFF_RATE, max=None):
+        super().__init__(min, exp, max)
+        self._name = variable_names.TARIFF_RATE
 
 
 class PriceToEarningsRatio(Variable):

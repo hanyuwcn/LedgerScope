@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 
 from src.config import variable_names
-from src.variables.finance import InterestRate, TaxRate, USDToRMB, PriceToEarningsRatio
+from src.variables.finance import InterestRate, TaxRate, USDToRMB, TariffRate, PriceToEarningsRatio
 
 
 class TestFinanceVariables(unittest.TestCase):
@@ -19,6 +19,9 @@ class TestFinanceVariables(unittest.TestCase):
         # USDToRMB: Full parameter window explicitly provided (Rule 1)
         self.usd_to_rmb = USDToRMB(min=6.0, exp=6.8, max=7.5)
 
+        # TariffRate: Explicit test window provided for the pricing waterfall layer (Rule 1)
+        self.tariff_rate = TariffRate(min=0.15, exp=0.25, max=0.35)
+
         # PriceToEarningsRatio: Explicit test window override (Rule 1)
         self.pe_ratio = PriceToEarningsRatio(min=5, exp=8, max=10)
 
@@ -31,6 +34,7 @@ class TestFinanceVariables(unittest.TestCase):
         self.assertEqual(self.interest_rate.name, variable_names.INTEREST_RATE)
         self.assertEqual(self.tax_rate.name, variable_names.TAX_RATE)
         self.assertEqual(self.usd_to_rmb.name, variable_names.USD_TO_RMB)
+        self.assertEqual(self.tariff_rate.name, variable_names.TARIFF_RATE)
         self.assertEqual(self.pe_ratio.name, variable_names.PE_RATIO)
 
     # =====================================================================
@@ -54,6 +58,12 @@ class TestFinanceVariables(unittest.TestCase):
         self.assertEqual(self.usd_to_rmb.min_value, 6.0)
         self.assertEqual(self.usd_to_rmb.max_value, 7.5)
         self.assertEqual(self.usd_to_rmb.expected_value, 6.8)
+
+    def test_tariff_rate_range(self):
+        """Verify TariffRate correctly maps custom trade tariff boundaries."""
+        self.assertEqual(self.tariff_rate.min_value, 0.15)
+        self.assertEqual(self.tariff_rate.expected_value, 0.25)
+        self.assertEqual(self.tariff_rate.max_value, 0.35)
 
     def test_price_to_earnings_ratio_range(self):
         """Verify PriceToEarningsRatio captures specified testing scale coordinates exactly."""
@@ -82,10 +92,12 @@ class TestFinanceVariables(unittest.TestCase):
         """Verify get_random_value stays inside defined currency spreads and keeps constants fixed."""
         for _ in range(50):
             rand_exchange = self.usd_to_rmb.get_random_value()
+            rand_tariff = self.tariff_rate.get_random_value()
             rand_tax = self.tax_rate.get_random_value()
             rand_pe = self.pe_ratio.get_random_value()
 
             self.assertTrue(6.0 <= rand_exchange <= 7.5)
+            self.assertTrue(0.15 <= rand_tariff <= 0.35)
             self.assertTrue(5 <= rand_pe <= 10)
             self.assertEqual(rand_tax, 0.20)
 

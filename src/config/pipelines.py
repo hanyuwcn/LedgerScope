@@ -2,6 +2,7 @@ DYNAMIC_PIPELINE_CONFIGS = {
     # Pipeline Components
     "costs": [
         "advertising_efficiency_google_search",
+        "order_model",
         "cogs",
         "total_cost"
     ],
@@ -9,6 +10,7 @@ DYNAMIC_PIPELINE_CONFIGS = {
     # Scenario A: Marketing Efficiency Focus
     "marketing_roi_analysis": [
         "advertising_efficiency_google_search",
+        "order_model"
         "cogs",
         "total_cost",
         "revenue",

@@ -37,7 +37,7 @@ from .expenses import (
 from .finance import (
     InterestRate,
     TaxRate,
-    FinanceRate,
+    TariffRate,
     USDToRMB,
     PriceToEarningsRatio,
 )
@@ -75,7 +75,7 @@ __all__ = [
     # Macro Finance Metrics & Valuation Multipliers
     "InterestRate",
     "TaxRate",
-    "FinanceRate",
+    "TariffRate",
     "USDToRMB",
     "PriceToEarningsRatio",
 ]

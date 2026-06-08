@@ -18,7 +18,9 @@ from .aggregators.total_expense_model import TotalExpenseModel
 from .aggregators.capital_expenditure_model import CapitalExpenditureModel
 from .aggregators.total_cost_model import TotalCostModel
 from .aggregators.cost_of_goods_sold_model import CostOfGoodsSoldModel
+from .aggregators.deduction_rate_model import DeductionRateModel
 from .aggregators.order_model import OrderModel
+from .aggregators.unit_fob_model import UnitFobModel
 
 # 3. Revenue, Profit and Income
 from .income.free_cash_flow_model import FreeCashFlowModel
@@ -31,6 +33,7 @@ from .income.unit_contribution_margin_model import UnitContributionMarginModel
 from .metrics.roi_model import RoiModel
 from .metrics.roas_model import RoasModel
 from .metrics.cac_model import CacModel
+from .metrics.market_price_model import MarketPriceModel
 
 # 5. Model Composer
 from .composer.model_composer import PipelineComposer
@@ -44,11 +47,13 @@ __all__ = [
     # 2. Aggregators
     "OrderModel",
     "DepreciationModel",
+    "DeductionRateModel",
     "CapitalExpenditureModel",
     "CostOfGoodsSoldModel",
     "MonthlyExpenseModel",
     "TotalExpenseModel",
     "TotalCostModel",
+    "UnitFobModel",
 
     # 3. Revenue, Profit and Income
     "RevenueModel",
@@ -61,6 +66,7 @@ __all__ = [
     "RoiModel",
     "RoasModel",
     "CacModel",
+    "MarketPriceModel",
 
     # 5. Model Composer
     "PipelineComposer",

@@ -1,7 +1,4 @@
-
 - Optimize models(ctnd):
-  - ExwModel(for simplicity reason, shipping cost will be counted as % in deduction cost)
-  - MarketPrice = Price-to-ratio * 12 * net income / months
   - Correct analysis tests and visualization tests
 
 - Review all the tests
@@ -73,3 +70,5 @@
       - Deduction rate
       - Deprecate advertising_efficiency_model, as more detailed ads models are implemented
       - Deprecate purchasing price and selling price
+      - ExwModel(for simplicity reason, shipping cost will be counted as % in deduction cost)
+      - MarketPrice = Price-to-ratio * 12 * net income / months
