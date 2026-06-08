@@ -2,9 +2,11 @@ import unittest
 
 from src.analysis import stochastic_bivariate_simulation
 from src.config import variable_names
-from src.models import AdvertisingEfficiencyModel, CostOfGoodsSoldModel, TotalCostModel
-from src.variables import (AdvertisingCost, ConversionRate, CostPerAcquisition,
-                           USDToRMB, ItemsPerOrder, PurchasingPrice, Cost)
+from src.models import AdvertisingEfficiencyGoogleSearchModel, CostOfGoodsSoldModel, TotalCostModel
+from src.variables import (
+    AdvertisingCost, GoogleSearchConversionRate, GoogleSearchCostPerClick,
+    USDToRMB, UnitsPerOrder, UnitExw, Cost
+)
 
 
 class TestStochasticBivariateSimulation(unittest.TestCase):
@@ -15,20 +17,20 @@ class TestStochasticBivariateSimulation(unittest.TestCase):
         No mock objects or mock functions are used here.
         """
         self.pipeline = [
-            AdvertisingEfficiencyModel(),
+            AdvertisingEfficiencyGoogleSearchModel(),
             CostOfGoodsSoldModel(),
             TotalCostModel()
         ]
 
         # Standard business context registry
         self.variables = {
-            variable_names.COST_ADVERTISING: AdvertisingCost(min_value=4000.0, max_value=6000.0, expected_value=5000.0),
-            variable_names.COST_CONVERSION_RATE: ConversionRate(min_value=0.05, max_value=0.15, expected_value=0.10),
-            variable_names.COST_CPA: CostPerAcquisition(expected_value=20.0),
-            variable_names.FINANCE_USD_TO_RMB: USDToRMB(expected_value=1.0),
-            variable_names.DEAL_ITEMS_PER_ORDER: ItemsPerOrder(min_value=2.0, max_value=2.0),
-            variable_names.DEAL_PURCHASING_PRICE: PurchasingPrice(min_value=15.0, max_value=15.0),
-            variable_names.COST_SHIPPING: Cost(expected_value=500.0)
+            variable_names.ADVERTISING_COST: AdvertisingCost(min=4000.0, max=6000.0, exp=5000.0),
+            variable_names.CONVERSION_RATE_GOOGLE_SEARCH: GoogleSearchConversionRate(min=0.05, max=0.15, exp=0.10),
+            variable_names.CPL_GOOGLE_SEARCH: GoogleSearchCostPerClick(exp=20.0),
+            variable_names.USD_TO_RMB: USDToRMB(exp=1.0),
+            variable_names.UNITS_PER_ORDER: UnitsPerOrder(min=2.0, max=2.0),
+            variable_names.UNIT_EXW: UnitExw(min=15.0, max=15.0),
+            variable_names.SHIPPING_COST: Cost(exp=500.0)
         }
 
     # -----------------------------------------------------------------
@@ -40,12 +42,12 @@ class TestStochasticBivariateSimulation(unittest.TestCase):
         Verify the mathematical accuracy of the simulated coordinate data streams.
 
         Trace Logic:
-          If we only shuffle 'ConversionRate', the relationship between
-          ConversionRate (X) and final Cost (Y) across our production formulas
+          If we only shuffle 'CONVERSION_RATE_GOOGLE_SEARCH', the relationship between
+          CONVERSION_RATE_GOOGLE_SEARCH (X) and final Cost (Y) across our production formulas
           is purely linear.
 
-          Equation: Cost = AdvertisingCost + (Orders * ItemsPerOrder * PurchasingPrice) + Shipping
-          Where:    Orders = (AdvertisingCost / CPA) * ConversionRate
+          Equation: Cost = AdvertisingCost + (Orders * UnitsPerOrder * UnitExw) + Shipping
+          Where:    Orders = (AdvertisingCost / CPA) * CONVERSION_RATE_GOOGLE_SEARCH
 
           Substituting variables yields:
           Cost = 5000 + ((5000 / 20) * X * 2 * 15) + 500
@@ -61,9 +63,9 @@ class TestStochasticBivariateSimulation(unittest.TestCase):
 
         x_coords, y_coords, trend_metrics = stochastic_bivariate_simulation(
             variables=self.variables,
-            independent_target_x=variable_names.COST_CONVERSION_RATE,
+            independent_target_x=variable_names.CONVERSION_RATE_GOOGLE_SEARCH,
             dependent_target_y=variable_names.COST,
-            shuffled_variables=[variable_names.COST_CONVERSION_RATE],
+            shuffled_variables=[variable_names.CONVERSION_RATE_GOOGLE_SEARCH],
             model_pipeline=self.pipeline,
             sample_size=sample_size
         )
@@ -91,14 +93,14 @@ class TestStochasticBivariateSimulation(unittest.TestCase):
         Edge Case: Verify that an exception is raised if the target X parameter
         has no variance (e.g., min == max), which makes calculating slope impossible.
         """
-        # ItemsPerOrder is structurally locked in setup (min=2.0, max=2.0, expected=2.0)
+        # UNITS_PER_ORDER is structurally locked in setup (min=2.0, max=2.0, exp=2.0)
         # Shuffling it will yield zero data variance on the X-axis vector.
         with self.assertRaises(ValueError) as context:
             stochastic_bivariate_simulation(
                 variables=self.variables,
-                independent_target_x=variable_names.DEAL_ITEMS_PER_ORDER,
+                independent_target_x=variable_names.UNITS_PER_ORDER,
                 dependent_target_y=variable_names.COST,
-                shuffled_variables=[variable_names.DEAL_ITEMS_PER_ORDER],
+                shuffled_variables=[variable_names.UNITS_PER_ORDER],
                 model_pipeline=self.pipeline,
                 sample_size=10
             )
@@ -114,7 +116,7 @@ class TestStochasticBivariateSimulation(unittest.TestCase):
         with self.assertRaises(ValueError) as context:
             stochastic_bivariate_simulation(
                 variables=self.variables,
-                independent_target_x=variable_names.COST_CONVERSION_RATE,
+                independent_target_x=variable_names.CONVERSION_RATE_GOOGLE_SEARCH,
                 dependent_target_y=variable_names.COST,
                 shuffled_variables=[],  # Dead engine state parameter
                 model_pipeline=self.pipeline,

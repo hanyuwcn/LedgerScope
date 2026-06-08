@@ -7,7 +7,7 @@ def calculate_cost_of_goods_sold(optional_variables: dict, **kwargs) -> dict:
     Calculates the total Cost of Goods Sold (COGS) based on physical product metrics.
 
     Mathematical Formula:
-        COGS = PurchasingPrice * Orders * ItemsPerOrder
+        COGS = UnitExWorksPrice * Orders * UnitsPerOrder
 
     Args:
         optional_variables (dict): Mapped configuration containing default parameter fallbacks.
@@ -16,22 +16,22 @@ def calculate_cost_of_goods_sold(optional_variables: dict, **kwargs) -> dict:
         **kwargs: Arbitrary keyword arguments containing required calculation metrics:
 
             Mandatory Keys:
-                DEAL_PURCHASING_PRICE (float): The unit cost to acquire a single product item.
-                DEAL_ORDERS (int/float): Total transaction orders generated.
-                DEAL_ITEMS_PER_ORDER (int/float): The average volume of items per transaction order.
+                UnitExWorksPrice (float): The unit cost to acquire a single product item at factory origin.
+                Orders (int/float): Total transaction orders generated.
+                UnitsPerOrder (int/float): The average volume of items per transaction order.
 
     Returns:
         dict: A dictionary containing the computed COGS value mapped to the source-of-truth key.
             Example: {"Cogs": 15000.0}
     """
-    purchasing_price = kwargs[variable_names.DEAL_PURCHASING_PRICE]
-    orders = kwargs[variable_names.DEAL_ORDERS]
-    items_per_order = kwargs[variable_names.DEAL_ITEMS_PER_ORDER]
+    purchasing_price = kwargs[variable_names.UNIT_EXW]
+    orders = kwargs[variable_names.ORDERS]
+    units_per_order = kwargs[variable_names.UNITS_PER_ORDER]
 
-    calculated_cogs = purchasing_price * orders * items_per_order
+    calculated_cogs = purchasing_price * orders * units_per_order
 
     # Wrapped securely in a dictionary to satisfy the base model's .update() processor
-    return {variable_names.COST_COGS: calculated_cogs}
+    return {variable_names.COGS: calculated_cogs}
 
 
 class CostOfGoodsSoldModel(Model):
@@ -45,12 +45,12 @@ class CostOfGoodsSoldModel(Model):
         to evaluate true gross profit profiles.
 
     Calculation Equation:
-        COGS = Number of Orders * Average number of items per order * average price of item(a.k.a PurchasingPrice)
+        COGS = Orders * UnitsPerOrder * UnitExWorksPrice
 
         Where:
-        - "Number of Orders" maps to DEAL_ORDERS
-        - "Average number of items per order" maps to DEAL_ITEMS_PER_ORDER
-        - "average price of item(a.k.a PurchasingPrice)" maps to DEAL_PURCHASING_PRICE
+        - "Orders" maps to variable_names.ORDERS
+        - "UnitsPerOrder" maps to variable_names.UNITS_PER_ORDER
+        - "UnitExWorksPrice" maps to variable_names.UNIT_EXW
     """
 
     def __init__(self, input_variables: dict = None):
@@ -65,11 +65,11 @@ class CostOfGoodsSoldModel(Model):
 
         # Hooking calculation logic and specifying the correct output variable
         self._model_function = calculate_cost_of_goods_sold
-        self._output_names = [variable_names.COST_COGS]
+        self._output_names = [variable_names.COGS]
 
         # Explicitly enforcing required parameters from your centralized registry
         self._required_variables = [
-            variable_names.DEAL_PURCHASING_PRICE,
-            variable_names.DEAL_ORDERS,
-            variable_names.DEAL_ITEMS_PER_ORDER
+            variable_names.UNIT_EXW,
+            variable_names.ORDERS,
+            variable_names.UNITS_PER_ORDER
         ]

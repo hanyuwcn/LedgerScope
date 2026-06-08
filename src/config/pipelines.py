@@ -1,14 +1,14 @@
 DYNAMIC_PIPELINE_CONFIGS = {
     # Pipeline Components
     "costs": [
-        "advertising_efficiency",
+        "advertising_efficiency_google_search",
         "cogs",
         "total_cost"
     ],
 
     # Scenario A: Marketing Efficiency Focus
     "marketing_roi_analysis": [
-        "advertising_efficiency",
+        "advertising_efficiency_google_search",
         "cogs",
         "total_cost",
         "revenue",
@@ -17,7 +17,7 @@ DYNAMIC_PIPELINE_CONFIGS = {
 
     # Scenario B: Corporate Capital & Income Focus
     "earnings_and_capex_run": [
-        "advertising_efficiency",
+        "advertising_efficiency_google_search",
         "cogs",
         "total_cost",
         "revenue",
@@ -28,8 +28,8 @@ DYNAMIC_PIPELINE_CONFIGS = {
 
     # Scenario C: Full Macro Performance
     "complete_macro_metrics": [
-        "advertising_efficiency", "cogs", "revenue", "total_cost", "total_expense"
-                                                                   "depreciation", "capital_expenditure",
+        "advertising_efficiency_google_search", "cogs", "revenue", "total_cost", "total_expense",
+        "depreciation", "capital_expenditure",
         "net_income", "profit", "free_cash_flow", "roi"
     ]
 }

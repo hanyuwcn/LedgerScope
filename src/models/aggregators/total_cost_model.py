@@ -15,28 +15,28 @@ def calculate_total_cost(optional_variables: dict, **kwargs) -> dict:
         **kwargs: Arbitrary keyword arguments containing required calculation metrics:
 
             Mandatory Keys:
-                COST_COGS (float): Total Cost of Goods Sold evaluated from product supply chains.
+                Cogs (float): Total Cost of Goods Sold evaluated from product supply chains.
 
             Optional Keys:
-                COST_SETUP (float, optional): Initial capital expenditure or infrastructure startup fees.
-                COST_ADVERTISING (float, optional): Total budget allocated toward marketing channels.
-                COST_SHIPPING (float, optional): Operational shipping and fulfillment expenses.
+                SetupCost (float, optional): Initial capital expenditure or infrastructure startup fees.
+                AdvertisingCost (float, optional): Total budget allocated toward marketing channels.
+                ShippingCost (float, optional): Operational shipping and fulfillment expenses.
 
     Returns:
         dict: A dictionary mapping the consolidated cost calculations directly to the central tracking constant.
             Example: {"Cost": 12500.0}
     """
-    cogs = kwargs[variable_names.COST_COGS]
+    cogs = kwargs[variable_names.COGS]
 
     # Extract default fallback parameter bounds directly out of the configuration registry map
-    default_setup_cost = optional_variables[variable_names.COST_SETUP]
-    default_ads_cost = optional_variables[variable_names.COST_ADVERTISING]
-    default_shipping_cost = optional_variables[variable_names.COST_SHIPPING]
+    default_setup_cost = optional_variables[variable_names.SETUP_COST]
+    default_ads_cost = optional_variables[variable_names.ADVERTISING_COST]
+    default_shipping_cost = optional_variables[variable_names.SHIPPING_COST]
 
     # Dynamically extract values from active runtime args or fallback safely
-    setup_cost = kwargs.get(variable_names.COST_SETUP, default_setup_cost)
-    ads_cost = kwargs.get(variable_names.COST_ADVERTISING, default_ads_cost)
-    shipping_cost = kwargs.get(variable_names.COST_SHIPPING, default_shipping_cost)
+    setup_cost = kwargs.get(variable_names.SETUP_COST, default_setup_cost)
+    ads_cost = kwargs.get(variable_names.ADVERTISING_COST, default_ads_cost)
+    shipping_cost = kwargs.get(variable_names.SHIPPING_COST, default_shipping_cost)
 
     calculated_cost = setup_cost + cogs + ads_cost + shipping_cost
 
@@ -56,13 +56,13 @@ class TotalCostModel(Model):
         for down-funnel net margin profiling and bottom-line profit modeling.
 
     Calculation Equation:
-        total cost = cost of initial setup + Cost of goods sold + cost of advertising spend + cost of shipping
+        Cost = SetupCost + Cogs + AdvertisingCost + ShippingCost
 
         Where:
-        - "cost of initial setup" maps to COST_SETUP
-        - "Cost of goods sold" maps to COST_COGS
-        - "cost of advertising spend" maps to COST_ADVERTISING
-        - "cost of shipping" maps to COST_SHIPPING
+        - "SetupCost" maps to variable_names.SETUP_COST
+        - "Cogs" maps to variable_names.COGS
+        - "AdvertisingCost" maps to variable_names.ADVERTISING_COST
+        - "ShippingCost" maps to variable_names.SHIPPING_COST
     """
 
     def __init__(self, input_variables: dict = None):
@@ -81,12 +81,12 @@ class TotalCostModel(Model):
 
         # Establishing dependencies for the pipeline layer
         self._required_variables = [
-            variable_names.COST_COGS
+            variable_names.COGS
         ]
 
         # Migrated from standard list footprint to map defaults transparently to 0.0
         self._optional_variables = {
-            variable_names.COST_ADVERTISING: 0.0,
-            variable_names.COST_SHIPPING: 0.0,
-            variable_names.COST_SETUP: 0.0
+            variable_names.ADVERTISING_COST: 0.0,
+            variable_names.SHIPPING_COST: 0.0,
+            variable_names.SETUP_COST: 0.0
         }

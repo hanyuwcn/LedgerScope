@@ -11,41 +11,71 @@ from .advertising import (
     GoogleSearchCostPerClick,
     GoogleSearchAllocationPercentage,
 )
-from .costs import Cost, SetupCost, AdvertisingCost, CostPerAcquisition, \
-    ConversionRate  # CPA & ConversionRate are pending deprecation
-from .deals import Orders, CloseRate, ItemsPerOrder, SellingPrice, PurchasingPrice
-from .expenses import Rent, TravelFee, RenderFee, Expense
-from .finance import InterestRate, TaxRate, USDToRMB
+from .costs import (
+    Cost,
+    SetupCost,
+    AdvertisingCost,
+)
+from .deals import (
+    Orders,
+    CloseRate,
+    UnitExw,
+    UnitRetail,
+    ChannelMarkupRate,
+    ShippingRate,
+    DeductionRate,
+    UnitFob,
+    UnitsPerOrder,
+)
+from .expenses import (
+    Expense,
+    MonthlyExpense,
+    RentExpense,
+    TravelExpense,
+    RenderExpense,
+)
+from .finance import (
+    InterestRate,
+    TaxRate,
+    FinanceRate,
+    USDToRMB,
+    PriceToEarningsRatio,
+)
 
 __all__ = [
-    # Costs
-    "Cost",
-    "SetupCost",
-    "AdvertisingCost",
-    "CostPerAcquisition",  # TODO: Deprecate once new ads funnel model fully deployed
-    "ConversionRate",  # TODO: Deprecate once new ads funnel model fully deployed
-
-    # Deals
-    "Orders",
-    "CloseRate",
-    "ItemsPerOrder",
-    "SellingPrice",
-    "PurchasingPrice",
-
-    # Expenses
-    "Rent",
-    "TravelFee",
-    "RenderFee",
-    "Expense",
-
-    # Finance
-    "InterestRate",
-    "TaxRate",
-    "USDToRMB",
-
     # Performance Marketing & Advertising Funnel
     "AdvertisingBudget",
     "GoogleSearchConversionRate",
     "GoogleSearchCostPerClick",
     "GoogleSearchAllocationPercentage",
+
+    # Costs
+    "Cost",
+    "SetupCost",
+    "AdvertisingCost",
+
+    # Deal Architecture (Margin Matrix & Volume Primitives)
+    "Orders",
+    "CloseRate",
+    "UnitExw",
+    "UnitRetail",
+    "ChannelMarkupRate",
+    "ShippingRate",
+    "DeductionRate",
+    "UnitFob",
+    "UnitsPerOrder",
+
+    # Operational Expenses
+    "Expense",
+    "MonthlyExpense",
+    "RentExpense",
+    "TravelExpense",
+    "RenderExpense",
+
+    # Macro Finance Metrics & Valuation Multipliers
+    "InterestRate",
+    "TaxRate",
+    "FinanceRate",
+    "USDToRMB",
+    "PriceToEarningsRatio",
 ]

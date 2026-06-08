@@ -19,8 +19,8 @@ def calculate_customer_acquisition_cost(optional_variables: dict, **kwargs) -> d
         **kwargs: Arbitrary keyword arguments containing required calculation metrics:
 
             Mandatory Keys:
-                COST_ADVERTISING (float): Total budget allocated toward marketing and acquisition channels.
-                DEAL_ORDERS (int or float): Total volume of converted customer purchase orders.
+                ADVERTISING_COST (float): Total budget allocated toward marketing and acquisition channels.
+                ORDERS (int or float): Total volume of converted customer purchase orders.
 
     Returns:
         dict: A dictionary mapping the calculated customer acquisition cost to its central tracking constant.
@@ -28,8 +28,8 @@ def calculate_customer_acquisition_cost(optional_variables: dict, **kwargs) -> d
             Safely returns {"CAC": 0.0} if zero orders are processed to bypass division errors.
     """
     # Extract strictly required execution anchors
-    advertising_cost = kwargs[variable_names.COST_ADVERTISING]
-    orders = kwargs[variable_names.DEAL_ORDERS]
+    advertising_cost = kwargs[variable_names.ADVERTISING_COST]
+    orders = kwargs[variable_names.ORDERS]
 
     # Protect engine against a zero-denominator division crash
     if orders == 0:
@@ -52,11 +52,11 @@ class CacModel(Model):
         critical for evaluating lifetime value (LTV) ratios and marketing scalability.
 
     Calculation Equation:
-        CAC = cost of advertising spend / total converted orders
+        CAC = AdvertisingCost / Orders
 
         Where:
-        - "cost of advertising spend" maps to COST_ADVERTISING
-        - "total converted orders" maps to DEAL_ORDERS
+        - "AdvertisingCost" maps to variable_names.ADVERTISING_COST
+        - "Orders" maps to variable_names.ORDERS
     """
 
     def __init__(self, input_variables: dict = None):
@@ -75,6 +75,6 @@ class CacModel(Model):
 
         # Explicit tracking validation boundaries (anchoring core inputs)
         self._required_variables = [
-            variable_names.COST_ADVERTISING,
-            variable_names.DEAL_ORDERS
+            variable_names.ADVERTISING_COST,
+            variable_names.ORDERS
         ]

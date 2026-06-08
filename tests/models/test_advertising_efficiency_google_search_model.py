@@ -26,7 +26,7 @@ class TestAdvertisingEfficiencyGoogleSearchModelComprehensive(unittest.TestCase)
         self.assertEqual(
             model.required_variables,
             [
-                variable_names.COST_ADVERTISING,
+                variable_names.ADVERTISING_COST,
                 variable_names.CPC_GOOGLE_SEARCH,
                 variable_names.CONVERSION_RATE_GOOGLE_SEARCH
             ]
@@ -35,7 +35,7 @@ class TestAdvertisingEfficiencyGoogleSearchModelComprehensive(unittest.TestCase)
         # Verify custom optional array mappings
         self.assertEqual(
             sorted(model.optional_variables),
-            sorted([variable_names.FINANCE_USD_TO_RMB, variable_names.ALLOCATION_GOOGLE_SEARCH])
+            sorted([variable_names.USD_TO_RMB, variable_names.ALLOCATION_GOOGLE_SEARCH])
         )
 
     def test_internal_optional_variables_is_dict(self):
@@ -46,7 +46,7 @@ class TestAdvertisingEfficiencyGoogleSearchModelComprehensive(unittest.TestCase)
     def test_internal_optional_variables_have_correct_default_values(self):
         """Verify that the cross-border currency rate and search allocation default to 1.0."""
         model = AdvertisingEfficiencyGoogleSearchModel()
-        self.assertEqual(model._optional_variables[variable_names.FINANCE_USD_TO_RMB], 1.0)
+        self.assertEqual(model._optional_variables[variable_names.USD_TO_RMB], 1.0)
         self.assertEqual(model._optional_variables[variable_names.ALLOCATION_GOOGLE_SEARCH], 1.0)
 
     # -----------------------------------------------------------------
@@ -57,7 +57,7 @@ class TestAdvertisingEfficiencyGoogleSearchModelComprehensive(unittest.TestCase)
         """Verify the property setter completely overwrites and binds the active state."""
         model = AdvertisingEfficiencyGoogleSearchModel()
         fresh_inputs = {
-            variable_names.COST_ADVERTISING: 2250.0,
+            variable_names.ADVERTISING_COST: 2250.0,
             variable_names.CPC_GOOGLE_SEARCH: 2.50,
             variable_names.CONVERSION_RATE_GOOGLE_SEARCH: 0.04
         }
@@ -71,7 +71,7 @@ class TestAdvertisingEfficiencyGoogleSearchModelComprehensive(unittest.TestCase)
 
     def test_input_variables_property_setter_none_defensive_fallback(self):
         """Verify that passing None to the property setter securely defaults to an empty dictionary."""
-        initial_inputs = {variable_names.COST_ADVERTISING: 2000.0}
+        initial_inputs = {variable_names.ADVERTISING_COST: 2000.0}
         model = AdvertisingEfficiencyGoogleSearchModel(initial_inputs)
 
         # Overwrite context explicitly with None via property assign
@@ -86,8 +86,8 @@ class TestAdvertisingEfficiencyGoogleSearchModelComprehensive(unittest.TestCase)
     def test_update_input_variable_with_raw_string_key(self):
         """Verify individual metric updates when providing raw string identities and values."""
         model = AdvertisingEfficiencyGoogleSearchModel()
-        model.update_input_variable(variable_names.COST_ADVERTISING, 2500.0)
-        self.assertEqual(model.input_variables[variable_names.COST_ADVERTISING], 2500.0)
+        model.update_input_variable(variable_names.ADVERTISING_COST, 2500.0)
+        self.assertEqual(model.input_variables[variable_names.ADVERTISING_COST], 2500.0)
 
     def test_update_input_variable_with_duck_typed_properties(self):
         """Verify individual metric updates using domain variable Type A objects (.name, .expected_value)."""
@@ -122,11 +122,11 @@ class TestAdvertisingEfficiencyGoogleSearchModelComprehensive(unittest.TestCase)
     def test_check_variables_success_with_all_metrics(self):
         """Verify check_variables clears execution cleanly when every metric constraint is fully met."""
         inputs = {
-            variable_names.COST_ADVERTISING: 2250.0,
+            variable_names.ADVERTISING_COST: 2250.0,
             variable_names.CPC_GOOGLE_SEARCH: 2.50,
             variable_names.CONVERSION_RATE_GOOGLE_SEARCH: 0.04,
             variable_names.ALLOCATION_GOOGLE_SEARCH: 0.60,
-            variable_names.FINANCE_USD_TO_RMB: 1.0
+            variable_names.USD_TO_RMB: 1.0
         }
         model = AdvertisingEfficiencyGoogleSearchModel(inputs)
 
@@ -139,7 +139,7 @@ class TestAdvertisingEfficiencyGoogleSearchModelComprehensive(unittest.TestCase)
     def test_check_variables_missing_required_logs_error_and_raises(self):
         """Verify check_variables triggers error logs and raises a KeyError if a requirement is absent."""
         incomplete_inputs = {
-            variable_names.COST_ADVERTISING: 2250.0,
+            variable_names.ADVERTISING_COST: 2250.0,
             variable_names.CPC_GOOGLE_SEARCH: 2.50
             # Missing variable_names.CONVERSION_RATE_GOOGLE_SEARCH!
         }
@@ -153,10 +153,10 @@ class TestAdvertisingEfficiencyGoogleSearchModelComprehensive(unittest.TestCase)
     def test_check_variables_missing_optional_logs_informational_alert(self):
         """Verify check_variables registers an informational alert but lets processing pass if optionals are absent."""
         valid_inputs_no_optionals = {
-            variable_names.COST_ADVERTISING: 2250.0,
+            variable_names.ADVERTISING_COST: 2250.0,
             variable_names.CPC_GOOGLE_SEARCH: 2.50,
             variable_names.CONVERSION_RATE_GOOGLE_SEARCH: 0.04
-            # Missing optional optionsals: ALLOCATION_GOOGLE_SEARCH and FINANCE_USD_TO_RMB!
+            # Missing optional optionsals: ALLOCATION_GOOGLE_SEARCH and USD_TO_RMB!
         }
         model = AdvertisingEfficiencyGoogleSearchModel(valid_inputs_no_optionals)
 
@@ -173,11 +173,11 @@ class TestAdvertisingEfficiencyGoogleSearchModelComprehensive(unittest.TestCase)
     def test_evaluate_success_with_all_parameters(self):
         """Verify formula execution targets established default parameters and currency adjustments accurately."""
         inputs = {
-            variable_names.COST_ADVERTISING: 2250.0,
+            variable_names.ADVERTISING_COST: 2250.0,
             variable_names.CPC_GOOGLE_SEARCH: 2.50,
             variable_names.CONVERSION_RATE_GOOGLE_SEARCH: 0.04,
             variable_names.ALLOCATION_GOOGLE_SEARCH: 0.60,
-            variable_names.FINANCE_USD_TO_RMB: 1.0
+            variable_names.USD_TO_RMB: 1.0
         }
         model = AdvertisingEfficiencyGoogleSearchModel(inputs)
         enriched_output = model.evaluate()
@@ -195,7 +195,7 @@ class TestAdvertisingEfficiencyGoogleSearchModelComprehensive(unittest.TestCase)
     def test_evaluate_success_with_omitted_optional_fallbacks(self):
         """Verify formula execution defaults back to 1.0 scalars if optional parameters are completely omitted."""
         inputs = {
-            variable_names.COST_ADVERTISING: 2000.0,
+            variable_names.ADVERTISING_COST: 2000.0,
             variable_names.CPC_GOOGLE_SEARCH: 2.00,
             variable_names.CONVERSION_RATE_GOOGLE_SEARCH: 0.05
         }
@@ -209,7 +209,7 @@ class TestAdvertisingEfficiencyGoogleSearchModelComprehensive(unittest.TestCase)
     def test_evaluate_zero_denominator_handles_division_by_zero_safely(self):
         """Verify that the engine falls back safely to 0.0 Leads when the denominator products evaluate to zero."""
         inputs_zero_cpc = {
-            variable_names.COST_ADVERTISING: 2000.0,
+            variable_names.ADVERTISING_COST: 2000.0,
             variable_names.CPC_GOOGLE_SEARCH: 0.0,  # Boundary test case denominator anchor
             variable_names.CONVERSION_RATE_GOOGLE_SEARCH: 0.05
         }

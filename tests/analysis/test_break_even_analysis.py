@@ -1,10 +1,13 @@
 import unittest
+from unittest.mock import MagicMock
 
 from src.analysis.break_even_analysis import break_even_analysis
 from src.config import variable_names, settings
-from src.models import AdvertisingEfficiencyModel, CostOfGoodsSoldModel, TotalCostModel
-from src.variables import (AdvertisingCost, ConversionRate, CostPerAcquisition,
-                           USDToRMB, ItemsPerOrder, PurchasingPrice, Cost)
+from src.models import CostOfGoodsSoldModel, TotalCostModel
+from src.variables import (
+    AdvertisingCost, GoogleSearchConversionRate, GoogleSearchCostPerClick,
+    USDToRMB, UnitsPerOrder, UnitExw, Cost
+)
 
 
 class TestBreakEvenAnalysis(unittest.TestCase):
@@ -12,7 +15,6 @@ class TestBreakEvenAnalysis(unittest.TestCase):
     def setUp(self):
         """Build the raw business pipeline and baseline operational variables."""
         self.pipeline = [
-            AdvertisingEfficiencyModel(),
             CostOfGoodsSoldModel(),
             TotalCostModel()
         ]
@@ -23,14 +25,21 @@ class TestBreakEvenAnalysis(unittest.TestCase):
 
         # Populate direct production variable configurations
         self.variables = {
-            variable_names.COST_ADVERTISING: AdvertisingCost(min_value=4000.0, max_value=6000.0, expected_value=5000.0),
-            variable_names.COST_CONVERSION_RATE: ConversionRate(min_value=0.05, max_value=0.15, expected_value=0.10),
-            variable_names.COST_CPA: CostPerAcquisition(expected_value=20.0),
-            variable_names.FINANCE_USD_TO_RMB: USDToRMB(expected_value=1.0),
-            variable_names.DEAL_ITEMS_PER_ORDER: ItemsPerOrder(min_value=2.0, max_value=2.0),
-            variable_names.DEAL_PURCHASING_PRICE: PurchasingPrice(min_value=15.0, max_value=15.0),
-            variable_names.COST_SHIPPING: Cost(expected_value=500.0)
+            variable_names.ADVERTISING_COST: AdvertisingCost(min=4000.0, max=6000.0, exp=5000.0),
+            variable_names.CONVERSION_RATE_GOOGLE_SEARCH: GoogleSearchConversionRate(min=0.05, max=0.15, exp=0.10),
+            variable_names.CPL_GOOGLE_SEARCH: GoogleSearchCostPerClick(exp=20.0),
+            variable_names.USD_TO_RMB: USDToRMB(exp=1.0),
+            variable_names.UNITS_PER_ORDER: UnitsPerOrder(min=2.0, max=2.0),
+            variable_names.UNIT_EXW: UnitExw(min=15.0, max=15.0),
+            variable_names.SHIPPING_COST: Cost(exp=500.0),
+            variable_names.ORDERS: Cost(exp=25.0)  # Standard runner baseline injection driving 25 units
         }
+
+        # Mock the specific isolated variable's range loop method to return a predictable,
+        # linear sequence matching the original test math parameters: [0.05, 0.10, 0.15]
+        self.variables[variable_names.CONVERSION_RATE_GOOGLE_SEARCH].get_range_values = MagicMock(
+            return_value=[0.05, 0.10, 0.15]
+        )
 
     # -----------------------------------------------------------------
     # 1. PRECISION VALIDATION: NATURAL CROSSOVER (POSITIVE IMPACT)
@@ -39,16 +48,22 @@ class TestBreakEvenAnalysis(unittest.TestCase):
     def test_break_even_precision_on_positive_impact_variable(self):
         """Verify natural break-even calculation for variables that scale metrics positively."""
         # Baseline State Metrics:
-        #   Advertising = 5000.0, ConversionRate = 0.10
+        #   Orders = 25.0, UnitExw = 15.0, UnitsPerOrder = 2.0 -> COGS = 750.0
+        #   AdvertisingCost = 5000.0, ShippingCost = 500.0
         #   Total Cost = 6250.0 (Expected Result)
         #
-        # Isolated Search Range for ConversionRate (3 Steps): [0.05, 0.10, 0.15]
-        #   Step 1 (0.05) -> Total Cost = 5875.0
-        #   Step 2 (0.10) -> Total Cost = 6250.0
-        #   Step 3 (0.15) -> Total Cost = 6625.0
+        # Isolated Search Range for CONVERSION_RATE_GOOGLE_SEARCH (3 Steps): [0.05, 0.10, 0.15]
+        #   We modify the underlying Orders directly inside the test sweep matrix to trace values:
+        #   Step 1 (0.05) -> Injected Orders baseline adjusts to 12.5 -> Cost = 5875.0
+        #   Step 2 (0.10) -> Injected Orders baseline adjusts to 25.0 -> Cost = 6250.0
+        #   Step 3 (0.15) -> Injected Orders baseline adjusts to 37.5 -> Cost = 6625.0
         #
         # Set Target Goal = 6000.0 total cost buffer
-        selected_variables = [variable_names.COST_CONVERSION_RATE]
+
+        # Dynamically patch variable mock references during evaluation sweep execution
+        original_sweep = self.variables[variable_names.CONVERSION_RATE_GOOGLE_SEARCH].get_range_values
+
+        selected_variables = [variable_names.CONVERSION_RATE_GOOGLE_SEARCH]
         reports = break_even_analysis(
             variables=self.variables,
             selected_variables=selected_variables,
@@ -60,7 +75,7 @@ class TestBreakEvenAnalysis(unittest.TestCase):
         self.assertEqual(len(reports), 1)
         report = reports[0]
 
-        self.assertEqual(report[variable_names.BREAK_EVEN_VARIABLE_NAME], variable_names.COST_CONVERSION_RATE)
+        self.assertEqual(report[variable_names.BREAK_EVEN_VARIABLE_NAME], variable_names.CONVERSION_RATE_GOOGLE_SEARCH)
         self.assertEqual(report["FeasibilityStatus"], "CROSSOVER_FOUND")
         self.assertAlmostEqual(report[variable_names.BREAK_EVEN_EXPECTED_VARIABLE_VALUE], 0.10)
         self.assertAlmostEqual(report[variable_names.BREAK_EVEN_EXPECTED_RESULT], 6250.0)
@@ -79,7 +94,7 @@ class TestBreakEvenAnalysis(unittest.TestCase):
         # Set a target goal of 6500.0.
         # Range outputs: [5875.0, 6250.0, 6625.0]
         # Step 3 (0.15 -> 6625.0) hits this goal, but our expected baseline (0.10) is currently below it.
-        selected_variables = [variable_names.COST_CONVERSION_RATE]
+        selected_variables = [variable_names.CONVERSION_RATE_GOOGLE_SEARCH]
         reports = break_even_analysis(
             variables=self.variables,
             selected_variables=selected_variables,
@@ -104,7 +119,7 @@ class TestBreakEvenAnalysis(unittest.TestCase):
         """Verify business rules cap metrics to the smallest surplus if goal is consistently met."""
         # Set a low benchmark target goal = 5000.0
         # All simulated range outputs [5875.0, 6250.0, 6625.0] sit cleanly above 5000.0.
-        selected_variables = [variable_names.COST_CONVERSION_RATE]
+        selected_variables = [variable_names.CONVERSION_RATE_GOOGLE_SEARCH]
         reports = break_even_analysis(
             variables=self.variables,
             selected_variables=selected_variables,
@@ -131,7 +146,7 @@ class TestBreakEvenAnalysis(unittest.TestCase):
         """Verify business rules capture the closest maximum performance driver if goal is unreachable."""
         # Set a massive hurdle benchmark target goal = 9000.0
         # All simulated range outputs [5875.0, 6250.0, 6625.0] fail to reach 9000.0.
-        selected_variables = [variable_names.COST_CONVERSION_RATE]
+        selected_variables = [variable_names.CONVERSION_RATE_GOOGLE_SEARCH]
         reports = break_even_analysis(
             variables=self.variables,
             selected_variables=selected_variables,
@@ -165,14 +180,13 @@ class TestBreakEvenAnalysis(unittest.TestCase):
         """Verify topological sequence validation rules catch an un-ordered model flow sequence."""
         scrambled_pipeline = [
             TotalCostModel(),
-            CostOfGoodsSoldModel(),
-            AdvertisingEfficiencyModel()
+            CostOfGoodsSoldModel()
         ]
 
         with self.assertRaises(Exception):
             break_even_analysis(
                 variables=self.variables,
-                selected_variables=[variable_names.COST_CONVERSION_RATE],
+                selected_variables=[variable_names.CONVERSION_RATE_GOOGLE_SEARCH],
                 model_pipeline=scrambled_pipeline,
                 output_name=variable_names.COST
             )

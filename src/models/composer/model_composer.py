@@ -1,6 +1,8 @@
+import copy
 from typing import List, Any
 
 from src.config import DYNAMIC_PIPELINE_CONFIGS
+from src.utils import log
 from .model_registry import MODEL_REGISTRY
 
 
@@ -26,13 +28,13 @@ class PipelineComposer:
         if scenario_name not in DYNAMIC_PIPELINE_CONFIGS:
             raise ValueError(f"Scenario configuration '{scenario_name}' does not exist.")
 
-        # 1. Fetch the base scenario list of keys: ['advertising_efficiency', 'cogs', 'revenue', 'profit']
-        compiled_keys = list(DYNAMIC_PIPELINE_CONFIGS[scenario_name])
+        # Fetch the base scenario list of keys defensively using deepcopy
+        compiled_keys = copy.deepcopy(list(DYNAMIC_PIPELINE_CONFIGS[scenario_name]))
 
-        # 2. Append any extra mixin keys passed via *args, protecting against duplicates
+        # Append any extra mixin keys passed via *args, protecting against duplicates
         for extra_key in extra_keys:
             if extra_key not in compiled_keys:
+                log.info(f"Dynamically mixing component '{extra_key}' into scenario '{scenario_name}'.")
                 compiled_keys.append(extra_key)
 
-        # 3. Pass the fully combined list straight to the instantiation engine
         return cls.build_pipeline_by_keys(compiled_keys)

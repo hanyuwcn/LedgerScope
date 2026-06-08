@@ -19,8 +19,8 @@ def calculate_orders(optional_variables: dict, **kwargs) -> dict:
         **kwargs: Arbitrary keyword arguments containing required calculation metrics:
 
             Mandatory Keys:
-                LEADS (float or int): Total prospect leads acquired from upstream acquisition channels.
-                CLOSE_RATE (float): The fractional sales pipeline conversion efficiency (0.0 to 1.0).
+                Leads (float or int): Total prospect leads acquired from upstream acquisition channels.
+                CloseRate (float): The fractional sales pipeline conversion efficiency (0.0 to 1.0).
 
     Returns:
         dict: A dictionary mapping the calculated order volume directly to the operational registry.
@@ -32,7 +32,7 @@ def calculate_orders(optional_variables: dict, **kwargs) -> dict:
 
     calculated_orders = leads * close_rate
 
-    return {variable_names.DEAL_ORDERS: calculated_orders}
+    return {variable_names.ORDERS: calculated_orders}
 
 
 class OrderModel(Model):
@@ -48,11 +48,11 @@ class OrderModel(Model):
         gross revenue profiling, and inventory planning.
 
     Calculation Equation:
-        orders = total acquired leads * pipeline close rate
+        Orders = Leads * CloseRate
 
         Where:
-        - "total acquired leads" maps to LEADS
-        - "pipeline close rate" maps to CLOSE_RATE
+        - "Leads" maps to variable_names.LEADS
+        - "CloseRate" maps to variable_names.CLOSE_RATE
     """
 
     def __init__(self, input_variables: dict = None):
@@ -67,7 +67,7 @@ class OrderModel(Model):
 
         # Binding calculation identity and specifying the explicit output registry signature
         self._model_function = calculate_orders
-        self._output_names = [variable_names.DEAL_ORDERS]
+        self._output_names = [variable_names.ORDERS]
 
         # Enforcing configuration dependency boundaries
         self._required_variables = [

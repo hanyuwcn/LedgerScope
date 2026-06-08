@@ -1,7 +1,7 @@
 import unittest
 
 from src.config import variable_names
-from src.models import AdvertisingEfficiencyModel, CostOfGoodsSoldModel, TotalCostModel
+from src.models import AdvertisingEfficiencyGoogleSearchModel, CostOfGoodsSoldModel, TotalCostModel, OrderModel
 from src.utils.validation import (
     get_missing_elements,
     check_variables_for_function,
@@ -21,13 +21,14 @@ class TestValidationUtils(unittest.TestCase):
         """
         # Baseline dictionary context for basic element checking
         self.mock_provided = {
-            variable_names.DEAL_ORDERS: 100,
-            variable_names.DEAL_SELLING_PRICE: 4500,
-            variable_names.EXPENSE_MONTHLY_RENT: 2000
+            variable_names.ORDERS: 100,
+            variable_names.UNIT_FOB: 4500,
+            variable_names.RENT_EXPENSE: 2000
         }
 
         # Real model instances for pipeline structural verification
-        self.advertising_model = AdvertisingEfficiencyModel()
+        self.advertising_model = AdvertisingEfficiencyGoogleSearchModel()
+        self.order_model = OrderModel()
         self.cogs_model = CostOfGoodsSoldModel()
         self.total_cost_model = TotalCostModel()
 
@@ -42,14 +43,14 @@ class TestValidationUtils(unittest.TestCase):
     def test_get_missing_elements_isolates_and_sorts_omitted_keys(self):
         """Verify element set subtractions correctly isolate and sort missing dictionary keys."""
         required = [
-            variable_names.DEAL_ORDERS,
-            variable_names.DEAL_PURCHASING_PRICE,
-            variable_names.FINANCE_TAX_RATE
+            variable_names.ORDERS,
+            variable_names.UNIT_EXW,
+            variable_names.TAX_RATE
         ]
         missing = get_missing_elements(self.mock_provided, required)
 
         # Output must be isolated and strictly sorted alphabetically
-        expected = sorted([variable_names.DEAL_PURCHASING_PRICE, variable_names.FINANCE_TAX_RATE])
+        expected = sorted([variable_names.UNIT_EXW, variable_names.TAX_RATE])
         self.assertEqual(missing, expected)
 
     # =====================================================================
@@ -58,7 +59,7 @@ class TestValidationUtils(unittest.TestCase):
 
     def test_check_variables_success_path_returns_true(self):
         """Verify validation passes and returns True if all required context items are fully provided."""
-        required = [variable_names.DEAL_ORDERS, variable_names.EXPENSE_MONTHLY_RENT]
+        required = [variable_names.ORDERS, variable_names.RENT_EXPENSE]
 
         result = check_variables_for_function(self.mock_provided, required_variables=required)
         self.assertTrue(result, "check_variables_for_function should return True on a successful validation pass.")
@@ -69,7 +70,7 @@ class TestValidationUtils(unittest.TestCase):
         comma-separated list of sorted missing elements.
         """
         required = [
-            variable_names.DEAL_ORDERS,
+            variable_names.ORDERS,
             "MISSING_BETA_KEY",
             "MISSING_ALPHA_KEY"
         ]
@@ -112,7 +113,7 @@ class TestValidationUtils(unittest.TestCase):
         ]
 
         expected_error_msg = (
-            f"Pipeline Order Violation: '{variable_names.COST_COGS}' is generated as an output by 'CostOfGoodsSoldModel', "
+            f"Pipeline Order Violation: '{variable_names.COGS}' is generated as an output by 'CostOfGoodsSoldModel', "
             f"but it was already consumed as a required input upstream by 'TotalCostModel'."
         )
 
@@ -126,11 +127,14 @@ class TestValidationUtils(unittest.TestCase):
         misplaced_pipeline = [
             self.cogs_model,
             self.advertising_model,
+            self.order_model,
             self.total_cost_model
         ]
 
+        print(self.total_cost_model.required_variables)
+
         expected_error_msg = (
-            f"Pipeline Order Violation: '{variable_names.DEAL_ORDERS}' is generated as an output by 'AdvertisingEfficiencyModel', "
+            f"Pipeline Order Violation: '{variable_names.ORDERS}' is generated as an output by 'OrderModel', "
             f"but it was already consumed as a required input upstream by 'CostOfGoodsSoldModel'."
         )
 

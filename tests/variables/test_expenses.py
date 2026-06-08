@@ -3,20 +3,33 @@ import unittest
 import numpy as np
 
 from src.config import variable_names
-from tests.fixtures.variables_pool import get_test_variable_portfolio
+from src.variables.expenses import (
+    Expense,
+    MonthlyExpense,
+    RentExpense,
+    TravelExpense,
+    RenderExpense,
+)
 
 
 class TestExpenseVariables(unittest.TestCase):
 
     def setUp(self):
-        """Load a fresh copy of the shared test portfolio before every execution."""
-        self.portfolio = get_test_variable_portfolio()
+        """Initialize local production expense variables with correct test boundaries."""
+        # Expense: Full window explicitly provided (Rule 1)
+        self.expense = Expense(min=500, exp=1000, max=2000)
 
-        # Extract expense variables for clean local references
-        self.expense = self.portfolio[variable_names.EXPENSE]
-        self.rent = self.portfolio[variable_names.EXPENSE_MONTHLY_RENT]
-        self.travel = self.portfolio[variable_names.EXPENSE_TRAVEL_FEE]
-        self.render = self.portfolio[variable_names.EXPENSE_RENDER_FEE]
+        # MonthlyExpense: Placeholder uninitialized for test suite validation (Rule 5)
+        self.monthly_expense = MonthlyExpense()
+
+        # RentExpense: Only min and max provided, expected is midpoint (Rule 3)
+        self.rent = RentExpense(min=1000, max=3000)
+
+        # TravelExpense: Only max provided, min defaults to 0, expected is midpoint (Rule 4)
+        self.travel = TravelExpense(max=1500)
+
+        # RenderExpense: Only min and max provided, expected is midpoint (Rule 3)
+        self.render = RenderExpense(min=1000, max=2000)
 
     # =====================================================================
     # IDENTITY & NAMING TESTS
@@ -25,38 +38,41 @@ class TestExpenseVariables(unittest.TestCase):
     def test_expense_identity_mappings(self):
         """Verify that each class properly assigns its respective global config key name."""
         self.assertEqual(self.expense.name, variable_names.EXPENSE)
-        self.assertEqual(self.rent.name, variable_names.EXPENSE_MONTHLY_RENT)
-        self.assertEqual(self.travel.name, variable_names.EXPENSE_TRAVEL_FEE)
-        self.assertEqual(self.render.name, variable_names.EXPENSE_RENDER_FEE)
+        self.assertEqual(self.monthly_expense.name, variable_names.MONTHLY_EXPENSE)
+        self.assertEqual(self.rent.name, variable_names.RENT_EXPENSE)
+        self.assertEqual(self.travel.name, variable_names.TRAVEL_EXPENSE)
+        self.assertEqual(self.render.name, variable_names.RENDER_EXPENSE)
 
     # =====================================================================
-    # BOUNDARY CONFIGURATION TESTS (Based on portfolio presets)
+    # BOUNDARY CONFIGURATION TESTS (Based on local setup presets)
     # =====================================================================
 
     def test_base_expense_range(self):
         """Verify the generic Expense class respects Rule 1 (Full Window Explicitly Provided)."""
-        # Preset: expected_value=1000, min_value=500, max_value=2000
         self.assertEqual(self.expense.min_value, 500)
         self.assertEqual(self.expense.max_value, 2000)
         self.assertEqual(self.expense.expected_value, 1000)
 
+    def test_monthly_expense_placeholder_rule(self):
+        """Verify MonthlyExpense defaults to Rule 5 (Pure Placeholder with all None values)."""
+        self.assertIsNone(self.monthly_expense.min_value)
+        self.assertIsNone(self.monthly_expense.max_value)
+        self.assertIsNone(self.monthly_expense.expected_value)
+
     def test_rent_range(self):
-        """Verify Rent respects Rule 3 (Range Bound) and computes midpoint expected value."""
-        # Preset: min_value=1000, max_value=3000
+        """Verify RentExpense respects Rule 3 (Range Bound) and computes midpoint expected value."""
         self.assertEqual(self.rent.min_value, 1000)
         self.assertEqual(self.rent.max_value, 3000)
         self.assertEqual(self.rent.expected_value, 2000.0)  # Midpoint
 
     def test_travel_fee_range(self):
-        """Verify TravelFee respects Rule 4 (Only max provided, min floors to 0, expected is midpoint)."""
-        # Preset: max_value=1500
+        """Verify TravelExpense respects Rule 4 (Only max provided, min floors to 0, expected is midpoint)."""
         self.assertEqual(self.travel.min_value, 0)
         self.assertEqual(self.travel.max_value, 1500)
         self.assertEqual(self.travel.expected_value, 750.0)  # Midpoint of 0 and 1500
 
     def test_render_fee_range(self):
-        """Verify RenderFee respects Rule 3 and computes midpoint expected value."""
-        # Preset: min_value=1000, max_value=2000
+        """Verify RenderExpense respects Rule 3 and computes midpoint expected value."""
         self.assertEqual(self.render.min_value, 1000)
         self.assertEqual(self.render.max_value, 2000)
         self.assertEqual(self.render.expected_value, 1500.0)  # Midpoint
@@ -67,7 +83,7 @@ class TestExpenseVariables(unittest.TestCase):
 
     def test_expense_range_generation(self):
         """Verify get_range_values creates linear partitions across explicitly bounded ranges."""
-        # Test partitioning RenderFee (1000 to 2000) into 3 discrete milestones: [1000, 1500, 2000]
+        # Test partitioning RenderExpense (1000 to 2000) into 3 discrete milestones: [1000, 1500, 2000]
         steps = self.render.get_range_values(num=3, digits=0)
         expected_steps = np.array([1000, 1500, 2000])
         np.testing.assert_array_equal(steps, expected_steps)

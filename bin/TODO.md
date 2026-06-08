@@ -1,10 +1,10 @@
 
-- Add following aspects:
-  - Setup cost
-  - Discount rate
+- Optimize models(ctnd):
+  - ExwModel(for simplicity reason, shipping cost will be counted as % in deduction cost)
+  - MarketPrice = Price-to-ratio * 12 * net income / months
+  - Correct analysis tests and visualization tests
 
 - Review all the tests
-  - Deprecate primitive ads models in cost, as more detailed ads models are implemented
 
 
     - Workflow
@@ -65,3 +65,11 @@
       - Write description and formula for models
       - Use (histogram/pie chart)plot to see the variable ranges for smaller aggregate, like cost and expense. 
       - Have a detailed design doc after the codebase is complete
+
+    - Optimize models:
+      - Modify variables to min, exp, max
+      - Remove prefix for each variable names
+      - Setup cost
+      - Deduction rate
+      - Deprecate advertising_efficiency_model, as more detailed ads models are implemented
+      - Deprecate purchasing price and selling price

@@ -2,9 +2,11 @@ import unittest
 
 from src.analysis import stochastic_contribution_analysis
 from src.config import variable_names
-from src.models import AdvertisingEfficiencyModel, CostOfGoodsSoldModel, TotalCostModel
-from src.variables import (AdvertisingCost, ConversionRate, CostPerAcquisition,
-                           USDToRMB, ItemsPerOrder, PurchasingPrice, Cost)
+from src.models import AdvertisingEfficiencyGoogleSearchModel, CostOfGoodsSoldModel, TotalCostModel
+from src.variables import (
+    AdvertisingCost, GoogleSearchConversionRate, GoogleSearchCostPerClick,
+    USDToRMB, UnitsPerOrder, UnitExw, Cost
+)
 
 
 class TestStochasticContributionAnalysis(unittest.TestCase):
@@ -15,20 +17,20 @@ class TestStochasticContributionAnalysis(unittest.TestCase):
         No mock objects or mock functions are used here.
         """
         self.pipeline = [
-            AdvertisingEfficiencyModel(),
+            AdvertisingEfficiencyGoogleSearchModel(),
             CostOfGoodsSoldModel(),
             TotalCostModel()
         ]
 
         # Standard business context registry
         self.variables = {
-            variable_names.COST_ADVERTISING: AdvertisingCost(min_value=4000.0, max_value=6000.0, expected_value=5000.0),
-            variable_names.COST_CONVERSION_RATE: ConversionRate(min_value=0.05, max_value=0.15, expected_value=0.10),
-            variable_names.COST_CPA: CostPerAcquisition(expected_value=20.0),
-            variable_names.FINANCE_USD_TO_RMB: USDToRMB(expected_value=1.0),
-            variable_names.DEAL_ITEMS_PER_ORDER: ItemsPerOrder(min_value=2.0, max_value=2.0),
-            variable_names.DEAL_PURCHASING_PRICE: PurchasingPrice(min_value=15.0, max_value=15.0),
-            variable_names.COST_SHIPPING: Cost(expected_value=500.0)
+            variable_names.ADVERTISING_COST: AdvertisingCost(min=4000.0, max=6000.0, exp=5000.0),
+            variable_names.CONVERSION_RATE_GOOGLE_SEARCH: GoogleSearchConversionRate(min=0.05, max=0.15, exp=0.10),
+            variable_names.CPL_GOOGLE_SEARCH: GoogleSearchCostPerClick(exp=20.0),
+            variable_names.USD_TO_RMB: USDToRMB(exp=1.0),
+            variable_names.UNITS_PER_ORDER: UnitsPerOrder(min=2.0, max=2.0),
+            variable_names.UNIT_EXW: UnitExw(min=15.0, max=15.0),
+            variable_names.SHIPPING_COST: Cost(exp=500.0)
         }
 
     # -----------------------------------------------------------------
@@ -52,9 +54,9 @@ class TestStochasticContributionAnalysis(unittest.TestCase):
           component must match these exact static numbers.
         """
         breakdown_metrics = [
-            variable_names.COST_ADVERTISING,
-            variable_names.COST_COGS,
-            variable_names.COST_SHIPPING
+            variable_names.ADVERTISING_COST,
+            variable_names.COGS,
+            variable_names.SHIPPING_COST
         ]
 
         mean_results = stochastic_contribution_analysis(
@@ -69,9 +71,9 @@ class TestStochasticContributionAnalysis(unittest.TestCase):
         self.assertEqual(set(mean_results.keys()), set(breakdown_metrics))
 
         # Assert exact absolute values are preserved via the arithmetic averaging logic
-        self.assertAlmostEqual(mean_results[variable_names.COST_ADVERTISING], 5000.0, places=4)
-        self.assertAlmostEqual(mean_results[variable_names.COST_COGS], 750.0, places=4)
-        self.assertAlmostEqual(mean_results[variable_names.COST_SHIPPING], 500.0, places=4)
+        self.assertAlmostEqual(mean_results[variable_names.ADVERTISING_COST], 5000.0, places=4)
+        self.assertAlmostEqual(mean_results[variable_names.COGS], 750.0, places=4)
+        self.assertAlmostEqual(mean_results[variable_names.SHIPPING_COST], 500.0, places=4)
 
     def test_analysis_averaging_accuracy_with_shuffled_inputs(self):
         """
@@ -82,19 +84,19 @@ class TestStochasticContributionAnalysis(unittest.TestCase):
           draws samples across this uniform range. For a sufficiently large sample size,
           the average absolute value must converge cleanly toward the expected value midpoint ($5000).
         """
-        breakdown_metrics = [variable_names.COST_ADVERTISING]
+        breakdown_metrics = [variable_names.ADVERTISING_COST]
         sample_size = 500
 
         mean_results = stochastic_contribution_analysis(
             variables=self.variables,
             breakdown_metrics=breakdown_metrics,
             model_pipeline=self.pipeline,
-            shuffled_inputs=[variable_names.COST_ADVERTISING],
+            shuffled_inputs=[variable_names.ADVERTISING_COST],
             sample_size=sample_size
         )
 
         # Verify mean convergence holds within a standard 1.5% margin of error
-        self.assertAlmostEqual(mean_results[variable_names.COST_ADVERTISING], 5000.0, delta=75.0)
+        self.assertAlmostEqual(mean_results[variable_names.ADVERTISING_COST], 5000.0, delta=75.0)
 
     # -----------------------------------------------------------------
     # 2. EDGE CASES: BOUNDARY LIMITS AND EXTREME PARAMETERS
@@ -105,7 +107,7 @@ class TestStochasticContributionAnalysis(unittest.TestCase):
         Edge Case: Confirm that the module handles zero or negative sample sizes
         by throwing an exception rather than silently corrupting numbers.
         """
-        breakdown_metrics = [variable_names.COST_ADVERTISING]
+        breakdown_metrics = [variable_names.ADVERTISING_COST]
 
         # Since the code doesn't have an early guard check, it throws a ZeroDivisionError
         with self.assertRaises((ValueError, ZeroDivisionError)):

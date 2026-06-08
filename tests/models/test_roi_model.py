@@ -25,7 +25,7 @@ class TestRoiModel(unittest.TestCase):
         # Verify explicit required variable signature bounds
         expected_requirements = [
             variable_names.NET_INCOME,
-            variable_names.COST_SETUP
+            variable_names.SETUP_COST
         ]
         self.assertEqual(sorted(model.required_variables), sorted(expected_requirements))
 
@@ -44,7 +44,7 @@ class TestRoiModel(unittest.TestCase):
         model = RoiModel()
         fresh_inputs = {
             variable_names.NET_INCOME: 5000.0,
-            variable_names.COST_SETUP: 10000.0
+            variable_names.SETUP_COST: 10000.0
         }
 
         # Execute property assignment
@@ -68,8 +68,8 @@ class TestRoiModel(unittest.TestCase):
                 self.expected_value = val
 
         # Update Setup Cost via duck-typed structural variable
-        model.update_input_variable(DuckVariable(variable_names.COST_SETUP, 15000.0))
-        self.assertEqual(model.input_variables[variable_names.COST_SETUP], 15000.0)
+        model.update_input_variable(DuckVariable(variable_names.SETUP_COST, 15000.0))
+        self.assertEqual(model.input_variables[variable_names.SETUP_COST], 15000.0)
 
     # -----------------------------------------------------------------
     # 4. EXPLICIT DEPENDENCY CHECKING MECHANISMS
@@ -79,7 +79,7 @@ class TestRoiModel(unittest.TestCase):
         """Verify check_variables clears execution cleanly when every metric constraint is met."""
         inputs = {
             variable_names.NET_INCOME: 3000.0,
-            variable_names.COST_SETUP: 6000.0
+            variable_names.SETUP_COST: 6000.0
         }
         model = RoiModel(inputs)
 
@@ -91,7 +91,7 @@ class TestRoiModel(unittest.TestCase):
         """Verify check_variables logs errors and raises KeyError if a core driver is absent."""
         incomplete_inputs = {
             variable_names.NET_INCOME: 4000.0
-            # Missing COST_SETUP!
+            # Missing SETUP_COST!
         }
         model = RoiModel(incomplete_inputs)
 
@@ -108,7 +108,7 @@ class TestRoiModel(unittest.TestCase):
         """Verify ROI calculation runs cleanly under standard parameter bounds."""
         inputs = {
             variable_names.NET_INCOME: 2500.0,
-            variable_names.COST_SETUP: 10000.0
+            variable_names.SETUP_COST: 10000.0
         }
         model = RoiModel(inputs)
         enriched_output = model.evaluate()
@@ -121,7 +121,7 @@ class TestRoiModel(unittest.TestCase):
         """Verify the engine falls back to 0.0 ROI when setup cost is zero to prevent crashes."""
         inputs = {
             variable_names.NET_INCOME: 5000.0,
-            variable_names.COST_SETUP: 0.0  # Zero denominator test edge case
+            variable_names.SETUP_COST: 0.0  # Zero denominator test edge case
         }
         model = RoiModel(inputs)
         enriched_output = model.evaluate()
@@ -132,7 +132,7 @@ class TestRoiModel(unittest.TestCase):
     def test_evaluate_missing_required_variables_raises_key_error(self):
         """Verify omitting an operational pillar variable triggers an immediate lookup error."""
         incomplete_inputs = {
-            variable_names.COST_SETUP: 12000.0
+            variable_names.SETUP_COST: 12000.0
             # Missing NET_INCOME!
         }
         model = RoiModel(incomplete_inputs)

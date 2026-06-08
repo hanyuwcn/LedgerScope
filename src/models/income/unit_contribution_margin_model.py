@@ -7,11 +7,11 @@ def calculate_unit_contribution_margin(optional_variables: dict, **kwargs) -> di
     Calculates the marginal profit contribution of each individual unit sold.
 
     Mathematical Formula:
-        Unit Contribution Margin = Profit / (Orders * ItemsPerOrder)
+        Unit Contribution Margin = Profit / (Orders * UnitsPerOrder)
 
     Description:
         This function normalizes the total realized profit across the absolute volume of units
-        shipped. By multiplying 'Orders' by 'ItemsPerOrder', it establishes the total unit
+        shipped. By multiplying 'Orders' by 'UnitsPerOrder', it establishes the total unit
         denominator required to identify the per-item surplus available to cover fixed
         costs or contribute to net earnings.
 
@@ -21,8 +21,8 @@ def calculate_unit_contribution_margin(optional_variables: dict, **kwargs) -> di
 
             Mandatory Keys:
                 PROFIT (float): The net earnings or surplus generated in the current cycle.
-                DEAL_ORDERS (int or float): The total count of converted sales transactions.
-                DEAL_ITEMS_PER_ORDER (int or float): The average quantity of units per transaction.
+                ORDERS (int or float): The total count of converted sales transactions.
+                UNITS_PER_ORDER (int or float): The average quantity of units per transaction.
 
     Returns:
         dict: A dictionary mapping the unit contribution margin to its central tracking constant.
@@ -31,8 +31,8 @@ def calculate_unit_contribution_margin(optional_variables: dict, **kwargs) -> di
     """
     # Extract strictly required execution anchors
     profit = kwargs[variable_names.PROFIT]
-    orders = kwargs[variable_names.DEAL_ORDERS]
-    items_per_order = kwargs[variable_names.DEAL_ITEMS_PER_ORDER]
+    orders = kwargs[variable_names.ORDERS]
+    items_per_order = kwargs[variable_names.UNITS_PER_ORDER]
 
     total_unit_volume = orders * items_per_order
 
@@ -58,12 +58,12 @@ class UnitContributionMarginModel(Model):
         after all variable expenses are accounted for.
 
     Calculation Equation:
-        unit contribution margin = profit / (total converted orders * items per order)
+        UnitContributionMargin = Profit / (Orders * UnitsPerOrder)
 
         Where:
-        - "profit" maps to PROFIT
-        - "total converted orders" maps to DEAL_ORDERS
-        - "items per order" maps to DEAL_ITEMS_PER_ORDER
+        - "Profit" maps to variable_names.PROFIT
+        - "Orders" maps to variable_names.ORDERS
+        - "UnitsPerOrder" maps to variable_names.UNITS_PER_ORDER
     """
 
     def __init__(self, input_variables: dict = None):
@@ -83,6 +83,6 @@ class UnitContributionMarginModel(Model):
         # Explicit tracking validation boundaries (anchoring core inputs)
         self._required_variables = [
             variable_names.PROFIT,
-            variable_names.DEAL_ORDERS,
-            variable_names.DEAL_ITEMS_PER_ORDER
+            variable_names.ORDERS,
+            variable_names.UNITS_PER_ORDER
         ]

@@ -1,3 +1,4 @@
+import copy
 from typing import Sequence
 
 from src.core import ValueType
@@ -14,7 +15,7 @@ def evaluate_chained_models(runtime_state: dict, model_pipeline: list) -> dict:
     by upstream stages.
 
     To isolate executions and prevent state pollution across multi-run scenarios (such 
-    as sensitivity matrix sweeps), all mutations are confined to a shallow-copied runtime 
+    as sensitivity matrix sweeps), all mutations are confined to a deep-copied runtime 
     state dictionary.
 
     Args:
@@ -31,8 +32,8 @@ def evaluate_chained_models(runtime_state: dict, model_pipeline: list) -> dict:
         Exception: Re-raises any execution runtime error encountered inside a model's
             `.evaluate()` block, capturing the specific failing class identifier in the logs.
     """
-    # Isolate runtime state to ensure pure, idempotent simulation runs
-    current_state = dict(runtime_state)
+    # Isolate runtime state fully to ensure pure, idempotent simulation runs
+    current_state = copy.deepcopy(runtime_state)
 
     for model in model_pipeline:
         # Dynamically extract the identifier string directly from the live object
@@ -63,7 +64,8 @@ def evaluate_expected_scenario(
 
     Args:
         variables (dict): Map of string tokens to stateful Variable domain instances.
-        model_pipeline (list): Explicit, ordered sequence of model classes to execute.
+        model_pipeline (list): Explicit, ordered sequence of instantiated model 
+            objects to execute.
 
     Returns:
         dict: A clean, isolated state dictionary representing the fully evaluated
@@ -73,20 +75,29 @@ def evaluate_expected_scenario(
     return evaluate_chained_models(input_variable, model_pipeline)
 
 
-## TODO: shuffled input can be optional to allow fixed value evaluation
-def evaluate_stochastic_iteration(variables: dict, shuffled_inputs: list[str], model_pipeline: list) -> dict:
+def evaluate_stochastic_iteration(
+        variables: dict,
+        shuffled_inputs: list[str] = None,
+        model_pipeline: list = None
+) -> dict:
     """
     Samples a single randomized parameter snapshot environment by shuffling designated
     target inputs and processes it entirely through the model pipeline execution layer.
+    If no shuffled inputs are provided, falls back to evaluating expected values.
 
     Args:
         variables (dict): Map of string tokens to stateful Variable domain instances.
-        shuffled_inputs (list[str]): String keys identifying parameters targeted for random sampling.
-        model_pipeline (list): Explicit, ordered sequence of calculation model classes to execute.
+        shuffled_inputs (list[str], optional): String keys identifying parameters targeted
+            for random sampling. Defaults to None ([]).
+        model_pipeline (list): Explicit, ordered sequence of instantiated model
+            objects to execute.
 
     Returns:
         dict: The final calculated dictionary representing the single stochastic data state.
     """
+    if shuffled_inputs is None:
+        shuffled_inputs = []
+
     sampled_inputs = {}
 
     for var_name, var_instance in variables.items():
@@ -94,7 +105,7 @@ def evaluate_stochastic_iteration(variables: dict, shuffled_inputs: list[str], m
             sampled_inputs[var_name] = var_instance
             continue
 
-        # Split logic: Shuffle target variables, pin everything else to expected baseline
+        # Split logic: Shuffle target variables if listed, otherwise pin to expected baseline
         if var_name in shuffled_inputs:
             sampled_inputs[var_name] = var_instance.get_value(ValueType.RANDOM)
         else:
@@ -117,7 +128,8 @@ def evaluate_variable_scenario_sweep(
         variables (dict): Map of string tokens to stateful Variable domain instances.
         selected_variable (str): The unique identifier key of the variable being isolated.
         target_values (Sequence[float]): An iterable sequence of numeric scenarios (e.g., list or np.ndarray).
-        model_pipeline (list): Explicit, ordered sequence of model classes to execute.
+        model_pipeline (list): Explicit, ordered sequence of instantiated model 
+            objects to execute.
 
     Returns:
         list[dict]: A sequence of fully evaluated state dictionaries corresponding to each scenario step.

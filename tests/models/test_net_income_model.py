@@ -37,7 +37,7 @@ class TestNetIncomeModel(unittest.TestCase):
             sorted([
                 variable_names.EXPENSE,
                 variable_names.DEPRECIATION,
-                variable_names.FINANCE_TAX_RATE
+                variable_names.TAX_RATE
             ])
         )
 
@@ -116,7 +116,7 @@ class TestNetIncomeModel(unittest.TestCase):
             variable_names.COST: 15000.0,
             variable_names.EXPENSE: 5000.0,
             variable_names.DEPRECIATION: 1000.0,
-            variable_names.FINANCE_TAX_RATE: 0.20
+            variable_names.TAX_RATE: 0.20
         }
         model = NetIncomeModel(inputs)
 
@@ -146,7 +146,7 @@ class TestNetIncomeModel(unittest.TestCase):
         valid_inputs_no_optional = {
             variable_names.REVENUE: 40000.0,
             variable_names.COST: 15000.0
-            # All optional keys (EXPENSE, DEPRECIATION, FINANCE_TAX_RATE) are omitted
+            # All optional keys (EXPENSE, DEPRECIATION, TAX_RATE) are omitted
         }
         model = NetIncomeModel(valid_inputs_no_optional)
 
@@ -166,7 +166,7 @@ class TestNetIncomeModel(unittest.TestCase):
         inputs = {
             variable_names.REVENUE: 30000.0,
             variable_names.COST: 10000.0
-            # EXPENSE, DEPRECIATION, and FINANCE_TAX_RATE completely omitted to rely on 0.0 defaults
+            # EXPENSE, DEPRECIATION, and TAX_RATE completely omitted to rely on 0.0 defaults
         }
         model = NetIncomeModel(inputs)
         enriched_output = model.evaluate()
@@ -181,7 +181,7 @@ class TestNetIncomeModel(unittest.TestCase):
             variable_names.COST: 15000.0,
             variable_names.EXPENSE: 5000.0,
             variable_names.DEPRECIATION: 1000.0
-            # FINANCE_TAX_RATE is intentionally omitted to test 0.0 fallback
+            # TAX_RATE is intentionally omitted to test 0.0 fallback
         }
         model = NetIncomeModel(inputs)
         enriched_output = model.evaluate()
@@ -199,7 +199,7 @@ class TestNetIncomeModel(unittest.TestCase):
             variable_names.COST: 40000.0,
             variable_names.EXPENSE: 10000.0,
             variable_names.DEPRECIATION: 5000.0,
-            variable_names.FINANCE_TAX_RATE: 0.25  # 25% Tax Rate
+            variable_names.TAX_RATE: 0.25  # 25% Tax Rate
         }
         model = NetIncomeModel(inputs)
         enriched_output = model.evaluate()
@@ -215,7 +215,7 @@ class TestNetIncomeModel(unittest.TestCase):
             variable_names.COST: 12000.0,
             variable_names.EXPENSE: 3000.0,
             variable_names.DEPRECIATION: 500.0,
-            variable_names.FINANCE_TAX_RATE: 0.20
+            variable_names.TAX_RATE: 0.20
         }
         model = NetIncomeModel(inputs)
         enriched_output = model.evaluate()

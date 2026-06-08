@@ -3,32 +3,30 @@ from src.core import Variable
 
 
 class Cost(Variable):
-    def __init__(self, expected_value=None, min_value=None, max_value=None):
-        super().__init__(expected_value, min_value, max_value)
+    """
+    Represents the baseline operational or variable cost structure.
+    """
+
+    def __init__(self, min=None, exp=None, max=None):
+        super().__init__(min, exp, max)
         self._name = variable_names.COST
 
 
 class AdvertisingCost(Variable):
-    def __init__(self, expected_value=None, min_value=None, max_value=None):
-        super().__init__(expected_value, min_value, max_value)
-        self._name = variable_names.COST_ADVERTISING
+    """
+    Tracks auxiliary platform-specific or legacy performance advertisement costs.
+    """
+
+    def __init__(self, min=None, exp=None, max=None):
+        super().__init__(min, exp, max)
+        self._name = variable_names.ADVERTISING_COST
 
 
 class SetupCost(Variable):
-    def __init__(self, expected_value=None, min_value=None, max_value=None):
-        super().__init__(expected_value, min_value, max_value)
-        self._name = variable_names.COST_SETUP
+    """
+    Models one-time fixed initialization or infrastructure setup capital overhead.
+    """
 
-
-##(TODO): to deprecate
-class CostPerAcquisition(Variable):
-    def __init__(self, expected_value=None, min_value=None, max_value=None):
-        super().__init__(expected_value, min_value, max_value)
-        self._name = variable_names.COST_CPA
-
-
-##(TODO): to deprecate
-class ConversionRate(Variable):
-    def __init__(self, expected_value=None, min_value=None, max_value=None):
-        super().__init__(expected_value, min_value, max_value)
-        self._name = variable_names.COST_CONVERSION_RATE
+    def __init__(self, min=None, exp=None, max=None):
+        super().__init__(min, exp, max)
+        self._name = variable_names.SETUP_COST

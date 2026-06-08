@@ -20,7 +20,7 @@ def calculate_net_income(optional_variables: dict, **kwargs) -> dict:
             Optional Keys (Pulled with fallbacks from configuration map):
                 EXPENSE (float): Duration-scaled operational expenses (OPEX).
                 DEPRECIATION (float): Non-cash fixed asset depreciation allocations.
-                FINANCE_TAX_RATE (float): Corporate tax liability rate multiplier.
+                TAX_RATE (float): Corporate tax liability rate multiplier.
 
     Returns:
         dict: A dictionary mapping the net income metric directly to its source-of-truth registry key.
@@ -33,12 +33,12 @@ def calculate_net_income(optional_variables: dict, **kwargs) -> dict:
     # Pull baseline configuration defaults for optional metrics
     default_expense = optional_variables[variable_names.EXPENSE]
     default_depreciation = optional_variables[variable_names.DEPRECIATION]
-    default_tax_rate = optional_variables[variable_names.FINANCE_TAX_RATE]
+    default_tax_rate = optional_variables[variable_names.TAX_RATE]
 
     # Resolve runtime execution values against their safe fallbacks
     expense = kwargs.get(variable_names.EXPENSE, default_expense)
     depreciation = kwargs.get(variable_names.DEPRECIATION, default_depreciation)
-    tax_rate = kwargs.get(variable_names.FINANCE_TAX_RATE, default_tax_rate)
+    tax_rate = kwargs.get(variable_names.TAX_RATE, default_tax_rate)
 
     # Core corporate accounting math block
     pre_tax_income = revenue - cost - expense - depreciation
@@ -64,14 +64,14 @@ class NetIncomeModel(Model):
         lean pre-tax scenarios, zero-overhead bootstrap forecasts, or early-stage exploratory modeling.
 
     Calculation Equation:
-        net income = (revenue - cost - expense - depreciation) * (1.0 - tax rate)
+        NetIncome = (Revenue - Cost - Expense - Depreciation) * (1.0 - TaxRate)
 
         Where:
-        - "revenue" maps to REVENUE (Required)
-        - "cost" maps to COST (Required)
-        - "expense" maps to EXPENSE (Optional, Defaults to 0.0)
-        - "depreciation" maps to DEPRECIATION (Optional, Defaults to 0.0)
-        - "tax rate" maps to FINANCE_TAX_RATE (Optional, Defaults to 0.0)
+        - "Revenue" maps to variable_names.REVENUE (Required)
+        - "Cost" maps to variable_names.COST (Required)
+        - "Expense" maps to variable_names.EXPENSE (Optional, Defaults to 0.0)
+        - "Depreciation" maps to variable_names.DEPRECIATION (Optional, Defaults to 0.0)
+        - "TaxRate" maps to variable_names.TAX_RATE (Optional, Defaults to 0.0)
     """
 
     def __init__(self, input_variables: dict = None):
@@ -98,5 +98,5 @@ class NetIncomeModel(Model):
         self._optional_variables = {
             variable_names.EXPENSE: 0.0,
             variable_names.DEPRECIATION: 0.0,
-            variable_names.FINANCE_TAX_RATE: 0.0
+            variable_names.TAX_RATE: 0.0
         }

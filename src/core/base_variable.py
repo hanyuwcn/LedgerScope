@@ -19,49 +19,49 @@ class ValueType(Enum):
 
 class Variable:
     """
-    Primitive financial parameter object tracking boundaries, defaults, 
+    Primitive financial parameter object tracking boundaries, defaults,
     and random sampling ranges for downstream sensitivity analysis.
     """
 
-    def __init__(self, expected_value=None, min_value=None, max_value=None):
+    def __init__(self, min=None, exp=None, max=None):
         """
-        Initializes boundaries and default configurations. Note that 'MAX' and 'MIN' 
+        Initializes boundaries and default configurations. Note that 'MAX' and 'MIN'
         define a testing threshold rather than structural math dependencies.
 
         Args:
-            expected_value (float, optional): Operational default base state value.
-            min_value (float, optional): Lower metric boundary marker.
-            max_value (float, optional): Upper metric boundary marker.
+            min (float, optional): Lower metric boundary marker.
+            exp (float, optional): Operational default base state value.
+            max (float, optional): Upper metric boundary marker.
 
         Raises:
             ValueError: If an illegal permutation of parameters is supplied.
         """
         self._name = ""
 
-        if min_value is not None and max_value is not None and expected_value is not None:
+        if min is not None and exp is not None and max is not None:
             # Rule 1: All three variables are provided
-            self._min = min_value
-            self._max = max_value
-            self._expected_value = expected_value
-        elif expected_value is not None and min_value is None and max_value is None:
+            self._min_value = min
+            self._max_value = max
+            self._expected_value = exp
+        elif exp is not None and min is None and max is None:
             # Rule 2: Only expected value is provided
-            self._min = expected_value
-            self._max = expected_value
-            self._expected_value = expected_value
-        elif min_value is not None and max_value is not None and expected_value is None:
+            self._min_value = exp
+            self._max_value = exp
+            self._expected_value = exp
+        elif min is not None and max is not None and exp is None:
             # Rule 3: Only max and min are provided
-            self._min = min_value
-            self._max = max_value
-            self._expected_value = (min_value + max_value) / 2
-        elif max_value is not None and min_value is None and expected_value is None:
+            self._min_value = min
+            self._max_value = max
+            self._expected_value = (min + max) / 2
+        elif max is not None and min is None and exp is None:
             # Rule 4: Only max is provided
-            self._min = 0
-            self._max = max_value
-            self._expected_value = (self._min + self._max) / 2
-        elif max_value is None and min_value is None and expected_value is None:
+            self._min_value = 0
+            self._max_value = max
+            self._expected_value = (0 + max) / 2
+        elif max is None and min is None and exp is None:
             # Rule 5: No values are provided
-            self._min = None
-            self._max = None
+            self._min_value = None
+            self._max_value = None
             self._expected_value = None
         else:
             log.error(messages.ERROR_VARIABLE_CONSTRUCTION_ERROR)
@@ -80,11 +80,11 @@ class Variable:
 
     @property
     def min_value(self):
-        return self._min
+        return self._min_value
 
     @property
     def max_value(self):
-        return self._max
+        return self._max_value
 
     # -----------------------------------------------------------------
     # CORE IMPLEMENTATION METRIC CALCULATORS
@@ -94,13 +94,17 @@ class Variable:
         Locks down a variable, fixing all bounds directly to a static constant.
         """
         self._expected_value = value
-        self._min = value
-        self._max = value
+        self._min_value = value
+        self._max_value = value
 
     def get_random_value(self):
         """
         Randomly samples values from within the defined lower and upper bounds.
         """
+        if self._min_value is None or self._max_value is None:
+            log.error(f"Cannot sample random value; boundaries are not initialized for variable '{self._name}'.")
+            raise ValueError(messages.ERROR_VARIABLE_CONSTRUCTION_ERROR)
+
         return self._get_random_value_with_digits(settings.DECIMAL_ROUNDING)
 
     def _get_random_value_with_digits(self, digit=2):
@@ -125,12 +129,16 @@ class Variable:
 
     def get_range_values(self, num, digits=None):
         """
-        Generates a lineary spaced numpy distribution array across boundaries.
+        Generates a linearly spaced numpy distribution array across boundaries.
         """
+        if self._min_value is None or self._max_value is None:
+            log.error(f"Cannot generate range values; boundaries are not initialized for variable '{self._name}'.")
+            raise ValueError(messages.ERROR_VARIABLE_CONSTRUCTION_ERROR)
+
         if digits is None:
             digits = settings.DECIMAL_ROUNDING
 
-        values = np.linspace(self._min, self._max, num=num)
+        values = np.linspace(self._min_value, self._max_value, num=num)
 
         if digits == 0:
             rounded_values = np.round(values).astype(int)

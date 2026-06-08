@@ -25,8 +25,8 @@ class TestUnitContributionMarginModel(unittest.TestCase):
         # Verify explicit required variable signature bounds
         expected_requirements = [
             variable_names.PROFIT,
-            variable_names.DEAL_ORDERS,
-            variable_names.DEAL_ITEMS_PER_ORDER
+            variable_names.ORDERS,
+            variable_names.UNITS_PER_ORDER
         ]
         self.assertEqual(sorted(model.required_variables), sorted(expected_requirements))
 
@@ -39,8 +39,8 @@ class TestUnitContributionMarginModel(unittest.TestCase):
         model = UnitContributionMarginModel()
         fresh_inputs = {
             variable_names.PROFIT: 1000.0,
-            variable_names.DEAL_ORDERS: 100,
-            variable_names.DEAL_ITEMS_PER_ORDER: 2
+            variable_names.ORDERS: 100,
+            variable_names.UNITS_PER_ORDER: 2
         }
 
         # Execute property assignment
@@ -75,8 +75,8 @@ class TestUnitContributionMarginModel(unittest.TestCase):
         """Verify check_variables clears execution cleanly when every metric constraint is met."""
         inputs = {
             variable_names.PROFIT: 2500.0,
-            variable_names.DEAL_ORDERS: 50,
-            variable_names.DEAL_ITEMS_PER_ORDER: 5
+            variable_names.ORDERS: 50,
+            variable_names.UNITS_PER_ORDER: 5
         }
         model = UnitContributionMarginModel(inputs)
 
@@ -88,8 +88,8 @@ class TestUnitContributionMarginModel(unittest.TestCase):
         """Verify check_variables logs errors and raises KeyError if a core driver is absent."""
         incomplete_inputs = {
             variable_names.PROFIT: 1000.0,
-            variable_names.DEAL_ORDERS: 10
-            # Missing DEAL_ITEMS_PER_ORDER
+            variable_names.ORDERS: 10
+            # Missing UNITS_PER_ORDER
         }
         model = UnitContributionMarginModel(incomplete_inputs)
 
@@ -106,8 +106,8 @@ class TestUnitContributionMarginModel(unittest.TestCase):
         """Verify UCM calculation runs cleanly under standard parameters."""
         inputs = {
             variable_names.PROFIT: 2000.0,  # Total Profit
-            variable_names.DEAL_ORDERS: 100,  # 100 Orders
-            variable_names.DEAL_ITEMS_PER_ORDER: 4  # 4 Items each = 400 total units
+            variable_names.ORDERS: 100,  # 100 Orders
+            variable_names.UNITS_PER_ORDER: 4  # 4 Items each = 400 total units
         }
         model = UnitContributionMarginModel(inputs)
         enriched_output = model.evaluate()
@@ -119,8 +119,8 @@ class TestUnitContributionMarginModel(unittest.TestCase):
         """Verify the engine falls back to 0.0 UCM when order volume or items-per-order is zero."""
         inputs = {
             variable_names.PROFIT: 500.0,
-            variable_names.DEAL_ORDERS: 0,
-            variable_names.DEAL_ITEMS_PER_ORDER: 2
+            variable_names.ORDERS: 0,
+            variable_names.UNITS_PER_ORDER: 2
         }
         model = UnitContributionMarginModel(inputs)
         enriched_output = model.evaluate()

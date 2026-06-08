@@ -2,9 +2,11 @@ import unittest
 
 from src.analysis import run_monte_carlo
 from src.config import variable_names
-from src.models import AdvertisingEfficiencyModel, CostOfGoodsSoldModel, TotalCostModel
-from src.variables import (AdvertisingCost, ConversionRate, CostPerAcquisition,
-                           USDToRMB, ItemsPerOrder, PurchasingPrice, Cost)
+from src.models import AdvertisingEfficiencyGoogleSearchModel, CostOfGoodsSoldModel, TotalCostModel
+from src.variables import (
+    AdvertisingCost, GoogleSearchConversionRate, GoogleSearchCostPerClick,
+    USDToRMB, UnitsPerOrder, UnitExw, Cost
+)
 
 
 class TestMonteCarloSimulation(unittest.TestCase):
@@ -12,20 +14,20 @@ class TestMonteCarloSimulation(unittest.TestCase):
     def setUp(self):
         """Build the raw business pipeline and baseline production domain variables."""
         self.pipeline = [
-            AdvertisingEfficiencyModel(),
+            AdvertisingEfficiencyGoogleSearchModel(),
             CostOfGoodsSoldModel(),
             TotalCostModel()
         ]
 
         # Use your direct production classes populated with clean testing values
         self.variables = {
-            variable_names.COST_ADVERTISING: AdvertisingCost(min_value=4000.0, max_value=6000.0),
-            variable_names.COST_CONVERSION_RATE: ConversionRate(min_value=0.05, max_value=0.15),
-            variable_names.COST_CPA: CostPerAcquisition(expected_value=20.0),
-            variable_names.FINANCE_USD_TO_RMB: USDToRMB(expected_value=1.0),
-            variable_names.DEAL_ITEMS_PER_ORDER: ItemsPerOrder(min_value=2.0, max_value=2.0),
-            variable_names.DEAL_PURCHASING_PRICE: PurchasingPrice(min_value=15.0, max_value=15.0),
-            variable_names.COST_SHIPPING: Cost(expected_value=500.0)
+            variable_names.ADVERTISING_COST: AdvertisingCost(min=4000.0, max=6000.0),
+            variable_names.CONVERSION_RATE_GOOGLE_SEARCH: GoogleSearchConversionRate(min=0.05, max=0.15),
+            variable_names.CPL_GOOGLE_SEARCH: GoogleSearchCostPerClick(exp=20.0),
+            variable_names.USD_TO_RMB: USDToRMB(exp=1.0),
+            variable_names.UNITS_PER_ORDER: UnitsPerOrder(min=2.0, max=2.0),
+            variable_names.UNIT_EXW: UnitExw(min=15.0, max=15.0),
+            variable_names.SHIPPING_COST: Cost(exp=500.0)
         }
 
     # -----------------------------------------------------------------
@@ -38,7 +40,7 @@ class TestMonteCarloSimulation(unittest.TestCase):
         # Target X (Advertising Cost) for random sampling; keep Y (Conversion Rate) static/expected
         results = run_monte_carlo(
             variables=self.variables,
-            shuffled_inputs=[variable_names.COST_ADVERTISING],
+            shuffled_inputs=[variable_names.ADVERTISING_COST],
             model_pipeline=self.pipeline,
             tracked_outputs=[variable_names.COST],
             iterations=2
@@ -70,8 +72,8 @@ class TestMonteCarloSimulation(unittest.TestCase):
 
         first_run = results[0]
         self.assertIn(variable_names.SYSTEM_RUN_ID, first_run)
-        self.assertIn(variable_names.DEAL_ORDERS, first_run)
-        self.assertIn(variable_names.COST_COGS, first_run)
+        self.assertIn(variable_names.ORDERS, first_run)
+        self.assertIn(variable_names.COGS, first_run)
         self.assertIn(variable_names.COST, first_run)
 
     # -----------------------------------------------------------------
@@ -110,13 +112,13 @@ class TestMonteCarloSimulation(unittest.TestCase):
         scrambled_pipeline = [
             TotalCostModel(),
             CostOfGoodsSoldModel(),
-            AdvertisingEfficiencyModel()
+            AdvertisingEfficiencyGoogleSearchModel()
         ]
 
         with self.assertRaises(Exception):
             run_monte_carlo(
                 variables=self.variables,
-                shuffled_inputs=[variable_names.COST_ADVERTISING],
+                shuffled_inputs=[variable_names.ADVERTISING_COST],
                 model_pipeline=scrambled_pipeline,
                 tracked_outputs=[variable_names.COST],
                 iterations=1

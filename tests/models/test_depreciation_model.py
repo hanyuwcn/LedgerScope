@@ -43,7 +43,7 @@ class TestDepreciationModel(unittest.TestCase):
         """Verify the property setter completely updates the operational variable context."""
         model = DepreciationModel()
         fresh_inputs = {
-            variable_names.COST_COGS: 3000.0,
+            variable_names.COGS: 3000.0,
             "ASSET_LIFETIME": 5
         }
 

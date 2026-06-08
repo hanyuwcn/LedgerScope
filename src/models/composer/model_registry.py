@@ -1,12 +1,13 @@
 from src.models import (
-    AdvertisingEfficiencyModel, CostOfGoodsSoldModel, TotalCostModel,
+    AdvertisingEfficiencyGoogleSearchModel, CostOfGoodsSoldModel, TotalCostModel,
     RevenueModel, TotalExpenseModel, DepreciationModel, CapitalExpenditureModel,
-    NetIncomeModel, ProfitModel, RoiModel, FreeCashFlowModel
+    NetIncomeModel, ProfitModel, RoiModel, FreeCashFlowModel,
+    UnitContributionMarginModel, CacModel
 )
 
 # The Global Model Menu
 MODEL_REGISTRY = {
-    "advertising_efficiency": AdvertisingEfficiencyModel,
+    "advertising_efficiency_google_search": AdvertisingEfficiencyGoogleSearchModel,
     "cogs": CostOfGoodsSoldModel,
     "total_cost": TotalCostModel,
     "revenue": RevenueModel,
@@ -16,5 +17,7 @@ MODEL_REGISTRY = {
     "net_income": NetIncomeModel,
     "profit": ProfitModel,
     "roi": RoiModel,
-    "free_cash_flow": FreeCashFlowModel
+    "free_cash_flow": FreeCashFlowModel,
+    "ucm": UnitContributionMarginModel,
+    "cac": CacModel
 }

@@ -25,7 +25,7 @@ class TestCacModel(unittest.TestCase):
         # Verify explicit required variable signature bounds
         self.assertEqual(
             sorted(model.required_variables),
-            sorted([variable_names.COST_ADVERTISING, variable_names.DEAL_ORDERS])
+            sorted([variable_names.ADVERTISING_COST, variable_names.ORDERS])
         )
 
     def test_internal_optional_variables_is_dict(self):
@@ -42,8 +42,8 @@ class TestCacModel(unittest.TestCase):
         """Verify the property setter completely updates the operational variable context."""
         model = CacModel()
         fresh_inputs = {
-            variable_names.COST_ADVERTISING: 5000.0,
-            variable_names.DEAL_ORDERS: 250
+            variable_names.ADVERTISING_COST: 5000.0,
+            variable_names.ORDERS: 250
         }
 
         # Execute property assignment
@@ -55,7 +55,7 @@ class TestCacModel(unittest.TestCase):
 
     def test_input_variables_property_setter_none_defensive_fallback(self):
         """Verify setting input_variables context to None resets state safely to an empty dictionary."""
-        initial_inputs = {variable_names.COST_ADVERTISING: 3000.0}
+        initial_inputs = {variable_names.ADVERTISING_COST: 3000.0}
         model = CacModel(initial_inputs)
 
         # Set context strictly to None to test the defensive barrier
@@ -72,17 +72,17 @@ class TestCacModel(unittest.TestCase):
         model = CacModel()
 
         # Context A: Explicit string key variable modification
-        model.update_input_variable(variable_names.COST_ADVERTISING, 4500.0)
-        self.assertEqual(model.input_variables[variable_names.COST_ADVERTISING], 4500.0)
+        model.update_input_variable(variable_names.ADVERTISING_COST, 4500.0)
+        self.assertEqual(model.input_variables[variable_names.ADVERTISING_COST], 4500.0)
 
         # Context B: Structural duck-typed object validation Type A (.name, .expected_value)
         class DuckTypeA:
             def __init__(self):
-                self.name = variable_names.DEAL_ORDERS
+                self.name = variable_names.ORDERS
                 self.expected_value = 150
 
         model.update_input_variable(DuckTypeA())
-        self.assertEqual(model.input_variables[variable_names.DEAL_ORDERS], 150)
+        self.assertEqual(model.input_variables[variable_names.ORDERS], 150)
 
     # -----------------------------------------------------------------
     # 4. EXPLICIT DEPENDENCY CHECKING MECHANISMS
@@ -91,8 +91,8 @@ class TestCacModel(unittest.TestCase):
     def test_check_variables_success_with_all_metrics(self):
         """Verify check_variables clears execution cleanly when every metric constraint is fully met."""
         inputs = {
-            variable_names.COST_ADVERTISING: 2000.0,
-            variable_names.DEAL_ORDERS: 100
+            variable_names.ADVERTISING_COST: 2000.0,
+            variable_names.ORDERS: 100
         }
         model = CacModel(inputs)
 
@@ -105,8 +105,8 @@ class TestCacModel(unittest.TestCase):
     def test_check_variables_missing_required_logs_error_and_raises(self):
         """Verify check_variables logs errors and safely raises a KeyError if an essential anchor is absent."""
         incomplete_inputs = {
-            variable_names.COST_ADVERTISING: 1500.0
-            # Missing required variable_names.DEAL_ORDERS!
+            variable_names.ADVERTISING_COST: 1500.0
+            # Missing required variable_names.ORDERS!
         }
         model = CacModel(incomplete_inputs)
 
@@ -123,8 +123,8 @@ class TestCacModel(unittest.TestCase):
     def test_evaluate_success_with_all_parameters(self):
         """Verify acquisition efficiency calculations run cleanly under standard parameters."""
         inputs = {
-            variable_names.COST_ADVERTISING: 3000.0,
-            variable_names.DEAL_ORDERS: 150
+            variable_names.ADVERTISING_COST: 3000.0,
+            variable_names.ORDERS: 150
         }
         model = CacModel(inputs)
         enriched_output = model.evaluate()
@@ -138,8 +138,8 @@ class TestCacModel(unittest.TestCase):
     def test_evaluate_zero_orders_handles_division_by_zero_safely(self):
         """Verify the calculation engine falls back safely to 0.0 CAC when zero orders are logged."""
         inputs = {
-            variable_names.COST_ADVERTISING: 1500.0,
-            variable_names.DEAL_ORDERS: 0  # Zero denominator test edge case
+            variable_names.ADVERTISING_COST: 1500.0,
+            variable_names.ORDERS: 0  # Zero denominator test edge case
         }
         model = CacModel(inputs)
         enriched_output = model.evaluate()
@@ -150,8 +150,8 @@ class TestCacModel(unittest.TestCase):
     def test_evaluate_missing_required_variables_raises_key_error(self):
         """Verify omitting an operational driver variable triggers an immediate lookup error."""
         incomplete_inputs = {
-            variable_names.DEAL_ORDERS: 50
-            # Missing COST_ADVERTISING!
+            variable_names.ORDERS: 50
+            # Missing ADVERTISING_COST!
         }
         model = CacModel(incomplete_inputs)
 

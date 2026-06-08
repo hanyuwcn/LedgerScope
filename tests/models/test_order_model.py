@@ -20,7 +20,7 @@ class TestOrderModel(unittest.TestCase):
         self.assertIsInstance(model.input_variables, dict)
 
         # Verify exact registered calculation footprint signatures
-        self.assertEqual(model.output_names, [variable_names.DEAL_ORDERS])
+        self.assertEqual(model.output_names, [variable_names.ORDERS])
 
         # Verify explicit required variable signature bounds
         expected_requirements = [
@@ -124,7 +124,7 @@ class TestOrderModel(unittest.TestCase):
         enriched_output = model.evaluate()
 
         # Math validation: 250 * 0.12 = 30.0 Orders
-        self.assertAlmostEqual(enriched_output[variable_names.DEAL_ORDERS], 30.0, places=4)
+        self.assertAlmostEqual(enriched_output[variable_names.ORDERS], 30.0, places=4)
         self.assertIs(enriched_output, model.input_variables)
 
     def test_evaluate_handles_zero_leads_or_close_rate_safely(self):
@@ -137,7 +137,7 @@ class TestOrderModel(unittest.TestCase):
         enriched_output = model.evaluate()
 
         # Math validation: 0 * 0.20 = 0.0 Orders
-        self.assertEqual(enriched_output[variable_names.DEAL_ORDERS], 0.0)
+        self.assertEqual(enriched_output[variable_names.ORDERS], 0.0)
 
     def test_evaluate_missing_required_variables_raises_key_error(self):
         """Verify omitting an operational driver variable triggers an immediate lookup error."""

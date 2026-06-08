@@ -27,7 +27,7 @@ class TestRoasModelComprehensive(unittest.TestCase):
             model.required_variables,
             [
                 variable_names.REVENUE,
-                variable_names.COST_ADVERTISING
+                variable_names.ADVERTISING_COST
             ]
         )
 
@@ -43,7 +43,7 @@ class TestRoasModelComprehensive(unittest.TestCase):
         model = RoasModel()
         fresh_inputs = {
             variable_names.REVENUE: 12000.0,
-            variable_names.COST_ADVERTISING: 3000.0
+            variable_names.ADVERTISING_COST: 3000.0
         }
 
         # Fire property setter
@@ -79,11 +79,11 @@ class TestRoasModelComprehensive(unittest.TestCase):
 
         class DuckTypeA:
             def __init__(self):
-                self.name = variable_names.COST_ADVERTISING
+                self.name = variable_names.ADVERTISING_COST
                 self.expected_value = 2500.0
 
         model.update_input_variable(DuckTypeA())
-        self.assertEqual(model.input_variables[variable_names.COST_ADVERTISING], 2500.0)
+        self.assertEqual(model.input_variables[variable_names.ADVERTISING_COST], 2500.0)
 
     def test_update_input_variable_with_duck_typed_getters(self):
         """Verify individual metric updates using domain variable Type B objects (.get_name(), .get_value())."""
@@ -108,7 +108,7 @@ class TestRoasModelComprehensive(unittest.TestCase):
         """Verify check_variables clears execution cleanly when every metric constraint is fully met."""
         inputs = {
             variable_names.REVENUE: 10000.0,
-            variable_names.COST_ADVERTISING: 2000.0
+            variable_names.ADVERTISING_COST: 2000.0
         }
         model = RoasModel(inputs)
 
@@ -122,7 +122,7 @@ class TestRoasModelComprehensive(unittest.TestCase):
         """Verify check_variables triggers error logs and raises a KeyError if a requirement is absent."""
         incomplete_inputs = {
             variable_names.REVENUE: 10000.0
-            # Missing variable_names.COST_ADVERTISING!
+            # Missing variable_names.ADVERTISING_COST!
         }
         model = RoasModel(incomplete_inputs)
 
@@ -142,7 +142,7 @@ class TestRoasModelComprehensive(unittest.TestCase):
         # Spending $2,500 on ads to generate $10,000 in gross revenue (4.0x ROAS)
         inputs = {
             variable_names.REVENUE: 10000.0,
-            variable_names.COST_ADVERTISING: 2500.0
+            variable_names.ADVERTISING_COST: 2500.0
         }
         model = RoasModel(inputs)
         enriched_output = model.evaluate()
@@ -158,7 +158,7 @@ class TestRoasModelComprehensive(unittest.TestCase):
         # Testing uneven values: $11,250 revenue generated from $3,000 ad spend (3.75x ROAS)
         inputs = {
             variable_names.REVENUE: 11250.0,
-            variable_names.COST_ADVERTISING: 3000.0
+            variable_names.ADVERTISING_COST: 3000.0
         }
         model = RoasModel(inputs)
         enriched_output = model.evaluate()

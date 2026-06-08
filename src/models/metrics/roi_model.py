@@ -21,7 +21,7 @@ def calculate_project_roi(optional_variables: dict, **kwargs) -> dict:
             Mandatory Keys:
                 NET_INCOME (float): The final net profit after all operational costs
                                    and taxes have been deducted.
-                COST_SETUP (float): The initial foundational investment/startup cost.
+                SETUP_COST (float): The initial foundational investment/startup cost.
 
     Returns:
         dict: A dictionary mapping the calculated ROI decimal directly to the registry.
@@ -30,7 +30,7 @@ def calculate_project_roi(optional_variables: dict, **kwargs) -> dict:
     """
     # Extract strictly required execution anchors
     net_income = kwargs[variable_names.NET_INCOME]
-    setup_cost = kwargs[variable_names.COST_SETUP]
+    setup_cost = kwargs[variable_names.SETUP_COST]
 
     # Protect engine against a zero-denominator division crash
     if setup_cost == 0:
@@ -54,11 +54,11 @@ class RoiModel(Model):
         specifically from the capital required to launch the project.
 
     Calculation Equation:
-        ROI = net_income / setup_cost
+        ROI = NetIncome / SetupCost
 
         Where:
-        - "net_income" maps to NET_INCOME (Required)
-        - "setup_cost" maps to COST_SETUP (Required)
+        - "NetIncome" maps to variable_names.NET_INCOME (Required)
+        - "SetupCost" maps to variable_names.SETUP_COST (Required)
     """
 
     def __init__(self, input_variables: dict = None):
@@ -78,5 +78,5 @@ class RoiModel(Model):
         # Explicit tracking validation boundaries (anchoring core inputs)
         self._required_variables = [
             variable_names.NET_INCOME,
-            variable_names.COST_SETUP
+            variable_names.SETUP_COST
         ]

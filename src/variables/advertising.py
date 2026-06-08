@@ -12,9 +12,9 @@ class AdvertisingBudget(Variable):
         - Maximum: 3000.0
     """
 
-    def __init__(self, expected_value=None, min_value=None, max_value=None):
-        super().__init__(expected_value, min_value, max_value)
-        self._name = variable_names.COST_ADVERTISING
+    def __init__(self, min=None, exp=None, max=None):
+        super().__init__(min, exp, max)
+        self._name = variable_names.ADVERTISING_COST
 
 
 class GoogleSearchConversionRate(Variable):
@@ -28,8 +28,8 @@ class GoogleSearchConversionRate(Variable):
         - Maximum: 0.06 (6%)
     """
 
-    def __init__(self, expected_value=None, min_value=None, max_value=None):
-        super().__init__(expected_value, min_value, max_value)
+    def __init__(self, min=None, exp=None, max=None):
+        super().__init__(min, exp, max)
         self._name = variable_names.CONVERSION_RATE_GOOGLE_SEARCH
 
 
@@ -45,8 +45,8 @@ class GoogleSearchCostPerClick(Variable):
         - Maximum: 3.50
     """
 
-    def __init__(self, expected_value=None, min_value=None, max_value=None):
-        super().__init__(expected_value, min_value, max_value)
+    def __init__(self, min=None, exp=None, max=None):
+        super().__init__(min, exp, max)
         self._name = variable_names.CPC_GOOGLE_SEARCH
 
 
@@ -61,6 +61,6 @@ class GoogleSearchAllocationPercentage(Variable):
         - Maximum: 0.70 (70%)
     """
 
-    def __init__(self, expected_value=None, min_value=None, max_value=None):
-        super().__init__(expected_value, min_value, max_value)
+    def __init__(self, min=None, exp=None, max=None):
+        super().__init__(min, exp, max)
         self._name = variable_names.ALLOCATION_GOOGLE_SEARCH

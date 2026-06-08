@@ -13,35 +13,33 @@ VARIABLE_FORMATTING_MAP = {
 
     ### Expenses
     EXPENSE: lambda v: fmt(v, s='¥'),
-    EXPENSE_MONTHLY_FEE: lambda v: fmt(v, s='¥'),
-    EXPENSE_MONTHLY_RENT: lambda v: fmt(v, s='¥'),
-    EXPENSE_RENDER_FEE: lambda v: fmt(v, s='¥'),
-    EXPENSE_TRAVEL_FEE: lambda v: fmt(v, s='¥'),
+    MONTHLY_EXPENSE: lambda v: fmt(v, s='¥'),
+    RENT_EXPENSE: lambda v: fmt(v, s='¥'),
+    RENDER_EXPENSE: lambda v: fmt(v, s='¥'),
+    TRAVEL_EXPENSE: lambda v: fmt(v, s='¥'),
 
     ### Investment
     CAPITAL_EXPENDITURE: lambda v: fmt(v, s='¥'),
     DEPRECIATION: lambda v: fmt(v, s='¥'),
 
     ### Deals
-    DEAL_ORDERS: lambda v: fmt(v, d=1),
+    ORDERS: lambda v: fmt(v, d=1),
     CLOSE_RATE: lambda v: fmt(v, d=2, p=True),
-    DEAL_ITEMS_PER_ORDER: lambda v: fmt(v, d=1),
-    DEAL_SELLING_PRICE: lambda v: fmt(v, s='$'),
-    DEAL_PURCHASING_PRICE: lambda v: fmt(v, s='¥'),
+    UNITS_PER_ORDER: lambda v: fmt(v, d=1),
+    UNIT_FOB: lambda v: fmt(v, s='$'),
+    UNIT_EXW: lambda v: fmt(v, s='¥'),
 
     ### Finance
-    FINANCE_TAX_RATE: lambda v: fmt(v, d=2, p=True),
-    FINANCE_USD_TO_RMB: lambda v: fmt(v, d=2),
-    FINANCE_INTEREST_RATE: lambda v: fmt(v, d=2, p=True),
+    TAX_RATE: lambda v: fmt(v, d=2, p=True),
+    USD_TO_RMB: lambda v: fmt(v, d=2),
+    INTEREST_RATE: lambda v: fmt(v, d=2, p=True),
 
     ### Costs
     COST: lambda v: fmt(v, s='¥'),
-    COST_ADVERTISING: lambda v: fmt(v, s='¥'),
-    COST_SHIPPING: lambda v: fmt(v, s='¥'),
-    COST_COGS: lambda v: fmt(v, s='¥'),
-    COST_MANAGEMENT: lambda v: fmt(v, s='¥'),
-    COST_CPA: lambda v: fmt(v, d=1, s='$'),  ##(TODO): to deprecate
-    COST_CONVERSION_RATE: lambda v: fmt(v, d=2, p=True),  ##(TODO): to deprecate
+    ADVERTISING_COST: lambda v: fmt(v, s='¥'),
+    SHIPPING_COST: lambda v: fmt(v, s='¥'),
+    COGS: lambda v: fmt(v, s='¥'),
+    MANAGEMENT_COST: lambda v: fmt(v, s='¥'),
 
     ### Revenue
     REVENUE: lambda v: fmt(v, s='¥'),

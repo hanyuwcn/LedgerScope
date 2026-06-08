@@ -21,13 +21,13 @@ class MockRevenueModel(Model):
 
         # Enforcing single source of truth keys for input parameter bounds
         self._required_variables = [
-            variable_names.DEAL_ORDERS,
-            variable_names.DEAL_SELLING_PRICE
+            variable_names.ORDERS,
+            variable_names.UNIT_FOB
         ]
 
         # Mapped to their default fallback values to support runtime lookups
         self._optional_variables = {
-            variable_names.FINANCE_TAX_RATE: 0.2
+            variable_names.TAX_RATE: 0.2
         }
 
         # Enforcing single source of truth keys for computational outputs
@@ -43,14 +43,14 @@ class MockRevenueModel(Model):
         to the global configuration variable names. Receives the base model's
         optional variable registry as its first parameter.
         """
-        orders = kwargs[variable_names.DEAL_ORDERS]
-        selling_price = kwargs[variable_names.DEAL_SELLING_PRICE]
+        orders = kwargs[variable_names.ORDERS]
+        unit_fob = kwargs[variable_names.UNIT_FOB]
 
         # Fallback dynamically to the passed dictionary default if omitted from inputs
-        default_tax = optional_variables[variable_names.FINANCE_TAX_RATE]
-        tax_rate = kwargs.get(variable_names.FINANCE_TAX_RATE, default_tax)
+        default_tax = optional_variables[variable_names.TAX_RATE]
+        tax_rate = kwargs.get(variable_names.TAX_RATE, default_tax)
 
-        raw_revenue = orders * selling_price
+        raw_revenue = orders * unit_fob
         net_profit = raw_revenue * (1 - tax_rate)
 
         return {
@@ -81,10 +81,10 @@ class TestBaseModelArchitecture(unittest.TestCase):
 
     def test_model_initialization_retains_provided_dictionary(self):
         """Verify that initial input dictionaries are bound correctly to the internal state container."""
-        initial_payload = {variable_names.DEAL_ORDERS: 100}
+        initial_payload = {variable_names.ORDERS: 100}
         model = MockRevenueModel(input_variables=initial_payload)
         self.assertEqual(model.input_variables, initial_payload)
-        self.assertEqual(model.input_variables[variable_names.DEAL_ORDERS], 100)
+        self.assertEqual(model.input_variables[variable_names.ORDERS], 100)
 
     def test_output_names_getter(self):
         """Verify that output_names property correctly exposes the model's registered outputs."""
@@ -96,12 +96,12 @@ class TestBaseModelArchitecture(unittest.TestCase):
         """Verify underlying storage for optional variables transitioned cleanly to a dictionary mapping."""
         model = MockRevenueModel()
         self.assertIsInstance(model._optional_variables, dict)
-        self.assertEqual(model._optional_variables[variable_names.FINANCE_TAX_RATE], 0.2)
+        self.assertEqual(model._optional_variables[variable_names.TAX_RATE], 0.2)
 
     def test_public_optional_variables_returns_list_keys(self):
         """Verify public contract exposes a flat list of keys preserving backward compatibility."""
         model = MockRevenueModel()
-        expected_list = [variable_names.FINANCE_TAX_RATE]
+        expected_list = [variable_names.TAX_RATE]
         self.assertIsInstance(model.optional_variables, list)
         self.assertEqual(model.optional_variables, expected_list)
 
@@ -113,8 +113,8 @@ class TestBaseModelArchitecture(unittest.TestCase):
         """Verify the property getter/setter can completely overwrite the state with a valid dictionary."""
         model = MockRevenueModel()
         fresh_state = {
-            variable_names.DEAL_ORDERS: 50,
-            variable_names.DEAL_SELLING_PRICE: 20.0
+            variable_names.ORDERS: 50,
+            variable_names.UNIT_FOB: 20.0
         }
 
         # Trigger the setter
@@ -126,7 +126,7 @@ class TestBaseModelArchitecture(unittest.TestCase):
 
     def test_input_variables_setter_none_fallback(self):
         """Verify that setting input_variables property to None safely clears state to an empty dict."""
-        initial_payload = {variable_names.DEAL_ORDERS: 100}
+        initial_payload = {variable_names.ORDERS: 100}
         model = MockRevenueModel(input_variables=initial_payload)
 
         # Overwrite with None via setter
@@ -151,11 +151,11 @@ class TestBaseModelArchitecture(unittest.TestCase):
 
         class MockPropertyVariable:
             def __init__(self):
-                self.name = variable_names.DEAL_ORDERS
+                self.name = variable_names.ORDERS
                 self.expected_value = 45
 
         model.update_input_variable(MockPropertyVariable())
-        self.assertEqual(model.input_variables[variable_names.DEAL_ORDERS], 45)
+        self.assertEqual(model.input_variables[variable_names.ORDERS], 45)
 
     def test_update_input_variable_with_duck_typed_getter_methods(self):
         """Verify polymorphic update handles Domain Objects using 'get_name()' and 'get_value()' methods."""
@@ -163,13 +163,13 @@ class TestBaseModelArchitecture(unittest.TestCase):
 
         class MockMethodVariable:
             def get_name(self):
-                return variable_names.DEAL_SELLING_PRICE
+                return variable_names.UNIT_FOB
 
             def get_value(self):
                 return 1500.0
 
         model.update_input_variable(MockMethodVariable())
-        self.assertEqual(model.input_variables[variable_names.DEAL_SELLING_PRICE], 1500.0)
+        self.assertEqual(model.input_variables[variable_names.UNIT_FOB], 1500.0)
 
     # -----------------------------------------------------------------
     # 4. LIFECYCLE RUNTIME & VALIDATION TESTS
@@ -178,8 +178,8 @@ class TestBaseModelArchitecture(unittest.TestCase):
     def test_evaluate_success_and_in_place_data_enrichment_merge(self):
         """Verify successful calculation execution and structural in-place state enrichment."""
         inputs = {
-            variable_names.DEAL_ORDERS: 20,
-            variable_names.DEAL_SELLING_PRICE: 3000
+            variable_names.ORDERS: 20,
+            variable_names.UNIT_FOB: 3000
         }
         model = MockRevenueModel(inputs)
 
@@ -187,8 +187,8 @@ class TestBaseModelArchitecture(unittest.TestCase):
         enriched_output = model.evaluate()
 
         # 1. Verify original input values are perfectly retained
-        self.assertEqual(enriched_output[variable_names.DEAL_ORDERS], 20)
-        self.assertEqual(enriched_output[variable_names.DEAL_SELLING_PRICE], 3000)
+        self.assertEqual(enriched_output[variable_names.ORDERS], 20)
+        self.assertEqual(enriched_output[variable_names.UNIT_FOB], 3000)
 
         # 2. Verify model calculation outputs are correctly appended
         self.assertEqual(enriched_output[variable_names.REVENUE], 60000)
@@ -200,8 +200,8 @@ class TestBaseModelArchitecture(unittest.TestCase):
     def test_evaluate_missing_required_variables_halts_execution(self):
         """Verify that omitting a mandatory input parameter actively raises an unhandled KeyError."""
         incomplete_inputs = {
-            variable_names.DEAL_ORDERS: 20
-        }  # Missing variable_names.DEAL_SELLING_PRICE string key identifier
+            variable_names.ORDERS: 20
+        }  # Missing variable_names.UNIT_FOB string key identifier
         model = MockRevenueModel(incomplete_inputs)
 
         with self.assertRaises(KeyError):
@@ -210,9 +210,9 @@ class TestBaseModelArchitecture(unittest.TestCase):
     def test_evaluate_accepts_optional_variables_safely(self):
         """Verify that passing an optional parameter bypasses default internal fallbacks cleanly."""
         custom_inputs = {
-            variable_names.DEAL_ORDERS: 10,
-            variable_names.DEAL_SELLING_PRICE: 1000,
-            variable_names.FINANCE_TAX_RATE: 0.10  # Explicit custom optional override
+            variable_names.ORDERS: 10,
+            variable_names.UNIT_FOB: 1000,
+            variable_names.TAX_RATE: 0.10  # Explicit custom optional override
         }
         model = MockRevenueModel(custom_inputs)
 

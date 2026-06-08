@@ -4,9 +4,11 @@ import pandas as pd
 
 from src.analysis import run_two_way_sensitivity_analysis
 from src.config import variable_names
-from src.models import AdvertisingEfficiencyModel, CostOfGoodsSoldModel, TotalCostModel
-from src.variables import (AdvertisingCost, ConversionRate, CostPerAcquisition,
-                           USDToRMB, ItemsPerOrder, PurchasingPrice, Cost)
+from src.models import AdvertisingEfficiencyGoogleSearchModel, CostOfGoodsSoldModel, TotalCostModel
+from src.variables import (
+    AdvertisingCost, GoogleSearchConversionRate, GoogleSearchCostPerClick,
+    USDToRMB, UnitsPerOrder, UnitExw, Cost
+)
 
 
 class TestTwoWaySensitivityAnalysis(unittest.TestCase):
@@ -14,22 +16,22 @@ class TestTwoWaySensitivityAnalysis(unittest.TestCase):
     def setUp(self):
         """Build the raw business pipeline and baseline operational variables."""
         self.pipeline = [
-            AdvertisingEfficiencyModel(),
+            AdvertisingEfficiencyGoogleSearchModel(),
             CostOfGoodsSoldModel(),
             TotalCostModel()
         ]
 
         # Use your direct production classes populated with clean testing values
         self.variables = {
-            variable_names.COST_ADVERTISING: AdvertisingCost(min_value=4000.0, max_value=6000.0),
+            variable_names.ADVERTISING_COST: AdvertisingCost(min=4000.0, max=6000.0),
             # X axis steps: [4000.0, 6000.0]
-            variable_names.COST_CONVERSION_RATE: ConversionRate(min_value=0.05, max_value=0.15),
+            variable_names.CONVERSION_RATE_GOOGLE_SEARCH: GoogleSearchConversionRate(min=0.05, max=0.15),
             # Y axis steps: [0.05, 0.15]
-            variable_names.COST_CPA: CostPerAcquisition(expected_value=20.0),
-            variable_names.FINANCE_USD_TO_RMB: USDToRMB(expected_value=1.0),
-            variable_names.DEAL_ITEMS_PER_ORDER: ItemsPerOrder(min_value=2.0, max_value=2.0),
-            variable_names.DEAL_PURCHASING_PRICE: PurchasingPrice(min_value=15.0, max_value=15.0),
-            variable_names.COST_SHIPPING: Cost(expected_value=500.0)
+            variable_names.CPL_GOOGLE_SEARCH: GoogleSearchCostPerClick(exp=20.0),
+            variable_names.USD_TO_RMB: USDToRMB(exp=1.0),
+            variable_names.UNITS_PER_ORDER: UnitsPerOrder(min=2.0, max=2.0),
+            variable_names.UNIT_EXW: UnitExw(min=15.0, max=15.0),
+            variable_names.SHIPPING_COST: Cost(exp=500.0)
         }
 
     # -----------------------------------------------------------------
@@ -42,8 +44,8 @@ class TestTwoWaySensitivityAnalysis(unittest.TestCase):
         # Execute a clean 2x2 grid search sweep
         df = run_two_way_sensitivity_analysis(
             variables=self.variables,
-            param_x_name=variable_names.COST_ADVERTISING,
-            param_y_name=variable_names.COST_CONVERSION_RATE,
+            param_x_name=variable_names.ADVERTISING_COST,
+            param_y_name=variable_names.CONVERSION_RATE_GOOGLE_SEARCH,
             model_pipeline=self.pipeline,
             target_output_name=variable_names.COST,
             x_steps=2,
@@ -69,8 +71,8 @@ class TestTwoWaySensitivityAnalysis(unittest.TestCase):
             6000.0: {0.15: 7850.0, 0.05: 6950.0}
         }
         expected_df = pd.DataFrame(expected_data)
-        expected_df.index.name = variable_names.COST_CONVERSION_RATE
-        expected_df.columns.name = variable_names.COST_ADVERTISING
+        expected_df.index.name = variable_names.CONVERSION_RATE_GOOGLE_SEARCH
+        expected_df.columns.name = variable_names.ADVERTISING_COST
 
         # Assert index metadata, column arrays, and full numeric cell values match perfectly
         pd.testing.assert_frame_equal(df, expected_df, check_dtype=False)
@@ -82,12 +84,12 @@ class TestTwoWaySensitivityAnalysis(unittest.TestCase):
     def test_sensitivity_analysis_runs_cleanly_when_variable_range_is_fixed(self):
         """Verify the grid handles flat ranges without crashing out."""
         # Fix conversion rate strictly to a stagnant 10%
-        self.variables[variable_names.COST_CONVERSION_RATE] = ConversionRate(min_value=0.10, max_value=0.10)
+        self.variables[variable_names.CONVERSION_RATE_GOOGLE_SEARCH] = GoogleSearchConversionRate(min=0.10, max=0.10)
 
         df = run_two_way_sensitivity_analysis(
             variables=self.variables,
-            param_x_name=variable_names.COST_ADVERTISING,
-            param_y_name=variable_names.COST_CONVERSION_RATE,
+            param_x_name=variable_names.ADVERTISING_COST,
+            param_y_name=variable_names.CONVERSION_RATE_GOOGLE_SEARCH,
             model_pipeline=self.pipeline,
             target_output_name=variable_names.COST,
             x_steps=2,
@@ -110,7 +112,7 @@ class TestTwoWaySensitivityAnalysis(unittest.TestCase):
             run_two_way_sensitivity_analysis(
                 variables=self.variables,
                 param_x_name="MISSING_TAX_VARIABLE_KEY",
-                param_y_name=variable_names.COST_CONVERSION_RATE,
+                param_y_name=variable_names.CONVERSION_RATE_GOOGLE_SEARCH,
                 model_pipeline=self.pipeline,
                 target_output_name=variable_names.COST
             )
@@ -126,14 +128,14 @@ class TestTwoWaySensitivityAnalysis(unittest.TestCase):
         scrambled_pipeline = [
             TotalCostModel(),
             CostOfGoodsSoldModel(),
-            AdvertisingEfficiencyModel()
+            AdvertisingEfficiencyGoogleSearchModel()
         ]
 
         with self.assertRaises(Exception):
             run_two_way_sensitivity_analysis(
                 variables=self.variables,
-                param_x_name=variable_names.COST_ADVERTISING,
-                param_y_name=variable_names.COST_CONVERSION_RATE,
+                param_x_name=variable_names.ADVERTISING_COST,
+                param_y_name=variable_names.CONVERSION_RATE_GOOGLE_SEARCH,
                 model_pipeline=scrambled_pipeline,
                 target_output_name=variable_names.COST
             )

@@ -3,9 +3,13 @@ from src.core import Variable
 
 
 class Orders(Variable):
-    def __init__(self, expected_value=None, min_value=None, max_value=None):
-        super().__init__(expected_value, min_value, max_value)
-        self._name = variable_names.DEAL_ORDERS
+    """
+    Represents the total volume of successful purchase transactions processed.
+    """
+
+    def __init__(self, min=None, exp=None, max=None):
+        super().__init__(min, exp, max)
+        self._name = variable_names.ORDERS
 
 
 class CloseRate(Variable):
@@ -20,25 +24,76 @@ class CloseRate(Variable):
         - Maximum: 0.18 (18%)
     """
 
-    def __init__(self, expected_value=None, min_value=None, max_value=None):
-        super().__init__(expected_value, min_value, max_value)
+    def __init__(self, min=None, exp=None, max=None):
+        super().__init__(min, exp, max)
         self._name = variable_names.CLOSE_RATE
 
 
-# TODO: change to UnitsPerOrder
-class ItemsPerOrder(Variable):
-    def __init__(self, expected_value=None, min_value=None, max_value=None):
-        super().__init__(expected_value, min_value, max_value)
-        self._name = variable_names.DEAL_ITEMS_PER_ORDER
+class UnitExw(Variable):
+    """
+    Ex Works factory floor base pricing parameter for primary manufacturing tracking.
+    """
+
+    def __init__(self, min=None, exp=None, max=None):
+        super().__init__(min, exp, max)
+        self._name = variable_names.UNIT_EXW
 
 
-class SellingPrice(Variable):
-    def __init__(self, expected_value=None, min_value=None, max_value=None):
-        super().__init__(expected_value, min_value, max_value)
-        self._name = variable_names.DEAL_SELLING_PRICE
+class UnitRetail(Variable):
+    """
+    End-user market retail valuation parameter used for strategic revenue baseline tracking.
+    """
+
+    def __init__(self, min=None, exp=None, max=None):
+        super().__init__(min, exp, max)
+        self._name = variable_names.UNIT_RETAIL
 
 
-class PurchasingPrice(Variable):
-    def __init__(self, expected_value=None, min_value=None, max_value=None):
-        super().__init__(expected_value, min_value, max_value)
-        self._name = variable_names.DEAL_PURCHASING_PRICE
+class ChannelMarkupRate(Variable):
+    """
+    Percentage premium captured by distributor networks and ecosystem channel partners.
+    """
+
+    def __init__(self, min=None, exp=None, max=None):
+        super().__init__(min, exp, max)
+        self._name = variable_names.CHANNEL_MARKUP_RATE
+
+
+class ShippingRate(Variable):
+    """
+    Logistics overhead coefficient mapping the variable cross-border or localized haulage metrics.
+    """
+
+    def __init__(self, min=None, exp=None, max=None):
+        super().__init__(min, exp, max)
+        self._name = variable_names.SHIPPING_RATE
+
+
+class DeductionRate(Variable):
+    """
+    Combined standard rate modeling statutory deductions, localized levies, or marketplace fees.
+    """
+
+    def __init__(self, min=None, exp=None, max=None):
+        super().__init__(min, exp, max)
+        self._name = variable_names.DEDUCTION_RATE
+
+
+class UnitFob(Variable):
+    """
+    Free On Board baseline parameter factoring point-of-origin delivery port valuation.
+    """
+
+    def __init__(self, min=None, exp=None, max=None):
+        super().__init__(min, exp, max)
+        self._name = variable_names.UNIT_FOB
+
+
+class UnitsPerOrder(Variable):
+    """
+    The average quantity of individual products included within a single order transaction.
+    """
+
+    def __init__(self, min=None, exp=None, max=None):
+        super().__init__(min, exp, max)
+        self._name = variable_names.UNITS_PER_ORDER

@@ -26,9 +26,9 @@ class TestRevenueModel(unittest.TestCase):
         self.assertEqual(
             model.required_variables,
             [
-                variable_names.DEAL_SELLING_PRICE,
-                variable_names.DEAL_ORDERS,
-                variable_names.DEAL_ITEMS_PER_ORDER
+                variable_names.UNIT_FOB,
+                variable_names.ORDERS,
+                variable_names.UNITS_PER_ORDER
             ]
         )
 
@@ -38,7 +38,7 @@ class TestRevenueModel(unittest.TestCase):
         self.assertIsInstance(model._optional_variables, dict)
         self.assertEqual(
             model._optional_variables,
-            {variable_names.FINANCE_USD_TO_RMB: 1.0}
+            {variable_names.USD_TO_RMB: 1.0}
         )
 
     # -----------------------------------------------------------------
@@ -49,9 +49,9 @@ class TestRevenueModel(unittest.TestCase):
         """Verify the property setter completely updates the operational variable context."""
         model = RevenueModel()
         fresh_inputs = {
-            variable_names.DEAL_SELLING_PRICE: 50.0,
-            variable_names.DEAL_ORDERS: 200,
-            variable_names.DEAL_ITEMS_PER_ORDER: 1.5
+            variable_names.UNIT_FOB: 50.0,
+            variable_names.ORDERS: 200,
+            variable_names.UNITS_PER_ORDER: 1.5
         }
 
         # Execute property assignment
@@ -63,7 +63,7 @@ class TestRevenueModel(unittest.TestCase):
 
     def test_input_variables_property_setter_none_defensive_fallback(self):
         """Verify setting input_variables context to None resets state safely to an empty dictionary."""
-        initial_inputs = {variable_names.DEAL_ORDERS: 150}
+        initial_inputs = {variable_names.ORDERS: 150}
         model = RevenueModel(initial_inputs)
 
         # Set context strictly to None to test the defensive barrier
@@ -80,28 +80,28 @@ class TestRevenueModel(unittest.TestCase):
         model = RevenueModel()
 
         # Context A: Explicit string key variable modification
-        model.update_input_variable(variable_names.DEAL_ORDERS, 300)
-        self.assertEqual(model.input_variables[variable_names.DEAL_ORDERS], 300)
+        model.update_input_variable(variable_names.ORDERS, 300)
+        self.assertEqual(model.input_variables[variable_names.ORDERS], 300)
 
         # Context B: Structural duck-typed object validation Type A (.name, .expected_value)
         class DuckTypeA:
             def __init__(self):
-                self.name = variable_names.DEAL_SELLING_PRICE
+                self.name = variable_names.UNIT_FOB
                 self.expected_value = 75.0
 
         model.update_input_variable(DuckTypeA())
-        self.assertEqual(model.input_variables[variable_names.DEAL_SELLING_PRICE], 75.0)
+        self.assertEqual(model.input_variables[variable_names.UNIT_FOB], 75.0)
 
         # Context C: Structural duck-typed object validation Type B (.get_name(), .get_value())
         class DuckTypeB:
             def get_name(self):
-                return variable_names.FINANCE_USD_TO_RMB
+                return variable_names.USD_TO_RMB
 
             def get_value(self):
                 return 7.2
 
         model.update_input_variable(DuckTypeB())
-        self.assertEqual(model.input_variables[variable_names.FINANCE_USD_TO_RMB], 7.2)
+        self.assertEqual(model.input_variables[variable_names.USD_TO_RMB], 7.2)
 
     # -----------------------------------------------------------------
     # 4. EXPLICIT DEPENDENCY CHECKING MECHANISMS
@@ -111,10 +111,10 @@ class TestRevenueModel(unittest.TestCase):
     def test_check_variables_success_with_all_metrics(self, mock_log):
         """Verify check_variables clears execution cleanly when every metric constraint is fully met."""
         inputs = {
-            variable_names.DEAL_SELLING_PRICE: 50.0,
-            variable_names.DEAL_ORDERS: 200,
-            variable_names.DEAL_ITEMS_PER_ORDER: 1.5,
-            variable_names.FINANCE_USD_TO_RMB: 7.0
+            variable_names.UNIT_FOB: 50.0,
+            variable_names.ORDERS: 200,
+            variable_names.UNITS_PER_ORDER: 1.5,
+            variable_names.USD_TO_RMB: 7.0
         }
         model = RevenueModel(inputs)
 
@@ -127,9 +127,9 @@ class TestRevenueModel(unittest.TestCase):
     def test_check_variables_missing_required_logs_error_and_raises(self, mock_log):
         """Verify check_variables logs errors and safely raises a KeyError if a requirement is absent."""
         incomplete_inputs = {
-            variable_names.DEAL_ORDERS: 200,
-            variable_names.DEAL_ITEMS_PER_ORDER: 1.5
-            # Missing required variable_names.DEAL_SELLING_PRICE!
+            variable_names.ORDERS: 200,
+            variable_names.UNITS_PER_ORDER: 1.5
+            # Missing required variable_names.UNIT_FOB!
         }
         model = RevenueModel(incomplete_inputs)
 
@@ -143,10 +143,10 @@ class TestRevenueModel(unittest.TestCase):
     def test_check_variables_missing_optional_logs_informational_alert(self, mock_log):
         """Verify check_variables logs an informational trace but passes when optional metrics are absent."""
         valid_inputs_no_optional = {
-            variable_names.DEAL_SELLING_PRICE: 50.0,
-            variable_names.DEAL_ORDERS: 200,
-            variable_names.DEAL_ITEMS_PER_ORDER: 1.5
-            # Missing optional variable_names.FINANCE_USD_TO_RMB!
+            variable_names.UNIT_FOB: 50.0,
+            variable_names.ORDERS: 200,
+            variable_names.UNITS_PER_ORDER: 1.5
+            # Missing optional variable_names.USD_TO_RMB!
         }
         model = RevenueModel(valid_inputs_no_optional)
 
@@ -162,16 +162,16 @@ class TestRevenueModel(unittest.TestCase):
     def test_evaluate_revenue_in_domestic_currency(self):
         """Verify baseline revenue calculations hold accurate when currency translations are omitted."""
         inputs = {
-            variable_names.DEAL_SELLING_PRICE: 50.0,  # $50 per item
-            variable_names.DEAL_ORDERS: 200,  # 200 orders
-            variable_names.DEAL_ITEMS_PER_ORDER: 1.5  # 1.5 items average per order
+            variable_names.UNIT_FOB: 50.0,  # $50 per item
+            variable_names.ORDERS: 200,  # 200 orders
+            variable_names.UNITS_PER_ORDER: 1.5  # 1.5 items average per order
         }
         model = RevenueModel(inputs)
         enriched_output = model.evaluate()
 
         # Math verification: 50.0 * 200 * 1.5 * 1.0 = 15000.0
         self.assertEqual(enriched_output[variable_names.REVENUE], 15000.0)
-        self.assertEqual(enriched_output[variable_names.DEAL_SELLING_PRICE], 50.0)
+        self.assertEqual(enriched_output[variable_names.UNIT_FOB], 50.0)
 
         # Ensure the in-place reference match holds true
         self.assertIs(enriched_output, model.input_variables)
@@ -179,10 +179,10 @@ class TestRevenueModel(unittest.TestCase):
     def test_evaluate_revenue_with_currency_translation_factor(self):
         """Verify international revenue scales reliably when an exchange rate multiplier is passed."""
         inputs = {
-            variable_names.DEAL_SELLING_PRICE: 100.0,
-            variable_names.DEAL_ORDERS: 10,
-            variable_names.DEAL_ITEMS_PER_ORDER: 2,
-            variable_names.FINANCE_USD_TO_RMB: 7.0
+            variable_names.UNIT_FOB: 100.0,
+            variable_names.ORDERS: 10,
+            variable_names.UNITS_PER_ORDER: 2,
+            variable_names.USD_TO_RMB: 7.0
         }
         model = RevenueModel(inputs)
         enriched_output = model.evaluate()
@@ -193,9 +193,9 @@ class TestRevenueModel(unittest.TestCase):
     def test_evaluate_missing_required_variables_throws_exception(self):
         """Verify that omitting a structural pillar like selling price triggers validation errors."""
         incomplete_inputs = {
-            variable_names.DEAL_ORDERS: 10,
-            variable_names.DEAL_ITEMS_PER_ORDER: 2
-            # Missing DEAL_SELLING_PRICE!
+            variable_names.ORDERS: 10,
+            variable_names.UNITS_PER_ORDER: 2
+            # Missing UNIT_FOB!
         }
         model = RevenueModel(incomplete_inputs)
 

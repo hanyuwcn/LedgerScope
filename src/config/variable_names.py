@@ -8,26 +8,32 @@ MONTHS = "Months"
 ### Below are the Variable names, which MUST matches the correspondant argument names in the aggregation functions
 ### Expenses
 EXPENSE = "Expense"
-EXPENSE_MONTHLY_FEE = "MonthlyFee"
-EXPENSE_MONTHLY_RENT = "Rent"
-EXPENSE_RENDER_FEE = "RenderFee"
-EXPENSE_TRAVEL_FEE = "TravelFee"
+MONTHLY_EXPENSE = "MonthlyExpense"
+RENT_EXPENSE = "RentExpense"
+RENDER_EXPENSE = "RenderExpense"
+TRAVEL_EXPENSE = "TravelExpense"
 
 ### Investment
 CAPITAL_EXPENDITURE = "CapitalExpenditure"
 DEPRECIATION = "Depreciation"
 
 ### Deals
-DEAL_ORDERS = "Orders"
+ORDERS = "Orders"
 CLOSE_RATE = "CloseRate"
-DEAL_ITEMS_PER_ORDER = "ItemsPerOrder"
-DEAL_SELLING_PRICE = "SellingPrice"
-DEAL_PURCHASING_PRICE = "PurchasingPrice"
+UNITS_PER_ORDER = "UnitsPerOrder"
+UNIT_EXW = "UnitExWorksPrice"
+UNIT_FOB = "UnitFreeOnBoardPrice"
+UNIT_RETAIL = "UnitRetailPrice"
+DEDUCTION_RATE = "DeductionRate"
+CHANNEL_MARKUP_RATE = "ChannelMarkupRate"
+SHIPPING_RATE = "ShippingRate"
 
 ### Finance
-FINANCE_TAX_RATE = "TaxRate"
-FINANCE_USD_TO_RMB = "USDToRMB"
-FINANCE_INTEREST_RATE = "InterestRate"
+TAX_RATE = "TaxRate"
+TARIFF_RATE = "TariffRate"
+USD_TO_RMB = "USDToRMB"
+INTEREST_RATE = "InterestRate"
+PE_RATIO = "PriceToEarningsRatio"
 
 ### Ads
 CONVERSION_RATE_GOOGLE_SEARCH = "GoogleSearchConversionRate"
@@ -38,13 +44,11 @@ LEADS = "Leads"
 
 ### Costs
 COST = "Cost"
-COST_ADVERTISING = "AdvertisingCost"
-COST_SHIPPING = "ShippingCost"
-COST_COGS = "Cogs"
-COST_MANAGEMENT = "ManagementCost"
-COST_SETUP = "SetupCost"
-COST_CPA = "CostPerAcquisition"  ##(TODO): to deprecate
-COST_CONVERSION_RATE = "ConversionRate"  ##(TODO): to deprecate
+ADVERTISING_COST = "AdvertisingCost"
+SHIPPING_COST = "ShippingCost"
+COGS = "Cogs"
+MANAGEMENT_COST = "ManagementCost"
+SETUP_COST = "SetupCost"
 
 ### Revenue
 REVENUE = "Revenue"

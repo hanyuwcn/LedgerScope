@@ -16,12 +16,12 @@ def calculate_leads_from_ads_budget_via_google_search(optional_variables: dict, 
             metrics extracted from the model's global configuration variables:
 
             Mandatory Keys:
-                COST_ADVERTISING (float): The total corporate multi-channel advertising budget.
+                ADVERTISING_COST (float): The total corporate multi-channel advertising budget.
                 CPC_GOOGLE_SEARCH (float): Cost Per Click (CPC) explicitly for Google Search ads.
                 CONVERSION_RATE_GOOGLE_SEARCH (float): Click-to-Lead configuration efficiency metric.
 
             Optional Keys:
-                FINANCE_USD_TO_RMB (float, optional): Cross-border foreign currency multiplier.
+                USD_TO_RMB (float, optional): Cross-border foreign currency multiplier.
                 ALLOCATION_GOOGLE_SEARCH (float, optional): The fractional budget allocation percentage
                     devoted exclusively to Google Search campaigns.
 
@@ -30,17 +30,19 @@ def calculate_leads_from_ads_budget_via_google_search(optional_variables: dict, 
             Example: {"Leads": 1420.5}
             Returns {"Leads": 0.0} if the denominator variables evaluate to zero to avoid runtime crashes.
     """
-    ads_budget = kwargs[variable_names.COST_ADVERTISING]
+    ads_budget = kwargs[variable_names.ADVERTISING_COST]
     cpc = kwargs[variable_names.CPC_GOOGLE_SEARCH]
     conversion_rate = kwargs[variable_names.CONVERSION_RATE_GOOGLE_SEARCH]
 
     # Dynamically extract default value from the provided optional_variables structure
-    default_usd_to_rmb = optional_variables[variable_names.FINANCE_USD_TO_RMB]
-    usd_to_rmb = kwargs.get(variable_names.FINANCE_USD_TO_RMB, default_usd_to_rmb)
+    default_usd_to_rmb = optional_variables[variable_names.USD_TO_RMB]
+    usd_to_rmb = kwargs.get(variable_names.USD_TO_RMB, default_usd_to_rmb)
 
     default_google_search_allocation_percentage = optional_variables[variable_names.ALLOCATION_GOOGLE_SEARCH]
-    google_search_allocation_percentage = kwargs.get(variable_names.ALLOCATION_GOOGLE_SEARCH,
-                                                     default_google_search_allocation_percentage)
+    google_search_allocation_percentage = kwargs.get(
+        variable_names.ALLOCATION_GOOGLE_SEARCH,
+        default_google_search_allocation_percentage
+    )
 
     # Protect calculation matrix from division by zero crashes
     denominator = cpc * usd_to_rmb
@@ -68,11 +70,11 @@ class AdvertisingEfficiencyGoogleSearchModel(Model):
         Leads = ((Budget * Allocation) / (CPC * ExchangeRate)) * ConversionRate
 
         Where:
-        - "Budget" maps to COST_ADVERTISING
-        - "Allocation" maps to ALLOCATION_GOOGLE_SEARCH
-        - "CPC" maps to CPC_GOOGLE_SEARCH
-        - "ExchangeRate" maps to FINANCE_USD_TO_RMB
-        - "ConversionRate" maps to CONVERSION_RATE_GOOGLE_SEARCH
+        - "Budget" maps to variable_names.ADVERTISING_COST
+        - "Allocation" maps to variable_names.ALLOCATION_GOOGLE_SEARCH
+        - "CPC" maps to variable_names.CPC_GOOGLE_SEARCH
+        - "ExchangeRate" maps to variable_names.USD_TO_RMB
+        - "ConversionRate" maps to variable_names.CONVERSION_RATE_GOOGLE_SEARCH
     """
 
     def __init__(self, input_variables: dict = None):
@@ -81,7 +83,7 @@ class AdvertisingEfficiencyGoogleSearchModel(Model):
 
         Args:
             input_variables (dict, optional): The active runtime configuration context dictionary
-                containing variables and metrics (e.g., {variable_names.COST_ADVERTISING: 2500}).
+                containing variables and metrics (e.g., {variable_names.ADVERTISING_COST: 2500}).
                 If None, it defaults securely to an empty dictionary via the parent class.
         """
         # Triggers parent to bind the input variable dictionary maps defensively
@@ -92,13 +94,13 @@ class AdvertisingEfficiencyGoogleSearchModel(Model):
         self._output_names = [variable_names.LEADS]
 
         self._required_variables = [
-            variable_names.COST_ADVERTISING,
+            variable_names.ADVERTISING_COST,
             variable_names.CPC_GOOGLE_SEARCH,
             variable_names.CONVERSION_RATE_GOOGLE_SEARCH,
         ]
 
         # Centralized mapping dictionary with 1.0 as the historical default state
         self._optional_variables = {
-            variable_names.FINANCE_USD_TO_RMB: 1.0,
+            variable_names.USD_TO_RMB: 1.0,
             variable_names.ALLOCATION_GOOGLE_SEARCH: 1.0
         }
