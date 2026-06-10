@@ -53,4 +53,5 @@ VARIABLE_FORMATTING_MAP = {
     ROAS: lambda v: fmt(v, d=1, p=True),
     CAC: lambda v: fmt(v, d=1, s='¥'),
     UNIT_CONTRIBUTION_MARGIN: lambda v: fmt(v, s='¥'),
+    MARKET_PRICE: lambda v: fmt(v, s='¥'),
 }
