@@ -88,16 +88,15 @@ def check_model_pipeline_topology_order(models: list) -> bool:
     for model in models:
         model_name = model.__class__.__name__
         model_outputs = model.output_names
-        model_inputs = model.required_variables
+        model_inputs = set(model.required_variables) | set(model.optional_variables)
 
         # 1. Catch downstream models overwriting an upstream input dependency
         for output_name in model_outputs:
             if output_name in seen_inputs:
-                raise KeyError(
-                    f"Pipeline Order Violation: '{output_name}' is generated as an output by '{model_name}', "
-                    f"but it was already consumed as a required input upstream by '{input_consumers[output_name]}'. "
-                    f"Please move '{model_name}' earlier in your pipeline sequence."
-                )
+                raise KeyError(messages.ERROR_PIPELINE_TOPOLOGY_ORDER_VIOLATION.format(variable_name=output_name,
+                                                                                       current_model=model_name,
+                                                                                       earlier_model=input_consumers[
+                                                                                           output_name]))
 
         # 2. Record inputs to track history for the next iteration step
         for input_name in model_inputs:
