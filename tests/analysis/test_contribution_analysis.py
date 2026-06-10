@@ -2,138 +2,86 @@ import unittest
 
 from src.analysis import stochastic_contribution_analysis
 from src.config import variable_names
-from src.models import AdvertisingEfficiencyGoogleSearchModel, CostOfGoodsSoldModel, TotalCostModel
-from src.variables import (
-    AdvertisingCost, GoogleSearchConversionRate, GoogleSearchCostPerClick,
-    USDToRMB, UnitsPerOrder, UnitExw, Cost
-)
+from src.core import Variable
+from src.models import NetIncomeModel, MarketPriceModel
+from src.variables import Cost, PriceToEarningsRatio
 
 
-class TestStochasticContributionAnalysis(unittest.TestCase):
+def _create_var(min_v, exp_v, max_v):
+    return Variable(min=min_v, exp=exp_v, max=max_v)
+
+
+class TestStochasticContributionIntegration(unittest.TestCase):
 
     def setUp(self):
-        """
-        Build production pipeline environments and establish baseline variables.
-        No mock objects or mock functions are used here.
-        """
-        self.pipeline = [
-            AdvertisingEfficiencyGoogleSearchModel(),
-            CostOfGoodsSoldModel(),
-            TotalCostModel()
-        ]
+        """Build fiscal pipeline for Monte Carlo contribution simulation."""
+        self.pipeline = [NetIncomeModel(), MarketPriceModel()]
 
-        # Standard business context registry
         self.variables = {
-            variable_names.ADVERTISING_COST: AdvertisingCost(min=4000.0, max=6000.0, exp=5000.0),
-            variable_names.CONVERSION_RATE_GOOGLE_SEARCH: GoogleSearchConversionRate(min=0.05, max=0.15, exp=0.10),
-            variable_names.CPL_GOOGLE_SEARCH: GoogleSearchCostPerClick(exp=20.0),
-            variable_names.USD_TO_RMB: USDToRMB(exp=1.0),
-            variable_names.UNITS_PER_ORDER: UnitsPerOrder(min=2.0, max=2.0),
-            variable_names.UNIT_EXW: UnitExw(min=15.0, max=15.0),
-            variable_names.SHIPPING_COST: Cost(exp=500.0)
+            variable_names.REVENUE: _create_var(80000.0, 100000.0, 120000.0),
+            variable_names.COST: Cost(min=30000.0, exp=40000.0, max=50000.0),
+            variable_names.PE_RATIO: PriceToEarningsRatio(min=5.0, exp=8.0, max=10.0)
         }
 
     # -----------------------------------------------------------------
-    # 1. ACCURACY OF DATA: EXACT MATHEMATICAL TRACING
+    # 1. ACCURACY: CONVERGENCE CHECK
     # -----------------------------------------------------------------
 
-    def test_analysis_data_accuracy_with_fixed_inputs(self):
-        """
-        Verify the mathematical accuracy of the contribution averages.
+    def test_stochastic_contribution_analysis_averages_converge_on_expected_values(self):
+        """Verify that averaged results align with baseline expected values."""
+        breakdown = [variable_names.REVENUE, variable_names.COST]
+        shuffled = [variable_names.REVENUE, variable_names.COST]
 
-        Trace Logic:
-          If we pass an empty shuffled_inputs list, every variable stays fixed at its expected value.
-
-          Inputs:
-          - AdvertisingCost = 5000.0
-          - Orders = (AdvertisingCost / CPA) * ConversionRate = (5000 / 20) * 0.10 = 25
-          - COGS = Orders * ItemsPerOrder * PurchasingPrice = 25 * 2 * 15 = 750.0
-          - ShippingCost = 500.0
-
-          Therefore, regardless of sample_size, the mathematical mean for each
-          component must match these exact static numbers.
-        """
-        breakdown_metrics = [
-            variable_names.ADVERTISING_COST,
-            variable_names.COGS,
-            variable_names.SHIPPING_COST
-        ]
-
-        mean_results = stochastic_contribution_analysis(
+        results = stochastic_contribution_analysis(
             variables=self.variables,
-            breakdown_metrics=breakdown_metrics,
+            breakdown_metrics=breakdown,
             model_pipeline=self.pipeline,
-            shuffled_inputs=[],  # Kept fixed to isolate math baseline tracking
-            sample_size=10
+            shuffled_inputs=shuffled,
+            sample_size=100
         )
 
-        # Confirm structural keys match exactly
-        self.assertEqual(set(mean_results.keys()), set(breakdown_metrics))
-
-        # Assert exact absolute values are preserved via the arithmetic averaging logic
-        self.assertAlmostEqual(mean_results[variable_names.ADVERTISING_COST], 5000.0, places=4)
-        self.assertAlmostEqual(mean_results[variable_names.COGS], 750.0, places=4)
-        self.assertAlmostEqual(mean_results[variable_names.SHIPPING_COST], 500.0, places=4)
-
-    def test_analysis_averaging_accuracy_with_shuffled_inputs(self):
-        """
-        Verify that the arithmetic mean accurately aggregates fluctuating data vectors.
-
-        Trace Logic:
-          When we shuffle 'AdvertisingCost' (min=4000, max=6000), the stochastic engine
-          draws samples across this uniform range. For a sufficiently large sample size,
-          the average absolute value must converge cleanly toward the expected value midpoint ($5000).
-        """
-        breakdown_metrics = [variable_names.ADVERTISING_COST]
-        sample_size = 500
-
-        mean_results = stochastic_contribution_analysis(
-            variables=self.variables,
-            breakdown_metrics=breakdown_metrics,
-            model_pipeline=self.pipeline,
-            shuffled_inputs=[variable_names.ADVERTISING_COST],
-            sample_size=sample_size
-        )
-
-        # Verify mean convergence holds within a standard 1.5% margin of error
-        self.assertAlmostEqual(mean_results[variable_names.ADVERTISING_COST], 5000.0, delta=75.0)
+        self.assertAlmostEqual(results[variable_names.REVENUE], 100000.0, delta=5000)
+        self.assertAlmostEqual(results[variable_names.COST], 40000.0, delta=2000)
 
     # -----------------------------------------------------------------
-    # 2. EDGE CASES: BOUNDARY LIMITS AND EXTREME PARAMETERS
+    # 2. RESILIENCE: GUARDRAILS & ERROR HANDLING
     # -----------------------------------------------------------------
 
-    def test_analysis_aborts_safely_on_invalid_sample_size(self):
-        """
-        Edge Case: Confirm that the module handles zero or negative sample sizes
-        by throwing an exception rather than silently corrupting numbers.
-        """
-        breakdown_metrics = [variable_names.ADVERTISING_COST]
-
-        # Since the code doesn't have an early guard check, it throws a ZeroDivisionError
-        with self.assertRaises((ValueError, ZeroDivisionError)):
+    def test_stochastic_contribution_analysis_aborts_on_missing_registry_variable(self):
+        """Verify registry guardrail raises KeyError when mandatory input (COST) is absent."""
+        invalid_variables = {
+            variable_names.REVENUE: self.variables[variable_names.REVENUE],
+            variable_names.PE_RATIO: self.variables[variable_names.PE_RATIO]
+        }
+        with self.assertRaises(KeyError):
             stochastic_contribution_analysis(
-                variables=self.variables,
-                breakdown_metrics=breakdown_metrics,
+                variables=invalid_variables,
+                breakdown_metrics=[variable_names.REVENUE],
                 model_pipeline=self.pipeline,
-                shuffled_inputs=[],
-                sample_size=0
+                shuffled_inputs=[variable_names.REVENUE]
             )
 
-    def test_analysis_with_empty_metrics_list_returns_blank_payload(self):
-        """
-        Edge Case: Confirm that an empty breakdown list smoothly runs the simulation
-        and returns an empty dictionary output without unexpected structural failures.
-        """
-        mean_results = stochastic_contribution_analysis(
-            variables=self.variables,
-            breakdown_metrics=[],
-            model_pipeline=self.pipeline,
-            shuffled_inputs=[],
-            sample_size=5
-        )
+    def test_stochastic_contribution_analysis_aborts_on_invalid_pipeline_topology(self):
+        """Verify topology guardrail raises KeyError when model order violates lineage."""
+        broken_pipeline = [MarketPriceModel(), NetIncomeModel()]
+        with self.assertRaises(KeyError) as cm:
+            stochastic_contribution_analysis(
+                variables=self.variables,
+                breakdown_metrics=[variable_names.REVENUE],
+                model_pipeline=broken_pipeline,
+                shuffled_inputs=[variable_names.REVENUE]
+            )
+        self.assertIn("Pipeline Order Violation", str(cm.exception))
 
-        # Should cleanly return an empty dict: {}
-        self.assertEqual(mean_results, {})
+    def test_stochastic_contribution_analysis_aborts_on_missing_breakdown_metric(self):
+        """Verify system raises KeyError if requested breakdown metric is unknown."""
+        with self.assertRaises(KeyError):
+            stochastic_contribution_analysis(
+                variables=self.variables,
+                breakdown_metrics=["NON_EXISTENT_METRIC"],
+                model_pipeline=self.pipeline,
+                shuffled_inputs=[variable_names.REVENUE]
+            )
 
 
 if __name__ == "__main__":

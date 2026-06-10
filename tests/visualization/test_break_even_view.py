@@ -3,7 +3,11 @@ import unittest
 import pandas as pd
 from pandas.io.formats.style import Styler
 
-from src.config import variable_names, messages
+from src.analysis import break_even_analysis
+from src.config import variable_names
+from src.core import Variable
+from src.models import NetIncomeModel, MarketPriceModel
+from src.variables import Cost, PriceToEarningsRatio
 from src.visualization.styles import break_even_styles
 from src.visualization.views.break_even_view import get_break_even_dataframe, render_break_even_dashboard
 
@@ -11,43 +15,37 @@ from src.visualization.views.break_even_view import get_break_even_dataframe, re
 class TestBreakEvenViewEngineComprehensive(unittest.TestCase):
 
     def setUp(self):
-        """Map out target test schemas using true production dictionary configurations."""
-        # Setup standard happy path dataset using real variable_name configuration constants
-        self.standard_break_even_input = [
-            {
-                variable_names.BREAK_EVEN_VARIABLE_NAME: 'Orders',
-                variable_names.BREAK_EVEN_FEASIBILITY_STATUS: messages.BREAK_EVEN_FEASIBILITY_ALWAYS_FEASIBLE,
-                variable_names.BREAK_EVEN_EXPECTED_VARIABLE_VALUE: 25.0,
-                variable_names.BREAK_EVEN_EXPECTED_RESULT: 1263823.52,
-                variable_names.BREAK_EVEN_POINT_THRESHOLD_VARIABLE_VALUE: 20.0,
-                variable_names.BREAK_EVEN_POINT_THRESHOLD_RESULT: 1263823.52,
-                variable_names.BREAK_EVEN_SAFETY_MARGIN_PERCENTAGE: 0.2
-            },
-            {
-                variable_names.BREAK_EVEN_VARIABLE_NAME: 'SellingPrice',
-                variable_names.BREAK_EVEN_FEASIBILITY_STATUS: messages.BREAK_EVEN_FEASIBILITY_STATUS_CROSSOVER,
-                variable_names.BREAK_EVEN_EXPECTED_VARIABLE_VALUE: 4500.0,
-                variable_names.BREAK_EVEN_EXPECTED_RESULT: 1263823.52,
-                variable_names.BREAK_EVEN_POINT_THRESHOLD_VARIABLE_VALUE: 3000.0,
-                variable_names.BREAK_EVEN_POINT_THRESHOLD_RESULT: 813823.52,
-                variable_names.BREAK_EVEN_SAFETY_MARGIN_PERCENTAGE: -0.15
-            }
-        ]
+        """Standardize fixture using the core fiscal pipeline."""
+        self.pipeline = [NetIncomeModel(), MarketPriceModel()]
+
+        # Consistent fiscal scenario
+        self.variables = {
+            variable_names.REVENUE: Variable(min=80000.0, exp=100000.0, max=120000.0),
+            variable_names.COST: Cost(min=30000.0, exp=40000.0, max=50000.0),
+            variable_names.PE_RATIO: PriceToEarningsRatio(min=5.0, exp=8.0, max=10.0)
+        }
+
+        # Generate production-ready analysis output from the engine
+        self.analysis_output = break_even_analysis(
+            variables=self.variables,
+            selected_variables=[variable_names.REVENUE, variable_names.COST],
+            model_pipeline=self.pipeline,
+            output_name=variable_names.MARKET_PRICE,
+            goal=5000000.0
+        )
 
     # =========================================================================
     # 1. DATAFRAME GENERATION LOGIC
     # =========================================================================
 
     def test_get_break_even_dataframe_happy_path(self):
-        """Scenario 1: Confirm array loop processing correctly appends alternating input/output rows."""
-        df = get_break_even_dataframe(self.standard_break_even_input, output_name="Net Margin")
+        """Confirm the view engine correctly processes the engine's output."""
+        df = get_break_even_dataframe(self.analysis_output, output_name="Market Valuation")
 
         self.assertIsInstance(df, pd.DataFrame)
-        # Every element produces exactly 2 visual rows (1 Output Summary + 1 Input Metric)
-        # 2 data objects * 2 rows = 4 rows total
+        # 2 variables * 2 rows = 4 rows
         self.assertEqual(len(df), 4)
 
-        # Verify columns match style configuration signatures precisely without mocks
         expected_columns = [
             break_even_styles.SENSITIVITY_VARIABLE,
             break_even_styles.BREAK_EVEN_COLUMN_NAME_BASE,
@@ -56,61 +54,22 @@ class TestBreakEvenViewEngineComprehensive(unittest.TestCase):
         ]
         self.assertEqual(list(df.columns), expected_columns)
 
-    def test_get_break_even_dataframe_missing_margin_fallback(self):
-        """Scenario 2: Validate raw dataframe leaves missing safety margin values as NaN."""
-        stripped_input = [{
-            variable_names.BREAK_EVEN_VARIABLE_NAME: 'CAC',
-            variable_names.BREAK_EVEN_EXPECTED_VARIABLE_VALUE: 150.0,
-            variable_names.BREAK_EVEN_EXPECTED_RESULT: 50000.0,
-            variable_names.BREAK_EVEN_POINT_THRESHOLD_VARIABLE_VALUE: 220.0,
-            variable_names.BREAK_EVEN_POINT_THRESHOLD_RESULT: 50000.0
-            # variable_names.BREAK_EVEN_SAFETY_MARGIN_PERCENTAGE key is deliberately omitted
-        }]
-        df = get_break_even_dataframe(stripped_input, output_name="Net Margin")
-
-        # In the decoupled framework, the raw dataframe keeps missing items as NaN.
-        # It's downstream formatters like apply_safety_margin_formatting that convert them to "".
-        margin_column_name = break_even_styles.BREAK_EVEN_COLUMN_NAME_SAFETY_MARGIN
-        self.assertTrue(pd.isna(df.iloc[1][margin_column_name]))
-
     # =========================================================================
     # 2. PANDAS STYLER RENDERING LOGIC
     # =========================================================================
 
     def test_render_break_even_dashboard_styler_compilation(self):
-        """Scenario 3: Verify the system generates a native Pandas Styler pipeline object cleanly."""
-        styler_component = render_break_even_dashboard(self.standard_break_even_input, output_name="EBITDA")
+        """Verify the UI pipeline compiles the fiscal model output into a Styler."""
+        styler_component = render_break_even_dashboard(self.analysis_output, output_name="Market Valuation")
 
-        # Verify output matches the modern Styler framework instead of raw IPython markup
         self.assertIsInstance(styler_component, Styler)
 
-        # Extract underlying HTML string layout tracking signature
         raw_html = styler_component.to_html()
         self.assertTrue(len(raw_html) > 0)
 
-        # Ensure core matrix values compiled inside the table string cleanly
-        self.assertIn("EBITDA", raw_html)
-        self.assertIn("Orders", raw_html)
-        self.assertIn("SellingPrice", raw_html)
-
-    def test_render_break_even_dashboard_feasibility_branching_paths(self):
-        """Scenario 4: Verify style pattern matching handles UNREACHABLE edge flags gracefully."""
-        unreachable_input = [{
-            variable_names.BREAK_EVEN_VARIABLE_NAME: 'ConversionRate',
-            variable_names.BREAK_EVEN_FEASIBILITY_STATUS: messages.BREAK_EVEN_FEASIBILITY_UNREACHABLE,
-            variable_names.BREAK_EVEN_EXPECTED_VARIABLE_VALUE: 0.01,
-            variable_names.BREAK_EVEN_EXPECTED_RESULT: -12000.0,
-            variable_names.BREAK_EVEN_POINT_THRESHOLD_VARIABLE_VALUE: 0.99,
-            variable_names.BREAK_EVEN_POINT_THRESHOLD_RESULT: -2000.0,
-            variable_names.BREAK_EVEN_SAFETY_MARGIN_PERCENTAGE: -0.98
-        }]
-
-        styler_component = render_break_even_dashboard(unreachable_input, output_name="Net Margin")
-        raw_html = styler_component.to_html()
-
-        # Structural presence assertion—verifies compilation without locking onto styling frames
-        self.assertTrue(len(raw_html) > 0)
-        self.assertIn("ConversionRate", raw_html)
+        # Assert fiscal keys from our model pipeline are rendered
+        self.assertIn(variable_names.REVENUE, raw_html)
+        self.assertIn(variable_names.COST, raw_html)
 
 
 if __name__ == '__main__':

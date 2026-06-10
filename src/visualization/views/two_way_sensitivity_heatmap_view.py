@@ -17,6 +17,11 @@ def generate_heatmap_from_df(df, output_name=variable_names.MODEL_DEFAULT_OUTPUT
     Generates a high-fidelity 2D sensitivity heatmap from an input DataFrame,
     enforcing explicit axis formatting, type guards, and isolated runtime scopes.
     """
+    if df.empty:
+        fig, ax = plt.subplots()
+        ax.text(0.5, 0.5, "No data available", ha='center', va='center')
+        return fig
+
     # 1. Resolve variable labels from DataFrame structural axes
     x_var_name = df.columns.name or "Variable X"
     y_var_name = df.index.name or "Variable Y"

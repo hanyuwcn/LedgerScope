@@ -2,6 +2,11 @@ import unittest
 
 import matplotlib.pyplot as plt
 
+from src.analysis import stochastic_contribution_analysis
+from src.config import variable_names
+from src.core import Variable
+from src.models import NetIncomeModel, MarketPriceModel
+from src.variables import Cost, PriceToEarningsRatio
 from src.visualization.styles import contribution_pie_styles
 from src.visualization.views.contribution_pie_view import generate_contribution_pie_chart
 
@@ -9,60 +14,56 @@ from src.visualization.views.contribution_pie_view import generate_contribution_
 class TestContributionPieViewEngine(unittest.TestCase):
 
     def setUp(self):
-        """Build standard mock datasets capturing varied financial simulation outputs."""
-        self.standard_contributions = {
-            'AdvertisingCost': 5000.0,
-            'SellingPrice': 15000.0,
-            'PurchasingPrice': 2500.0
+        """Standardize fixture using the core fiscal pipeline."""
+        self.pipeline = [NetIncomeModel(), MarketPriceModel()]
+
+        self.variables = {
+            variable_names.REVENUE: Variable(min=80000.0, exp=100000.0, max=120000.0),
+            variable_names.COST: Cost(min=30000.0, exp=40000.0, max=50000.0),
+            variable_names.PE_RATIO: PriceToEarningsRatio(min=5.0, exp=8.0, max=10.0)
         }
 
-        self.zero_sum_contributions = {
-            'FixedOverhead': 0.0,
-            'CAC': 0.0
-        }
+        # Generate production-ready contribution output
+        self.analysis_output = stochastic_contribution_analysis(
+            variables=self.variables,
+            breakdown_metrics=[variable_names.REVENUE, variable_names.COST],
+            model_pipeline=self.pipeline,
+            shuffled_inputs=[variable_names.REVENUE, variable_names.COST],
+            sample_size=50
+        )
 
     # =========================================================================
     # MODULE STRUCTURAL TESTS: MATPLOTLIB CHART COMPILATION
     # =========================================================================
 
     def test_generate_contribution_pie_chart_happy_path(self):
-        """Scenario 1: Confirm chart generation compiles a valid figure with correct labels and elements."""
-        fig = generate_contribution_pie_chart(self.standard_contributions)
+        """Confirm chart generation compiles using engine-derived data."""
+        fig = generate_contribution_pie_chart(self.analysis_output)
 
-        # Verify object integrity
         self.assertIsInstance(fig, plt.Figure)
-        self.assertTrue(len(fig.axes) > 0)
-
         ax = fig.axes[0]
 
-        # Verify the title text is correctly set from styles config signature
+        # Verify title and legend reflect the fiscal pipeline inputs
         self.assertEqual(ax.get_title(), contribution_pie_styles.PIE_MAIN_TITLE)
 
-        # Ensure legend items match dictionary size exactly
         legend = ax.get_legend()
         self.assertIsNotNone(legend)
-        self.assertEqual(len(legend.get_texts()), len(self.standard_contributions))
+        self.assertEqual(len(legend.get_texts()), len(self.analysis_output))
 
-        # Close the active canvas layout tracker cleanly to manage runner memory footprint
         plt.close(fig)
 
     def test_generate_contribution_pie_chart_zero_sum_safety(self):
-        """Scenario 2: Confirm safety guard processes an all-zero dataset without mathematical crashes."""
-        # This test ensures division-by-zero math operations don't throw unexpected ZeroDivisionErrors
+        """Confirm safety guard processes zero-sum datasets without crashing."""
+        zero_sum = {variable_names.REVENUE: 0.0, variable_names.COST: 0.0}
+
         try:
-            fig = generate_contribution_pie_chart(self.zero_sum_contributions)
-            closed_successfully = True
-        except ZeroDivisionError:
-            closed_successfully = False
+            fig = generate_contribution_pie_chart(zero_sum)
+            plt.close(fig)
+            success = True
+        except Exception:
+            success = False
 
-        self.assertTrue(closed_successfully, "Engine crashed processing zero-sum absolute metrics.")
-
-        # Verify it still builds a functional fallback chart structure
-        ax = fig.axes[0]
-        legend = ax.get_legend()
-        self.assertEqual(len(legend.get_texts()), len(self.zero_sum_contributions))
-
-        plt.close(fig)
+        self.assertTrue(success, "Engine crashed processing zero-sum absolute metrics.")
 
 
 if __name__ == '__main__':

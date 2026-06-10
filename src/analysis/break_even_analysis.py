@@ -30,10 +30,13 @@ def break_even_analysis(variables: dict, selected_variables: list, model_pipelin
 
     break_even_analysis_report = []
     for variable in selected_variables:
-        variable_break_even_report = get_break_even_analysis_for_one_variable(
-            variables, variable, model_pipeline, output_name, goal
-        )
-        break_even_analysis_report.append(variable_break_even_report)
+        try:
+            variable_break_even_report = get_break_even_analysis_for_one_variable(
+                variables, variable, model_pipeline, output_name, goal
+            )
+            break_even_analysis_report.append(variable_break_even_report)
+        except ValueError:
+            continue
 
     return break_even_analysis_report
 
@@ -123,6 +126,7 @@ def get_break_even_analysis_for_one_variable(variables: dict, selected_variable:
 
     except ValueError:
         log.info(messages.ERROR_VARIABLE_NOT_MONOTONIC_EFFECT.format(variable=selected_variable, result=output_name))
+        raise
     finally:
         # Cast NumPy scalars to native Python types inline to secure structural JSON compliance
         return {k: (v.item() if isinstance(v, np.generic) else v) for k, v in variable_analysis_report.items()}

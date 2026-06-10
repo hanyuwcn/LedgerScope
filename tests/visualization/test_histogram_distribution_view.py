@@ -2,60 +2,84 @@ import unittest
 
 import matplotlib.pyplot as plt
 
+from src.analysis import run_monte_carlo
+from src.config import variable_names
+from src.core import Variable
+from src.models import NetIncomeModel, MarketPriceModel
+from src.variables import Cost, PriceToEarningsRatio
 from src.visualization.views.histogram_distribution_view import generate_histogram_from_array
 
 
 class TestHistogramDistributionViewEngine(unittest.TestCase):
 
     def setUp(self):
-        """Map out structured inputs mimicking active simulation array tracking logs."""
-        self.output_key = "NetRevenue"
-        self.standard_simulations = [
-            {"NetRevenue": 10000.0}, {"NetRevenue": 12000.0},
-            {"NetRevenue": 15000.0}, {"NetRevenue": 9000.0},
-            {"NetRevenue": 11500.0}
-        ]
-        # Edge case: No data variance (all simulation outputs land on exact same value)
-        self.flat_simulations = [
-            {"NetRevenue": 5000.0}, {"NetRevenue": 5000.0}, {"NetRevenue": 5000.0}
-        ]
+        """Standardize fixture using the core fiscal pipeline."""
+        self.pipeline = [NetIncomeModel(), MarketPriceModel()]
+
+        self.variables = {
+            variable_names.REVENUE: Variable(min=80000.0, exp=100000.0, max=120000.0),
+            variable_names.COST: Cost(min=30000.0, exp=40000.0, max=50000.0),
+            variable_names.PE_RATIO: PriceToEarningsRatio(min=5.0, exp=8.0, max=10.0)
+        }
+
+        # Generate production-ready simulation data
+        self.simulation_data = run_monte_carlo(
+            variables=self.variables,
+            shuffled_inputs=[variable_names.REVENUE, variable_names.COST],
+            model_pipeline=self.pipeline,
+            tracked_outputs=[variable_names.MARKET_PRICE],
+            iterations=100
+        )
+
+    # =========================================================================
+    # MODULE STRUCTURAL TESTS: MATPLOTLIB CHART COMPILATION
+    # =========================================================================
 
     def test_generate_histogram_happy_path_with_goal(self):
-        """Scenario 1: Verify canvas generation builds valid reference labels and annotations when a goal is set."""
-        fig = generate_histogram_from_array(self.standard_simulations, self.output_key, goal=11000)
+        """Confirm histogram renders with mean and goal reference lines."""
+        fig = generate_histogram_from_array(
+            self.simulation_data,
+            variable_names.MARKET_PRICE,
+            goal=5760000.0
+        )
 
         self.assertIsInstance(fig, plt.Figure)
-        self.assertTrue(len(fig.axes) > 0)
-
         ax = fig.axes[0]
+
+        # Verify legend contains the expected reference lines
         legend = ax.get_legend()
         self.assertIsNotNone(legend)
-
-        # Expecting 2 lines in the legend layout: Benchmark Goal line and Simulations Mean line
         self.assertEqual(len(legend.get_texts()), 2)
+
         plt.close(fig)
 
     def test_generate_histogram_without_goal(self):
-        """Scenario 2: Verify chart limits labels down to just the Mean reference line when goal is omitted."""
-        fig = generate_histogram_from_array(self.standard_simulations, self.output_key, goal=None)
+        """Confirm chart renders correctly with only the mean reference line."""
+        fig = generate_histogram_from_array(
+            self.simulation_data,
+            variable_names.MARKET_PRICE,
+            goal=None
+        )
 
         ax = fig.axes[0]
         legend = ax.get_legend()
-
-        # Without a threshold target, only the simulation mean metric should appear in the legend card
         self.assertEqual(len(legend.get_texts()), 1)
+
         plt.close(fig)
 
     def test_generate_histogram_zero_variance_resilience(self):
-        """Scenario 3: Verify the system normalizes flat, zero-variance outputs without crashing."""
-        try:
-            fig = generate_histogram_from_array(self.flat_simulations, self.output_key, goal=5000)
-            executed_safely = True
-        except ValueError:
-            executed_safely = False
+        """Confirm engine handles zero-variance outputs (forced inputs) gracefully."""
+        # Force a deterministic state
+        deterministic_data = [{variable_names.MARKET_PRICE: 5000000.0} for _ in range(10)]
 
-        self.assertTrue(executed_safely, "Histogram engine crashed on zero-variance gradient inputs.")
-        plt.close(fig)
+        try:
+            fig = generate_histogram_from_array(deterministic_data, variable_names.MARKET_PRICE, goal=5000000.0)
+            plt.close(fig)
+            success = True
+        except Exception:
+            success = False
+
+        self.assertTrue(success, "Histogram engine crashed on zero-variance output.")
 
 
 if __name__ == '__main__':

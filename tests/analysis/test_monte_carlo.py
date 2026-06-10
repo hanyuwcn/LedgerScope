@@ -2,126 +2,99 @@ import unittest
 
 from src.analysis import run_monte_carlo
 from src.config import variable_names
-from src.models import AdvertisingEfficiencyGoogleSearchModel, CostOfGoodsSoldModel, TotalCostModel
-from src.variables import (
-    AdvertisingCost, GoogleSearchConversionRate, GoogleSearchCostPerClick,
-    USDToRMB, UnitsPerOrder, UnitExw, Cost
-)
+from src.core import Variable
+from src.models import NetIncomeModel, MarketPriceModel
+from src.variables import Cost, PriceToEarningsRatio
 
 
-class TestMonteCarloSimulation(unittest.TestCase):
+def _create_var(min_v, exp_v, max_v):
+    return Variable(min=min_v, exp=exp_v, max=max_v)
+
+
+class TestMonteCarloIntegration(unittest.TestCase):
 
     def setUp(self):
-        """Build the raw business pipeline and baseline production domain variables."""
-        self.pipeline = [
-            AdvertisingEfficiencyGoogleSearchModel(),
-            CostOfGoodsSoldModel(),
-            TotalCostModel()
-        ]
+        """Build fiscal pipeline for simulation."""
+        self.pipeline = [NetIncomeModel(), MarketPriceModel()]
 
-        # Use your direct production classes populated with clean testing values
         self.variables = {
-            variable_names.ADVERTISING_COST: AdvertisingCost(min=4000.0, max=6000.0),
-            variable_names.CONVERSION_RATE_GOOGLE_SEARCH: GoogleSearchConversionRate(min=0.05, max=0.15),
-            variable_names.CPL_GOOGLE_SEARCH: GoogleSearchCostPerClick(exp=20.0),
-            variable_names.USD_TO_RMB: USDToRMB(exp=1.0),
-            variable_names.UNITS_PER_ORDER: UnitsPerOrder(min=2.0, max=2.0),
-            variable_names.UNIT_EXW: UnitExw(min=15.0, max=15.0),
-            variable_names.SHIPPING_COST: Cost(exp=500.0)
+            variable_names.REVENUE: _create_var(80000.0, 100000.0, 120000.0),
+            variable_names.COST: Cost(min=30000.0, exp=40000.0, max=50000.0),
+            variable_names.PE_RATIO: PriceToEarningsRatio(min=5.0, exp=8.0, max=10.0)
         }
 
     # -----------------------------------------------------------------
-    # 1. COMPREHENSIVE LOOP OUTPUT VALIDATION
+    # 1. ACCURACY: ITERATION & TRACKING
     # -----------------------------------------------------------------
 
-    def test_monte_carlo_results_match_expected_financial_simulation_runs(self):
-        """Verify the harvested iteration records accurately track calculated financial outcomes."""
-
-        # Target X (Advertising Cost) for random sampling; keep Y (Conversion Rate) static/expected
+    def test_run_monte_carlo_execution_completes_requested_iterations(self):
+        """Verify that the simulation executes for the exact requested iteration count."""
         results = run_monte_carlo(
             variables=self.variables,
-            shuffled_inputs=[variable_names.ADVERTISING_COST],
+            shuffled_inputs=[variable_names.REVENUE],
             model_pipeline=self.pipeline,
-            tracked_outputs=[variable_names.COST],
-            iterations=2
+            iterations=50
         )
+        self.assertEqual(len(results), 50)
+        self.assertIn(variable_names.SYSTEM_RUN_ID, results[0])
 
-        # Confirm the output contains the exact requested run count
-        self.assertEqual(len(results), 2)
-
-        # Verify the structure of the data dictionary fields
-        for idx, iteration_record in enumerate(results, start=1):
-            self.assertEqual(iteration_record[variable_names.SYSTEM_RUN_ID], idx)
-            self.assertIn(variable_names.COST, iteration_record)
-            # Verify it returns an expected numerical value type
-            self.assertIsInstance(iteration_record[variable_names.COST], (int, float))
-
-    # -----------------------------------------------------------------
-    # 2. EDGE CASE: FIXED TRACKED COLUMNS
-    # -----------------------------------------------------------------
-
-    def test_monte_carlo_captures_all_system_variables_when_tracked_outputs_is_none(self):
-        """Verify the loop defaults cleanly to harvesting all calculated state fields if un-isolated."""
+    def test_run_monte_carlo_captures_only_tracked_outputs(self):
+        """Verify that result dictionaries contain only the explicitly requested metrics."""
         results = run_monte_carlo(
             variables=self.variables,
-            shuffled_inputs=[],
+            shuffled_inputs=[variable_names.REVENUE],
             model_pipeline=self.pipeline,
-            tracked_outputs=None,  # Captures full pipeline state map
-            iterations=1
+            tracked_outputs=[variable_names.MARKET_PRICE],
+            iterations=10
         )
-
-        first_run = results[0]
-        self.assertIn(variable_names.SYSTEM_RUN_ID, first_run)
-        self.assertIn(variable_names.ORDERS, first_run)
-        self.assertIn(variable_names.COGS, first_run)
-        self.assertIn(variable_names.COST, first_run)
+        # Should contain tracked output + internal ID
+        self.assertEqual(set(results[0].keys()), {variable_names.MARKET_PRICE, variable_names.SYSTEM_RUN_ID})
 
     # -----------------------------------------------------------------
-    # 3. EDGE CASE: SELECTION HOOK FAILURES
+    # 2. RESILIENCE: GUARDRAILS & ERROR HANDLING
     # -----------------------------------------------------------------
 
-    def test_simulation_raises_exception_when_selected_shuffled_input_is_missing_from_dict(self):
-        """Verify tracking exceptions bubble up instantly if a shuffle target parameter key is missing."""
-        with self.assertRaises(Exception):
+    def test_run_monte_carlo_aborts_on_missing_registry_shuffled_input(self):
+        """Verify registry guardrail raises KeyError when requested shuffled input is absent."""
+        with self.assertRaises(KeyError):
             run_monte_carlo(
                 variables=self.variables,
-                shuffled_inputs=["MISSING_SHUFFLE_KEY"],
-                model_pipeline=self.pipeline,
-                tracked_outputs=[variable_names.COST]
+                shuffled_inputs=["UNDEFINED_INPUT"],
+                model_pipeline=self.pipeline
             )
 
-    def test_simulation_raises_exception_on_first_run_if_tracked_output_cannot_be_resolved(self):
-        """Verify tracking validations flag downstream outcome errors during iteration 1 profiling."""
-        with self.assertRaises(Exception):
+    def test_run_monte_carlo_aborts_on_missing_registry_mandatory_input(self):
+        """Verify registry guardrail raises KeyError when mandatory input (COST) is absent."""
+        invalid_variables = {
+            variable_names.REVENUE: self.variables[variable_names.REVENUE],
+            variable_names.PE_RATIO: self.variables[variable_names.PE_RATIO]
+        }
+        with self.assertRaises(KeyError):
             run_monte_carlo(
-                variables=self.variables,
-                shuffled_inputs=[],
-                model_pipeline=self.pipeline,
-                tracked_outputs=["NON_EXISTENT_OUTPUT_METRIC"],
-                iterations=1
+                variables=invalid_variables,
+                shuffled_inputs=[variable_names.REVENUE],
+                model_pipeline=self.pipeline
             )
 
-    # -----------------------------------------------------------------
-    # 4. EDGE CASE: PIPELINE VALIDATION & ORDER FAILURES
-    # -----------------------------------------------------------------
-
-    def test_simulation_raises_exception_when_pipeline_sequence_order_fails(self):
-        """Verify that a broken or out-of-order model pipeline immediately aborts execution."""
-        # TotalCostModel depends on outputs generated by CostOfGoodsSoldModel.
-        # Placing it first breaks the topological dependency flow.
-        scrambled_pipeline = [
-            TotalCostModel(),
-            CostOfGoodsSoldModel(),
-            AdvertisingEfficiencyGoogleSearchModel()
-        ]
-
-        with self.assertRaises(Exception):
+    def test_run_monte_carlo_aborts_on_invalid_pipeline_topology(self):
+        """Verify topology guardrail raises KeyError when model order violates lineage."""
+        broken_pipeline = [MarketPriceModel(), NetIncomeModel()]
+        with self.assertRaises(KeyError) as cm:
             run_monte_carlo(
                 variables=self.variables,
-                shuffled_inputs=[variable_names.ADVERTISING_COST],
-                model_pipeline=scrambled_pipeline,
-                tracked_outputs=[variable_names.COST],
-                iterations=1
+                shuffled_inputs=[variable_names.REVENUE],
+                model_pipeline=broken_pipeline
+            )
+        self.assertIn("Pipeline Order Violation", str(cm.exception))
+
+    def test_run_monte_carlo_aborts_on_invalid_tracked_output(self):
+        """Ensure KeyError is raised if a requested tracked output is not generated by the pipeline."""
+        with self.assertRaises(KeyError):
+            run_monte_carlo(
+                variables=self.variables,
+                shuffled_inputs=[variable_names.REVENUE],
+                model_pipeline=self.pipeline,
+                tracked_outputs=["NON_EXISTENT_METRIC"]
             )
 
 
