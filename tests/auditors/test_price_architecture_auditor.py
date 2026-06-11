@@ -52,8 +52,11 @@ class TestPriceArchitectureAuditor(unittest.TestCase):
             variable_names.UNIT_RETAIL: 1000.0
         }
         auditor = PriceArchitectureAuditor(inputs)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as context:
             auditor.evaluate()
+
+        expected_msg = "Reconciliation error: cog_per_unit(200.0) + profit_per_unit(50.0) != unit_fob(999.0)"
+        self.assertEqual(str(context.exception), expected_msg)
 
     def test_retail_reconciliation_failure_raises_value_error(self):
         """Verify failure when components != UnitRetail."""
@@ -64,8 +67,16 @@ class TestPriceArchitectureAuditor(unittest.TestCase):
             variable_names.UNIT_RETAIL: 5000.0  # Mismatch
         }
         auditor = PriceArchitectureAuditor(inputs)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as context:
             auditor.evaluate()
+
+        expected_msg = ("Reconciliation error: unit_fob(200.0) + "
+                        "shipping_cost_per_unit(0.0) + "
+                        "tariff_per_unit(0.0) + "
+                        "retail_margin_per_unit(0.0) != "
+                        "unit_retail_price(5000.0)")
+
+        self.assertEqual(str(context.exception), expected_msg)
 
     # -----------------------------------------------------------------
     # 3. EDGE CASES & OPTIONAL FALLBACKS
@@ -100,8 +111,15 @@ class TestPriceArchitectureAuditor(unittest.TestCase):
         auditor = PriceArchitectureAuditor(inputs)
 
         # This should raise ValueError because 260 != 250
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as context:
             auditor.evaluate()
+
+        expected_msg = ("Reconciliation error: unit_fob(250.0) + "
+                        "shipping_cost_per_unit(10.0) + "
+                        "tariff_per_unit(0.0) + "
+                        "retail_margin_per_unit(0.0) != "
+                        "unit_retail_price(250.0)")
+        self.assertEqual(str(context.exception), expected_msg)
 
     def test_missing_required_variables_halts_with_keyerror(self):
         """Verify that missing mandatory keys triggers KeyError (via base class)."""

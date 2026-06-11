@@ -24,3 +24,6 @@ ERROR_PIPELINE_TOPOLOGY_ORDER_VIOLATION = (
     "Pipeline Order Violation: '{variable_name}' is generated as an output by '{current_model}', "
     "but it was already consumed as a required input upstream by '{earlier_model}'. "
     "Please move '{current_model}' earlier in your pipeline sequence.")
+
+ERROR_PIPELINE_SCENARIO_DOES_NOT_EXIST = "Scenario '{scenario}' does not exist."
+ERROR_PIPELINE_MODEL_NOT_REGISTERED = "Key '{model}' is not registered in MODEL_REGISTRY."

@@ -1,13 +1,15 @@
+from src.auditors import PriceArchitectureAuditor
 from src.models import (
     AdvertisingEfficiencyGoogleSearchModel, CostOfGoodsSoldModel, TotalCostModel,
     RevenueModel, TotalExpenseModel, DepreciationModel, CapitalExpenditureModel,
     NetIncomeModel, ProfitModel, RoiModel, FreeCashFlowModel,
-    UnitContributionMarginModel, CacModel, CostPerLeadGoogleSearchModel, DeductionRateModel, OrderModel,
-    MarketPriceModel, RoasModel
+    UnitContributionMarginModel, CacModel, CostPerLeadGoogleSearchModel,
+    DeductionRateModel, OrderModel, MarketPriceModel, RoasModel
 )
 
 # The Global Model Menu
-MODEL_REGISTRY = {
+PIPELINE_REGISTRY = {
+    # Models (The legacy list + any new ones)
     "advertising_efficiency_google_search": AdvertisingEfficiencyGoogleSearchModel,
     "cost_per_lead_google_search": CostPerLeadGoogleSearchModel,
     "deduction_rate": DeductionRateModel,
@@ -26,5 +28,8 @@ MODEL_REGISTRY = {
     "roi": RoiModel,
     "cac": CacModel,
     "roas": RoasModel,
-    "market_price": MarketPriceModel
+    "market_price": MarketPriceModel,
+
+    # Auditors (The new additions)
+    "price_architecture_auditor": PriceArchitectureAuditor,
 }
