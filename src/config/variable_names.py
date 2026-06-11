@@ -65,6 +65,13 @@ CAC = "CustomerAcquisitionCost"
 UNIT_CONTRIBUTION_MARGIN = "UnitContributionMargin"
 MARKET_PRICE = "MarketPrice"
 
+### Price Architecture
+COGS_PER_UNIT = "CogsPerUnit"
+SHIPPING_COST_PER_UNIT = "ShippingCostPerUnit"
+TARIFF_PER_UNIT = "TariffPerUnit"
+RETAIL_MARGIN_PER_UNIT = "RetailerMarginPerUnit"
+PROFIT_PER_UNIT = "ProfitPerUnit"
+
 ## Break even analysis
 BREAK_EVEN_VARIABLE_NAME = "BreakEvenVariable"
 BREAK_EVEN_EXPECTED_VARIABLE_VALUE = "BreakEvenExpectedVariableValue"

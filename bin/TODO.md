@@ -2,6 +2,16 @@
 - Review all the tests
 
 
+- Write final report(ctnd)
+   - Restructure final report
+   - Write report in both languages
+   - Pie chart for price waterfall analysis
+
+
+- Have a detailed design doc after codebase completion
+   - Write Design doc in both languages
+
+
     - Workflow
       - go through each module with AI to discuss the interfaces and functionality 
       - discuss on the project layout and description, readme 
@@ -59,7 +69,6 @@
       - write description for every variable setting, explain what it is and where the ranges evaluation is coming from
       - Write description and formula for models
       - Use (histogram/pie chart)plot to see the variable ranges for smaller aggregate, like cost and expense. 
-      - Have a detailed design doc after the codebase is complete
 
     - Optimize models:
       - Modify variables to min, exp, max

@@ -48,6 +48,13 @@ VARIABLE_FORMATTING_MAP = {
     PROFIT: lambda v: fmt(v, s='¥'),
     FREE_CASH_FLOW: lambda v: fmt(v, s='¥'),
 
+    ### Price Architecture
+    COGS_PER_UNIT: lambda v: fmt(v, s='¥'),
+    SHIPPING_COST_PER_UNIT: lambda v: fmt(v, s='¥'),
+    TARIFF_PER_UNIT: lambda v: fmt(v, s='¥'),
+    RETAIL_MARGIN_PER_UNIT: lambda v: fmt(v, s='¥'),
+    PROFIT_PER_UNIT: lambda v: fmt(v, s='¥'),
+
     ### Metrics
     ROI: lambda v: fmt(v, d=2, p=True),
     ROAS: lambda v: fmt(v, d=1, p=True),

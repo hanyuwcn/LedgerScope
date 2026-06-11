@@ -34,6 +34,7 @@ from .metrics.roi_model import RoiModel
 from .metrics.roas_model import RoasModel
 from .metrics.cac_model import CacModel
 from .metrics.market_price_model import MarketPriceModel
+from .metrics.price_architecture_model import PriceArchitectureModel
 
 # 5. Model Composer
 from .composer.model_composer import PipelineComposer
@@ -67,6 +68,7 @@ __all__ = [
     "RoasModel",
     "CacModel",
     "MarketPriceModel",
+    "PriceArchitectureModel",
 
     # 5. Model Composer
     "PipelineComposer",
