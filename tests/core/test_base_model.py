@@ -1,5 +1,3 @@
-# tests/domain/test_base_model.py
-
 import unittest
 
 # Assuming standard package mapping layout based on your imports
