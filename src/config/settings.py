@@ -3,7 +3,8 @@
 # =====================================================================
 NUMS_IN_RANGE = 50  # Granularity/steps for variable sweeps and heatmaps
 DECIMAL_ROUNDING = 4  # Precision cap for floating-point calculations
-SAMPLE_SIZE = 100  # Total iterations for randomized Monte Carlo runs
+SAMPLE_SIZE = 5000  # Total iterations for randomized Monte Carlo runs
+ABS_TOL = 1e-12
 
 # =====================================================================
 # Audit & Reconciliation Settings

@@ -1,5 +1,4 @@
 import unittest
-from unittest.mock import patch
 
 from src.config import variable_names
 from src.models import ShippingCostModel

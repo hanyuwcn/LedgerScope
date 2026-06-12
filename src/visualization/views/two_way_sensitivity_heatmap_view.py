@@ -35,7 +35,8 @@ def generate_heatmap_from_df(df, output_name=variable_names.MODEL_DEFAULT_OUTPUT
 
     # 3. Isolate runtime parameters within context configuration sandboxes
     with plt.rc_context():
-        sns.set_theme()
+        ## TODO: try see the result of commenting set_theme() out
+        # sns.set_theme()
         sns.set_context(two_way_sensitivity_heatmap_styles.HEATMAP_CONTEXT)
 
         fig, ax = plt.subplots(figsize=two_way_sensitivity_heatmap_styles.FIGURE_SIZE, layout="constrained")

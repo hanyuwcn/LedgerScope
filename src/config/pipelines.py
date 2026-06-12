@@ -30,7 +30,8 @@ DYNAMIC_PIPELINE_CONFIGS = {
 
     # Scenario C: Full Macro Performance
     "complete_macro_metrics": [
-        "advertising_efficiency_google_search", "cogs", "revenue", "total_cost", "total_expense",
+        "advertising_efficiency_google_search", "cogs", "revenue", "total_cost",
+        "monthly_expense", "total_expense",
         "depreciation", "capital_expenditure",
         "net_income", "profit", "free_cash_flow", "roi"
     ]

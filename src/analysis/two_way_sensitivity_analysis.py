@@ -21,7 +21,7 @@ def run_two_way_sensitivity_analysis(
     """Executes a Two-Way Sensitivity Analysis across a grid matrix of two parameters.
 
     Iterates through all joint combinations of ranges generated for two specified
-    independent input variables, executing the full model pipeline sequence for each
+    input variables, executing the full model pipeline sequence for each
     coordinate to map out their co-dependent impact on a single targeted outcome metric.
 
     Args:

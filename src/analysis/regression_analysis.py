@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 from scipy import stats
 
@@ -73,7 +75,11 @@ def _analyze_linear_trend_properties(x_values: list[float], y_values: list[float
     Calculates the Ordinary Least Squares (OLS) regression line properties for the
     generated bivariate distributions.
     """
-    if np.var(x_values) == 0.0 or np.var(y_values) == 0.0:
+    if math.isclose(np.var(x_values),
+                    0.0,
+                    rel_tol=settings.ABS_TOL) or math.isclose(np.var(y_values),
+                                                              0.0,
+                                                              rel_tol=settings.ABS_TOL):
         raise ValueError(
             f"Cannot calculate linear trend line. Simulated coordinate vectors for "
             f"'{x_label}' or '{y_label}' exhibit zero statistical variance."

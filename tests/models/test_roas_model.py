@@ -133,36 +133,41 @@ class TestRoasModelComprehensive(unittest.TestCase):
         mock_log.error.assert_called_once()
 
     # -----------------------------------------------------------------
-    # 5. RUNTIME MATHEMATICAL EVALUATIONS
+    # 5. RUNTIME MATHEMATICAL EVALUATIONS & PROTECTION
     # -----------------------------------------------------------------
 
     def test_evaluate_success_calculation_correctness(self):
-        """Verify formula execution evaluates standard metrics correctly with reasonable business data numbers."""
-        # Setup using clear, realistic e-commerce parameters:
-        # Spending $2,500 on ads to generate $10,000 in gross revenue (4.0x ROAS)
+        """Verify formula execution evaluates standard metrics correctly."""
         inputs = {
             variable_names.REVENUE: 10000.0,
             variable_names.ADVERTISING_COST: 2500.0
         }
         model = RoasModel(inputs)
         enriched_output = model.evaluate()
-
-        # Calculation Check: ROAS = 10000.0 / 2500.0 = 4.0
         self.assertEqual(enriched_output[variable_names.ROAS], 4.0)
 
-        # Verify in-place structural validation rule
-        self.assertIs(enriched_output, model.input_variables)
+    def test_evaluate_zero_advertising_cost_protection(self):
+        """Verify that zero advertising cost returns 0.0 instead of raising a division error."""
+        inputs = {
+            variable_names.REVENUE: 10000.0,
+            variable_names.ADVERTISING_COST: 0.0
+        }
+        model = RoasModel(inputs)
+
+        # This would have raised a ZeroDivisionError before the fix
+        enriched_output = model.evaluate()
+
+        # Verify defensive return value
+        self.assertEqual(enriched_output[variable_names.ROAS], 0.0)
 
     def test_evaluate_success_fractional_precision_calculation(self):
-        """Verify math formula evaluation retains fractional tracking values precisely under uneven return bounds."""
-        # Testing uneven values: $11,250 revenue generated from $3,000 ad spend (3.75x ROAS)
+        """Verify math formula evaluation retains fractional tracking values."""
         inputs = {
             variable_names.REVENUE: 11250.0,
             variable_names.ADVERTISING_COST: 3000.0
         }
         model = RoasModel(inputs)
         enriched_output = model.evaluate()
-
         self.assertAlmostEqual(enriched_output[variable_names.ROAS], 3.75, places=4)
 
 

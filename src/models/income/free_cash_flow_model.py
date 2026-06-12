@@ -29,14 +29,8 @@ def calculate_free_cash_flow(optional_variables: dict, **kwargs) -> dict:
     net_income = kwargs[variable_names.NET_INCOME]
 
     # Resolve non-cash variables using runtime args, falling back securely to configuration defaults
-    depreciation = kwargs.get(
-        variable_names.DEPRECIATION,
-        optional_variables.get(variable_names.DEPRECIATION, 0.0)
-    )
-    cap_ex = kwargs.get(
-        variable_names.CAPITAL_EXPENDITURE,
-        optional_variables.get(variable_names.CAPITAL_EXPENDITURE, 0.0)
-    )
+    depreciation = kwargs.get(variable_names.DEPRECIATION, optional_variables.get(variable_names.DEPRECIATION))
+    cap_ex = kwargs.get(variable_names.CAPITAL_EXPENDITURE, optional_variables.get(variable_names.CAPITAL_EXPENDITURE))
 
     # Reconciling accounting profits back to true liquid asset flows
     calculated_fcf = net_income + depreciation - cap_ex

@@ -51,5 +51,4 @@ def run_monte_carlo(
         data_record[variable_names.SYSTEM_RUN_ID] = iteration_idx
         simulation_results.append(data_record)
 
-    # log.info(messages.INFO_MONTE_CARLO_SIMULATION_FINISH.format(size=len(simulation_results)))
     return simulation_results

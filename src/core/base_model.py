@@ -125,6 +125,13 @@ class Model:
         except KeyError as e:
             log.info(e.args[0])
 
+    # def optional_variable_getter(self, variable_name):
+    #     default_value = self.optional_variables[variable_name]
+    #     return self._input_variables.get(variable_name, default_value)
+    #
+    # def required_variable_getter(self, variable_name):
+    #     return self._input_variables[variable_name]
+
     def evaluate(self) -> dict:
         """
         Validates system dependencies and executes the subclass mathematical formula.

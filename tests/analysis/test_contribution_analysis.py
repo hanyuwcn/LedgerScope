@@ -83,6 +83,19 @@ class TestStochasticContributionIntegration(unittest.TestCase):
                 shuffled_inputs=[variable_names.REVENUE]
             )
 
+    def test_stochastic_contribution_analysis_aborts_on_missing_runtime_output(self):
+        """Verify engine raises KeyError if runtime state fails to produce required breakdown metrics."""
+        # 'NON_EXISTENT_METRIC' is not provided by the pipeline,
+        # so check_variables_for_function will catch it on the first iteration.
+        with self.assertRaises(KeyError):
+            stochastic_contribution_analysis(
+                variables=self.variables,
+                breakdown_metrics=["NON_EXISTENT_METRIC"],
+                model_pipeline=self.pipeline,
+                shuffled_inputs=[variable_names.REVENUE],
+                sample_size=10
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
