@@ -11,6 +11,8 @@
 - Have a detailed design doc after codebase completion
    - Write Design doc in both languages
 
+- remove get_name() methods from base_model
+- optional variable get values pattern.
 
     - Workflow
       - go through each module with AI to discuss the interfaces and functionality 

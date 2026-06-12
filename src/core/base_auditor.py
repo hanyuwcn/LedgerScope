@@ -20,15 +20,6 @@ class Auditor(Model):
            requirements before entering deeper profit analysis.
     """
 
-    def __init__(self, input_variables: dict = None):
-        """
-        Initializes the Auditor framework.
-
-        Args:
-            input_variables (dict, optional): Contextual state pool for verification.
-        """
-        super().__init__(input_variables)
-
     @property
     def output_names(self) -> list:
         """
