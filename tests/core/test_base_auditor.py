@@ -7,13 +7,14 @@ from src.core import Auditor
 # =====================================================================
 # CONCRETE MOCK IMPLEMENTATION
 # =====================================================================
-def mock_reconciliation_check(optional_variables: dict, **kwargs):
+def mock_reconciliation_check(variables: dict) -> None:
     """
     Simulates a logic check: requires a 'TOTAL' to equal the sum of 'PART_A' and 'PART_B'.
+    Now expects a unified 'variables' dictionary.
     """
-    total = kwargs['TOTAL']
-    part_a = kwargs['PART_A']
-    part_b = kwargs.get('PART_B', optional_variables['PART_B'])
+    total = variables['TOTAL']
+    part_a = variables['PART_A']
+    part_b = variables['PART_B']
 
     if not math.isclose(total, part_a + part_b):
         raise ValueError("Audit Failed: Total does not equal sum of parts.")
@@ -25,6 +26,23 @@ class MockAuditor(Auditor):
         self._model_function = mock_reconciliation_check
         self._required_variables = ['TOTAL', 'PART_A']
         self._optional_variables = {'PART_B': 0.0}
+
+    def evaluate(self) -> dict:
+        """
+        Executes internal audit logic and validates pipeline integrity.
+        """
+        # Resolve all variables into a single, fully-hydrated context dictionary
+        context = super().prepare_calculation_context()
+
+        try:
+            # Execute the auditor-specific reconciliation function
+            self._model_function(context)
+        except ValueError:
+            # Propagate the audit failure up the pipeline
+            raise
+
+        # Return state to maintain pipeline continuity
+        return self._input_variables
 
 
 # =====================================================================

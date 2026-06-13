@@ -2,7 +2,7 @@ from src.config import variable_names
 from src.core.base_model import Model
 
 
-def calculate_total_cost(optional_variables: dict, **kwargs) -> dict:
+def calculate_total_cost(variables: dict) -> dict:
     """
     Calculates the consolidated total operational cost for the business lifecycle step.
 
@@ -10,26 +10,16 @@ def calculate_total_cost(optional_variables: dict, **kwargs) -> dict:
         TotalCost = COGS + AdvertisingCost + ShippingCost
 
     Args:
-        optional_variables (dict): Mapped configuration containing default parameter fallbacks.
-        **kwargs: Arbitrary keyword arguments containing required calculation metrics:
-
-            Mandatory Keys:
-                COGS (float): Total Cost of Goods Sold evaluated from product supply chains.
-
-            Optional Keys:
-                ADVERTISING_COST (float, optional): Total budget allocated toward marketing channels.
-                SHIPPING_COST (float, optional): Operational shipping and fulfillment expenses.
+        variables (dict): Unified execution context containing all mandatory and
+            optional variables, resolved by the Model base class.
 
     Returns:
-        dict: A dictionary mapping the consolidated cost calculations to the
-            central registry key.
+        dict: A dictionary mapping the consolidated cost to the central tracking constant.
             Example: {"TotalCost": 12500.0}
     """
-    cogs = kwargs[variable_names.COGS]
-
-    # Dynamically extract values from active runtime args or fallback safely
-    ads_cost = kwargs.get(variable_names.ADVERTISING_COST, optional_variables[variable_names.ADVERTISING_COST])
-    shipping_cost = kwargs.get(variable_names.SHIPPING_COST, optional_variables[variable_names.SHIPPING_COST])
+    cogs = variables[variable_names.COGS]
+    ads_cost = variables[variable_names.ADVERTISING_COST]
+    shipping_cost = variables[variable_names.SHIPPING_COST]
 
     calculated_cost = cogs + ads_cost + shipping_cost
 
@@ -58,21 +48,16 @@ class TotalCostModel(Model):
     """
 
     def __init__(self, input_variables: dict = None):
-        """
-        Initializes the TotalCostModel with explicit validation boundaries.
-        """
+        """Initializes the TotalCostModel with explicit validation boundaries."""
         super().__init__(input_variables)
 
-        # Hooking functional logic and mapping outputs to the central registry
         self._model_function = calculate_total_cost
         self._output_names = [variable_names.COST]
 
-        # Establishing dependencies for the pipeline layer
         self._required_variables = [
             variable_names.COGS
         ]
 
-        # Map defaults transparently to 0.0 for simulation flexibility
         self._optional_variables = {
             variable_names.ADVERTISING_COST: 0.0,
             variable_names.SHIPPING_COST: 0.0

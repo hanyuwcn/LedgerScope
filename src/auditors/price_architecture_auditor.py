@@ -4,7 +4,7 @@ from src.config import variable_names, settings
 from src.core import Auditor
 
 
-def check_price_architecture(optional_variables: dict, **kwargs):
+def check_price_architecture(variables: dict) -> None:
     """
     Validates the Price Waterfall for a single product context.
 
@@ -13,24 +13,20 @@ def check_price_architecture(optional_variables: dict, **kwargs):
         - RetailPrice = UnitFob + ShippingCostPerUnit + TariffPerUnit + RetailMarginPerUnit
 
     Args:
-        optional_variables (dict): Mapped configuration containing default parameter fallbacks.
-        **kwargs: Operational unit-level economic metrics.
+        variables (dict): Unified context containing all mandatory and
+            optional variables, resolved by the Model base class.
 
     Raises:
-        ValueError: If the calculated components do not reconcile with the UnitFob or UnitRetail.
+        ValueError: If the calculated components do not reconcile with
+            the UnitFob or UnitRetail.
     """
-    cogs_per_unit = kwargs[variable_names.COGS_PER_UNIT]
-    profit_per_unit = kwargs[variable_names.PROFIT_PER_UNIT]
-    unit_fob = kwargs[variable_names.UNIT_FOB]
-    unit_retail_price = kwargs[variable_names.UNIT_RETAIL]
-
-    # Pull defaults
-    shipping_cost_per_unit = kwargs.get(variable_names.SHIPPING_COST_PER_UNIT,
-                                        optional_variables[variable_names.SHIPPING_COST_PER_UNIT])
-    tariff_per_unit = kwargs.get(variable_names.TARIFF_PER_UNIT,
-                                 optional_variables[variable_names.TARIFF_PER_UNIT])
-    retail_margin_per_unit = kwargs.get(variable_names.RETAIL_MARGIN_PER_UNIT,
-                                        optional_variables[variable_names.RETAIL_MARGIN_PER_UNIT])
+    cogs_per_unit = variables[variable_names.COGS_PER_UNIT]
+    profit_per_unit = variables[variable_names.PROFIT_PER_UNIT]
+    unit_fob = variables[variable_names.UNIT_FOB]
+    unit_retail_price = variables[variable_names.UNIT_RETAIL]
+    shipping_cost_per_unit = variables[variable_names.SHIPPING_COST_PER_UNIT]
+    tariff_per_unit = variables[variable_names.TARIFF_PER_UNIT]
+    retail_margin_per_unit = variables[variable_names.RETAIL_MARGIN_PER_UNIT]
 
     # Audit 1: COGS + Profit == FOB
     if not math.isclose(cogs_per_unit + profit_per_unit, unit_fob,

@@ -2,17 +2,10 @@ from src.config import variable_names
 from src.core.base_model import Model
 
 
-def calculate_price_architecture(optional_variables: dict, **kwargs) -> dict:
+def calculate_price_architecture(variables: dict) -> dict:
     """
-    Decomposes the consumer retail price into its constituent cost, friction, and margin components.
-
-    Architectural Roadmap:
-        1. Normalization: Future iterations should ingest outputs from DeductionRateModel
-           directly to eliminate redundant parameter passing.
-        2. Bridge Logic: This model currently acts as a passive observer; future development
-           should integrate this as a gating node for 'Min-Profitability' checks.
-        3. Currency Scaling: All per-unit metrics are normalized to the ledger currency (RMB)
-           via USD_TO_RMB scaling.
+    Decomposes the consumer retail price into its constituent cost,
+    friction, and margin components.
 
     Mathematical Formulas:
         - units = UnitsPerOrder * Orders
@@ -23,26 +16,27 @@ def calculate_price_architecture(optional_variables: dict, **kwargs) -> dict:
         - RetailMarginPerUnit = UnitRetail * ChannelMarkupRate * USDToRMB
 
     Args:
-        optional_variables (dict): Mapped configuration containing default parameter fallbacks.
-        **kwargs: Operational metrics including REVENUE, COGS, and unit-level friction rates.
+        variables (dict): Unified context containing all mandatory and
+            optional variables, resolved by the Model base class.
 
     Returns:
         dict: A consolidated breakdown of per-unit pricing leakages and profit capture.
     """
-    units = kwargs[variable_names.UNITS_PER_ORDER] * kwargs[variable_names.ORDERS]
-    unit_retail_price = kwargs[variable_names.UNIT_RETAIL]
-    cogs = kwargs[variable_names.COGS]
-    profit = kwargs[variable_names.PROFIT]
+    units = variables[variable_names.UNITS_PER_ORDER] * variables[variable_names.ORDERS]
+    unit_retail_price = variables[variable_names.UNIT_RETAIL]
+    cogs = variables[variable_names.COGS]
+    profit = variables[variable_names.PROFIT]
 
-    # Pull defaults from configuration registry
-    shipping_rate = kwargs.get(variable_names.SHIPPING_RATE, optional_variables[variable_names.SHIPPING_RATE])
-    tariff_rate = kwargs.get(variable_names.TARIFF_RATE, optional_variables[variable_names.TARIFF_RATE])
-    markup_rate = kwargs.get(variable_names.CHANNEL_MARKUP_RATE, optional_variables[variable_names.CHANNEL_MARKUP_RATE])
-    usd_to_rmb = kwargs.get(variable_names.USD_TO_RMB, optional_variables[variable_names.USD_TO_RMB])
+    shipping_rate = variables[variable_names.SHIPPING_RATE]
+    tariff_rate = variables[variable_names.TARIFF_RATE]
+    markup_rate = variables[variable_names.CHANNEL_MARKUP_RATE]
+    usd_to_rmb = variables[variable_names.USD_TO_RMB]
 
     # Compute breakdown (Waterfall sequence)
-    cogs_per_unit = cogs / units
-    profit_per_unit = profit / units
+    # Note: Ensure units > 0 in upstream validation
+    cogs_per_unit = cogs / units if units != 0 else 0
+    profit_per_unit = profit / units if units != 0 else 0
+
     shipping_cost = unit_retail_price * shipping_rate * usd_to_rmb
     tariff_cost = unit_retail_price * tariff_rate * usd_to_rmb
     retail_margin = unit_retail_price * markup_rate * usd_to_rmb

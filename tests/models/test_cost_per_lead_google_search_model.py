@@ -103,10 +103,12 @@ class TestCostPerLeadGoogleSearchModelComprehensive(unittest.TestCase):
         model = CostPerLeadGoogleSearchModel()
 
         class DuckTypeB:
-            def get_name(self):
+            @property
+            def name(self) -> str:
                 return variable_names.CPC_GOOGLE_SEARCH
 
-            def get_value(self):
+            @property
+            def expected_value(self):
                 return 1.95
 
         model.update_input_variable(DuckTypeB())

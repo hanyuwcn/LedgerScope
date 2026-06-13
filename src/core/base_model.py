@@ -95,12 +95,8 @@ class Model:
             value (Union[int, float], optional): The raw numeric value to map to the variable.
                 This parameter is only evaluated if `key_or_variable` is provided as a raw string.
         """
-        # Scenario A: A Domain Variable object instance was passed directly
         if hasattr(key_or_variable, "name") and hasattr(key_or_variable, "expected_value"):
             self._input_variables[key_or_variable.name] = key_or_variable.expected_value
-        elif hasattr(key_or_variable, "get_name") and hasattr(key_or_variable, "get_value"):
-            self._input_variables[key_or_variable.get_name()] = key_or_variable.get_value()
-        # Scenario B: Standard raw string key and numeric value mapping
         else:
             self._input_variables[str(key_or_variable)] = value
 
@@ -125,48 +121,59 @@ class Model:
         except KeyError as e:
             log.info(e.args[0])
 
-    # def optional_variable_getter(self, variable_name):
-    #     default_value = self.optional_variables[variable_name]
-    #     return self._input_variables.get(variable_name, default_value)
-    #
-    # def required_variable_getter(self, variable_name):
-    #     return self._input_variables[variable_name]
+    def _get_variable_value(self, name, is_optional=False):
+        """
+        Resolves a single variable value by checking the input context with fallback to defaults.
+
+        Args:
+            name (str): The identifier of the variable to retrieve.
+            is_optional (bool): If True, falls back to `_optional_variables` if missing from input.
+                                If False, expects the variable to exist in input (raises KeyError).
+        """
+        if is_optional:
+            return self._input_variables.get(name, self._optional_variables.get(name))
+        return self._input_variables[name]
+
+    def prepare_calculation_context(self) -> dict:
+        """
+        Assembles a consolidated execution context for calculation functions.
+
+        This method acts as the data-provider interface for the subclass's `_model_function`.
+        It performs a deterministic merge of mandatory inputs (required variables) and
+        operational defaults (optional variables) into a single flat dictionary,
+        abstracting retrieval logic away from the mathematical formula.
+
+        Returns:
+            dict: A unified map of all variables required for the current execution cycle.
+        """
+        context = {
+            variable_name: self._get_variable_value(variable_name, is_optional=False)
+            for variable_name in self._required_variables
+        }
+        context.update({
+            variable_name: self._get_variable_value(variable_name, is_optional=True)
+            for variable_name in self._optional_variables.keys()
+        })
+        return context
 
     def evaluate(self) -> dict:
         """
-        Validates system dependencies and executes the subclass mathematical formula.
+        Validates dependencies and executes the subclass mathematical formula.
 
-        Architectural Note: In-Place Merge Strategy vs. New Dictionary Creation
-        ---------------------------------------------------------------------
-        Calculated output variables are explicitly merged back into the existing input
-        dictionary in-place rather than generating a brand new copy at each step. This
-        design pattern is selected intentionally for two core reasons:
-
-        1. Memory Optimization: It prevents the system from generating heavy memory overhead
-           and garbage collection cycles during deep, multi-variable simulations.
-        2. Seamless Model Chaining: It allows multiple sequential processing models (e.g.,
-           Model A -> Model B -> Model C) to execute over a single, shared, cumulative state.
-           Outputs from previous calculations automatically become available as valid inputs
-           for downstream pipeline engines without writing manual aggregation logic.
-
-        The registration defaults mapped within `self._optional_variables` are provided directly
-        to the operational function implementation as its leading argument to resolve missing context.
-
-        Risk Mitigation: Because this results in a mutable shared state across models, users
-        should ensure that original raw inputs are duplicated via a copy/clone wrapper at the
-        very beginning of an analysis workflow if the baseline state needs to remain uncorrupted.
+        Workflow:
+        1. Validates input state via `check_variables()`.
+        2. Prepares a unified variable context via `prepare_calculation_context()`.
+        3. Invokes `_model_function` with the unified context dictionary.
+        4. Merges resulting metrics back into the operational `input_variables` state.
 
         Returns:
-            dict: The comprehensive shared context pool holding all consolidated inputs
-                and newly updated computational outputs.
+            dict: The shared context pool containing updated computational outputs.
         """
-        # Assert mathematical correctness checks before invoking execution thread
         self.check_variables()
 
-        # Execute formula by unpacking our variables context directly into the target function
-        result = self._model_function(self._optional_variables, **self._input_variables)
+        # Execute formula with unified context
+        result = self._model_function(self.prepare_calculation_context())
 
-        # Enforce that the output is wrapped as a dict before performing merge
         if result and isinstance(result, dict):
             self._input_variables.update(result)
 

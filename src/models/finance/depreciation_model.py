@@ -2,20 +2,18 @@ from src.config import variable_names
 from src.core.base_model import Model
 
 
-def evaluate_depreciation_function(optional_variables: dict, **kwargs) -> dict:
+def evaluate_depreciation_function(variables: dict) -> dict:
     """
     Core formula returning a static fallback zero for baseline accounting setups.
 
     Args:
-        optional_variables (dict): Mapped configuration containing default parameter fallbacks.
-        **kwargs: Arbitrary keyword arguments representing the runtime context.
-            Since asset depreciation is locked to a fallback zero for this analysis,
-            no specific inputs are required.
+        variables (dict): Unified context containing all mandatory and
+            optional variables, resolved by the Model base class.
 
     Returns:
         dict: A dictionary containing the computed depreciation value, mapped
             directly to the global configuration constant name.
-            Example: {"Depreciation": 0.0}
+            Example: {"DEPRECIATION": 0.0}
     """
     return {variable_names.DEPRECIATION: 0}
 

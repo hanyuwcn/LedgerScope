@@ -2,20 +2,18 @@ from src.config import variable_names
 from src.core.base_model import Model
 
 
-def evaluate_capital_expenditure_function(optional_variables: dict, **kwargs) -> dict:
+def evaluate_capital_expenditure_function(variables: dict) -> dict:
     """
     Core formula returning a static fallback zero for baseline accounting setups.
 
     Args:
-        optional_variables (dict): Mapped configuration containing default parameter fallbacks.
-        **kwargs: Arbitrary keyword arguments representing the runtime context.
-            Since capital expenditure is locked to a fallback zero for this analysis,
-            no specific inputs are required.
+        variables (dict): Unified context containing all mandatory and
+            optional variables, resolved by the Model base class.
 
     Returns:
         dict: A dictionary containing the computed capital expenditure, mapped
             directly to the global configuration constant name.
-            Example: {"CapitalExpenditure": 0.0}
+            Example: {"CAPITAL_EXPENDITURE": 0.0}
     """
     return {variable_names.CAPITAL_EXPENDITURE: 0}
 

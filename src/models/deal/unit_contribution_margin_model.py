@@ -2,37 +2,26 @@ from src.config import variable_names
 from src.core.base_model import Model
 
 
-def calculate_unit_contribution_margin(optional_variables: dict, **kwargs) -> dict:
+def calculate_unit_contribution_margin(variables: dict) -> dict:
     """
     Calculates the marginal profit contribution of each individual unit sold.
 
     Mathematical Formula:
         Unit Contribution Margin = Profit / (Orders * UnitsPerOrder)
 
-    Description:
-        This function normalizes the total realized profit across the absolute volume of units
-        shipped. By multiplying 'Orders' by 'UnitsPerOrder', it establishes the total unit
-        denominator required to identify the per-item surplus available to cover fixed
-        costs or contribute to net earnings.
-
     Args:
-        optional_variables (dict): Mapped configuration containing default parameter fallbacks.
-        **kwargs: Arbitrary keyword arguments containing required calculation metrics:
-
-            Mandatory Keys:
-                PROFIT (float): The net earnings or surplus generated in the current cycle.
-                ORDERS (int or float): The total count of converted sales transactions.
-                UNITS_PER_ORDER (int or float): The average quantity of units per transaction.
+        variables (dict): Unified context containing all mandatory and
+            optional variables, resolved by the Model base class.
 
     Returns:
-        dict: A dictionary mapping the unit contribution margin to its central tracking constant.
-            Example: {"UnitContributionMargin": 4.25}
-            Safely returns {"UnitContributionMargin": 0.0} if the total unit volume is zero.
+        dict: A dictionary mapping the unit contribution margin to its
+            central tracking constant.
+            Returns {"UNIT_CONTRIBUTION_MARGIN": 0.0} if the total unit
+            volume is zero to prevent division by zero.
     """
-    # Extract strictly required execution anchors
-    profit = kwargs[variable_names.PROFIT]
-    orders = kwargs[variable_names.ORDERS]
-    items_per_order = kwargs[variable_names.UNITS_PER_ORDER]
+    profit = variables[variable_names.PROFIT]
+    orders = variables[variable_names.ORDERS]
+    items_per_order = variables[variable_names.UNITS_PER_ORDER]
 
     total_unit_volume = orders * items_per_order
 

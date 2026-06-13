@@ -95,10 +95,12 @@ class TestNetIncomeModel(unittest.TestCase):
 
         # Context C: Structural duck-typed object validation Type B (.get_name(), .get_value())
         class DuckTypeB:
-            def get_name(self):
+            @property
+            def name(self) -> str:
                 return variable_names.EXPENSE
 
-            def get_value(self):
+            @property
+            def expected_value(self):
                 return 4500.0
 
         model.update_input_variable(DuckTypeB())

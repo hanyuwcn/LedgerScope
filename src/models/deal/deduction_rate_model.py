@@ -2,41 +2,25 @@ from src.config import variable_names
 from src.core.base_model import Model
 
 
-def calculate_deduction_rate(optional_variables: dict, **kwargs) -> dict:
+def calculate_deduction_rate(variables: dict) -> dict:
     """
     Calculates the aggregate gross margin deduction rate leakage coefficient.
-
-    This function rolls up the disparate, non-production friction elements that map the
-    spread between consumer retail pricing structures and contractual port delivery
-    valuations (FOB). It aggregates logistical transport components, international trade
-    tariffs, and localized ecosystem distributor margins.
 
     Mathematical Formula:
         DeductionRate = ShippingRate + TariffRate + ChannelMarkupRate
 
     Args:
-        optional_variables (dict): Mapped configuration containing default parameter fallbacks.
-        **kwargs: Arbitrary keyword arguments containing active runtime simulation overrides:
-
-            Optional Keys:
-                SHIPPING_RATE (float, optional): Logistical transport friction percentage.
-                TARIFF_RATE (float, optional): Macro-economic cross-border import duty percentage.
-                CHANNEL_MARKUP_RATE (float, optional): Distributor/retailer ecosystem premium percentage.
+        variables (dict): Unified context containing all mandatory and
+            optional variables, resolved by the Model base class.
 
     Returns:
         dict: A single-element dictionary mapping the calculated combined leak coefficient
             to its master registry key signature.
-            Example: {"DeductionRate": 0.43}
+            Example: {"DEDUCTION_RATE": 0.43}
     """
-    # Extract default fallback baseline rates from the centralized parameter registry map
-    default_shipping_rate = optional_variables[variable_names.SHIPPING_RATE]
-    default_tariff_rate = optional_variables[variable_names.TARIFF_RATE]
-    default_channel_markup_rate = optional_variables[variable_names.CHANNEL_MARKUP_RATE]
-
-    # Dynamically pull simulation sweeps from active runtime kwargs, falling back cleanly to registry defaults
-    shipping_rate = kwargs.get(variable_names.SHIPPING_RATE, default_shipping_rate)
-    tariff_rate = kwargs.get(variable_names.TARIFF_RATE, default_tariff_rate)
-    channel_markup_rate = kwargs.get(variable_names.CHANNEL_MARKUP_RATE, default_channel_markup_rate)
+    shipping_rate = variables[variable_names.SHIPPING_RATE]
+    tariff_rate = variables[variable_names.TARIFF_RATE]
+    channel_markup_rate = variables[variable_names.CHANNEL_MARKUP_RATE]
 
     # Accumulate stacked percentage leaks
     deduction_rate = shipping_rate + tariff_rate + channel_markup_rate

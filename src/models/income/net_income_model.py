@@ -2,7 +2,7 @@ from src.config import variable_names
 from src.core.base_model import Model
 
 
-def calculate_net_income(optional_variables: dict, **kwargs) -> dict:
+def calculate_net_income(variables: dict) -> dict:
     """
     Calculates the Net Income After Tax for the execution context.
 
@@ -10,35 +10,19 @@ def calculate_net_income(optional_variables: dict, **kwargs) -> dict:
         NetIncome = (Revenue - Cost - Expense - Depreciation) * (1 - TaxRate)
 
     Args:
-        optional_variables (dict): Mapped configuration containing default parameter fallbacks.
-        **kwargs: Arbitrary keyword arguments containing operational mathematical metrics:
-
-            Mandatory Keys:
-                REVENUE (float): Gross top-line operational revenue.
-                COST (float): Aggregated core operating costs (e.g., COGS and direct marketing outlays).
-
-            Optional Keys (Pulled with fallbacks from configuration map):
-                EXPENSE (float): Duration-scaled operational expenses (OPEX).
-                DEPRECIATION (float): Non-cash fixed asset depreciation allocations.
-                TAX_RATE (float): Corporate tax liability rate multiplier.
+        variables (dict): Unified context containing all mandatory and
+            optional variables, resolved by the Model base class.
 
     Returns:
-        dict: A dictionary mapping the net income metric directly to its source-of-truth registry key.
-            Example: {"NetIncome": 7600.0}
+        dict: A dictionary mapping the net income metric directly to
+            its source-of-truth registry key.
+            Example: {"NET_INCOME": 7600.0}
     """
-    # Extract structural required fields (will throw KeyError if missing, as intended)
-    revenue = kwargs[variable_names.REVENUE]
-    cost = kwargs[variable_names.COST]
-
-    # Pull baseline configuration defaults for optional metrics
-    default_expense = optional_variables[variable_names.EXPENSE]
-    default_depreciation = optional_variables[variable_names.DEPRECIATION]
-    default_tax_rate = optional_variables[variable_names.TAX_RATE]
-
-    # Resolve runtime execution values against their safe fallbacks
-    expense = kwargs.get(variable_names.EXPENSE, default_expense)
-    depreciation = kwargs.get(variable_names.DEPRECIATION, default_depreciation)
-    tax_rate = kwargs.get(variable_names.TAX_RATE, default_tax_rate)
+    revenue = variables[variable_names.REVENUE]
+    cost = variables[variable_names.COST]
+    expense = variables[variable_names.EXPENSE]
+    depreciation = variables[variable_names.DEPRECIATION]
+    tax_rate = variables[variable_names.TAX_RATE]
 
     # Core corporate accounting math block
     pre_tax_income = revenue - cost - expense - depreciation

@@ -68,10 +68,12 @@ class TestCapitalExpenditureModel(unittest.TestCase):
 
         # Context B: Structural duck-typed getter object validation
         class MockVariableObject:
-            def get_name(self):
+            @property
+            def name(self) -> str:
                 return "USEFUL_LIFE_YEARS"
 
-            def get_value(self):
+            @property
+            def expected_value(self):
                 return 5
 
         model.update_input_variable(MockVariableObject())

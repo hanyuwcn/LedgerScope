@@ -2,7 +2,7 @@ from src.config import variable_names
 from src.core.base_model import Model
 
 
-def calculate_free_cash_flow(optional_variables: dict, **kwargs) -> dict:
+def calculate_free_cash_flow(variables: dict) -> dict:
     """
     Calculates Unlevered Free Cash Flow (FCFF) to track true physical liquidity.
 
@@ -10,27 +10,20 @@ def calculate_free_cash_flow(optional_variables: dict, **kwargs) -> dict:
         FreeCashFlow = NetIncome + Depreciation - CapitalExpenditure
 
     Args:
-        optional_variables (dict): Mapped configuration containing default parameter fallbacks
-            for non-mandatory fields like DEPRECIATION and CAPITAL_EXPENDITURE.
-        **kwargs: Arbitrary keyword arguments containing execution calculation metrics:
-
-            Mandatory Keys:
-                NET_INCOME (float): After-tax net profit pulled from the NetIncomeModel registry.
-
-            Optional Keys (Defaults to configuration maps if missing):
-                DEPRECIATION (float): Non-cash asset write-offs added back as a liquidity shield.
-                CAPITAL_EXPENDITURE (float): Outbound cash investments spent maintaining or acquiring assets.
+        variables (dict): Unified context containing all mandatory and
+            optional variables, resolved by the Model base class.
 
     Returns:
-        dict: A dictionary mapping the final cash flow metric to the source-of-truth registry.
-            Example: {"FreeCashFlow": 16500.0}
+        dict: A dictionary mapping the final cash flow metric to the
+            source-of-truth registry.
+            Example: {"FREE_CASH_FLOW": 16500.0}
     """
-    # Extract strictly required execution anchor
-    net_income = kwargs[variable_names.NET_INCOME]
+    # Required input
+    net_income = variables[variable_names.NET_INCOME]
 
-    # Resolve non-cash variables using runtime args, falling back securely to configuration defaults
-    depreciation = kwargs.get(variable_names.DEPRECIATION, optional_variables.get(variable_names.DEPRECIATION))
-    cap_ex = kwargs.get(variable_names.CAPITAL_EXPENDITURE, optional_variables.get(variable_names.CAPITAL_EXPENDITURE))
+    # Optional inputs (defaults handled by Model base class context)
+    depreciation = variables[variable_names.DEPRECIATION]
+    cap_ex = variables[variable_names.CAPITAL_EXPENDITURE]
 
     # Reconciling accounting profits back to true liquid asset flows
     calculated_fcf = net_income + depreciation - cap_ex

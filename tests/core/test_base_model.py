@@ -1,52 +1,33 @@
 import unittest
 
-# Assuming standard package mapping layout based on your imports
 from src.config import variable_names
 from src.core.base_model import Model
 
 
 # =====================================================================
-# CONCRETE MOCK IMPLEMENTATION UTILIZING CENTRAL REGISTRY CONSTANTS
+# CONCRETE MOCK IMPLEMENTATION UTILIZING UNIFIED CONTEXT
 # =====================================================================
 class MockRevenueModel(Model):
     """
-    Mock calculation processing logic referencing central configuration variables
-    as a single source of truth instead of raw hardcoded strings.
+    Mock calculation processing logic utilizing the unified variable context
+    provided by the base Model's prepare_calculation_context method.
     """
 
     def __init__(self, input_variables=None):
         super().__init__(input_variables)
-
-        # Enforcing single source of truth keys for input parameter bounds
-        self._required_variables = [
-            variable_names.ORDERS,
-            variable_names.UNIT_FOB
-        ]
-
-        # Mapped to their default fallback values to support runtime lookups
-        self._optional_variables = {
-            variable_names.TAX_RATE: 0.2
-        }
-
-        # Enforcing single source of truth keys for computational outputs
-        self._output_names = [
-            variable_names.REVENUE,
-            variable_names.PROFIT  # Using PROFIT to represent net returns here
-        ]
+        self._required_variables = [variable_names.ORDERS, variable_names.UNIT_FOB]
+        self._optional_variables = {variable_names.TAX_RATE: 0.2}
+        self._output_names = [variable_names.REVENUE, variable_names.PROFIT]
         self._model_function = self._calculate_revenue
 
-    def _calculate_revenue(self, optional_variables: dict, **kwargs) -> dict:
+    def _calculate_revenue(self, variables: dict) -> dict:
         """
-        Dynamically extracts parameters via keyword arguments mapping directly
-        to the global configuration variable names. Receives the base model's
-        optional variable registry as its first parameter.
+        Receives a single unified variables dictionary.
+        No kwargs or manual fallback management required here.
         """
-        orders = kwargs[variable_names.ORDERS]
-        unit_fob = kwargs[variable_names.UNIT_FOB]
-
-        # Fallback dynamically to the passed dictionary default if omitted from inputs
-        default_tax = optional_variables[variable_names.TAX_RATE]
-        tax_rate = kwargs.get(variable_names.TAX_RATE, default_tax)
+        orders = variables[variable_names.ORDERS]
+        unit_fob = variables[variable_names.UNIT_FOB]
+        tax_rate = variables[variable_names.TAX_RATE]
 
         raw_revenue = orders * unit_fob
         net_profit = raw_revenue * (1 - tax_rate)
@@ -102,6 +83,17 @@ class TestBaseModelArchitecture(unittest.TestCase):
         expected_list = [variable_names.TAX_RATE]
         self.assertIsInstance(model.optional_variables, list)
         self.assertEqual(model.optional_variables, expected_list)
+
+    def test_prepare_calculation_context_merges_data_correctly(self):
+        """Verify the new context preparation method correctly joins required and optional data."""
+        inputs = {variable_names.ORDERS: 10, variable_names.UNIT_FOB: 100}
+        model = MockRevenueModel(inputs)
+
+        context = model.prepare_calculation_context()
+
+        # Verify required and optional (defaulted) values exist
+        self.assertEqual(context[variable_names.ORDERS], 10)
+        self.assertEqual(context[variable_names.TAX_RATE], 0.2)
 
     # -----------------------------------------------------------------
     # 2. PROPERTY GETTER & SETTER TESTS (THE CURRENT CONTRACT)
@@ -160,10 +152,12 @@ class TestBaseModelArchitecture(unittest.TestCase):
         model = MockRevenueModel()
 
         class MockMethodVariable:
-            def get_name(self):
+            @property
+            def name(self) -> str:
                 return variable_names.UNIT_FOB
 
-            def get_value(self):
+            @property
+            def expected_value(self):
                 return 1500.0
 
         model.update_input_variable(MockMethodVariable())
@@ -174,25 +168,13 @@ class TestBaseModelArchitecture(unittest.TestCase):
     # -----------------------------------------------------------------
 
     def test_evaluate_success_and_in_place_data_enrichment_merge(self):
-        """Verify successful calculation execution and structural in-place state enrichment."""
-        inputs = {
-            variable_names.ORDERS: 20,
-            variable_names.UNIT_FOB: 3000
-        }
+        """Verify calculation execution using the unified variables context."""
+        inputs = {variable_names.ORDERS: 20, variable_names.UNIT_FOB: 3000}
         model = MockRevenueModel(inputs)
-
-        # Triggers evaluation using default fallback tax rate (0.2)
         enriched_output = model.evaluate()
 
-        # 1. Verify original input values are perfectly retained
-        self.assertEqual(enriched_output[variable_names.ORDERS], 20)
-        self.assertEqual(enriched_output[variable_names.UNIT_FOB], 3000)
-
-        # 2. Verify model calculation outputs are correctly appended
         self.assertEqual(enriched_output[variable_names.REVENUE], 60000)
         self.assertEqual(enriched_output[variable_names.PROFIT], 48000)
-
-        # 3. Critical verification of In-Place Merge strategy: returned dict IS the active state container
         self.assertIs(enriched_output, model.input_variables)
 
     def test_evaluate_missing_required_variables_halts_execution(self):
@@ -206,18 +188,16 @@ class TestBaseModelArchitecture(unittest.TestCase):
             model.evaluate()
 
     def test_evaluate_accepts_optional_variables_safely(self):
-        """Verify that passing an optional parameter bypasses default internal fallbacks cleanly."""
+        """Verify explicit optional overrides are respected via the unified context."""
         custom_inputs = {
             variable_names.ORDERS: 10,
             variable_names.UNIT_FOB: 1000,
-            variable_names.TAX_RATE: 0.10  # Explicit custom optional override
+            variable_names.TAX_RATE: 0.10
         }
         model = MockRevenueModel(custom_inputs)
-
         enriched_output = model.evaluate()
 
-        # Revenue = 10 * 1000 = 10000. Profit = 10000 * (1 - 0.10) = 9000
-        self.assertEqual(enriched_output[variable_names.REVENUE], 10000)
+        # Profit = 10000 * (1 - 0.10) = 9000
         self.assertEqual(enriched_output[variable_names.PROFIT], 9000)
 
 

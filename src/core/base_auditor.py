@@ -44,8 +44,14 @@ class Auditor(Model):
         """
         self.check_variables()
 
-        # Execute reconciliation check. Failure here propagates an exception,
-        # effectively halting the pipeline's execution.
-        self._model_function(self._optional_variables, **self._input_variables)
+        # Ensure all required/optional keys are present and defaults are applied
+        context = super().prepare_calculation_context()
+
+        try:
+            # Execute the auditor-specific reconciliation function
+            self._model_function(context)
+        except ValueError:
+            # Re-raise the exception to propagate it up the pipeline
+            raise
 
         return self._input_variables

@@ -87,10 +87,12 @@ class TestDepreciationModel(unittest.TestCase):
 
         # Context C: Structural duck-typed object validation Type B (.get_name(), .get_value())
         class DuckTypeB:
-            def get_name(self):
+            @property
+            def name(self) -> str:
                 return "USEFUL_LIFE_YEARS"
 
-            def get_value(self):
+            @property
+            def expected_value(self):
                 return 10
 
         model.update_input_variable(DuckTypeB())

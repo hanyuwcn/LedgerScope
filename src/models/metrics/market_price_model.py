@@ -2,44 +2,25 @@ from src.config import variable_names, settings
 from src.core.base_model import Model
 
 
-def calculate_market_price(optional_variables: dict, **kwargs) -> dict:
+def calculate_market_price(variables: dict) -> dict:
     """
     Calculates the implied equity market price (valuation cap) using an annualized PE multiple.
 
-    This function annualizes the net inflows over a designated operational time window
-    and multiplies the resulting annualized earnings base by a market-implied valuation
-    multiple (Price-to-Earnings ratio).
-
     Mathematical Formula:
-        MonthlyNetIncome = NetIncome / Months
-        AnnualizedEarnings = MonthlyNetIncome * 12
-        MarketPrice = AnnualizedEarnings * PeRatio
-                    = (NetIncome * 12 * PeRatio) / Months
+        MarketPrice = (NetIncome * 12 * PeRatio) / Months
 
     Args:
-        optional_variables (dict): Mapped configuration containing default parameter fallbacks.
-        **kwargs: Arbitrary keyword arguments containing active runtime simulation overrides:
-
-            Mandatory Keys:
-                NET_INCOME (float): The absolute net operating income captured over the tracking window.
-
-            Optional Keys:
-                MONTHS (int/float, optional): The time-series window length of the income data. Defaults to 1.
-                PE_RATIO (float, optional): Equity multiplier representing market premium benchmarks.
+        variables (dict): Unified context containing all mandatory and
+            optional variables, resolved by the Model base class.
 
     Returns:
-        dict: A single-element dictionary mapping the computed implied market capitalization valuation.
-            Example: {"MarketPrice": 960000.0}
+        dict: A single-element dictionary mapping the computed implied
+            market capitalization valuation.
+            Example: {"MARKET_PRICE": 960000.0}
     """
-    net_income = kwargs[variable_names.NET_INCOME]
-
-    # Extract default fallback parameter thresholds out of the parent configuration registry map
-    default_months = optional_variables[variable_names.MONTHS]
-    default_pe_ratio = optional_variables[variable_names.PE_RATIO]
-
-    # Dynamically extract values from active runtime args or fallback safely to baseline profiles
-    months = kwargs.get(variable_names.MONTHS, default_months)
-    pe_ratio = kwargs.get(variable_names.PE_RATIO, default_pe_ratio)
+    net_income = variables[variable_names.NET_INCOME]
+    months = variables[variable_names.MONTHS]
+    pe_ratio = variables[variable_names.PE_RATIO]
 
     # Calculate time-weighted annualized market equity value
     market_price = (net_income * 12.0 * pe_ratio) / months

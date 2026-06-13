@@ -2,7 +2,7 @@ from src.config import variable_names
 from src.core.base_model import Model
 
 
-def calculate_revenue(optional_variables: dict, **kwargs) -> dict:
+def calculate_revenue(variables: dict) -> dict:
     """
     Calculates the gross top-line operational revenue for the specific transactional cycle.
 
@@ -10,30 +10,18 @@ def calculate_revenue(optional_variables: dict, **kwargs) -> dict:
         Revenue = UnitFob * Orders * UnitsPerOrder * USDToRMB
 
     Args:
-        optional_variables (dict): Mapped configuration containing default parameter fallbacks.
-        **kwargs: Arbitrary keyword arguments containing required mathematical inputs:
-
-            Mandatory Keys:
-                UNIT_FOB (float): The retail selling price per individual product unit.
-                ORDERS (int/float): The total transaction orders generated via acquisition channels.
-                UNITS_PER_ORDER (int/float): The average volume of items purchased per distinct order.
-
-            Optional Keys:
-                USD_TO_RMB (float, optional): Cross-border currency conversion rate.
-                    Utilized to scale top-line metrics if pricing values are tracked in USD but
-                    the ledger currency is localized to RMB.
+        variables (dict): Unified context containing all mandatory and
+            optional variables, resolved by the Model base class.
 
     Returns:
-        dict: A dictionary mapping the calculated gross top-line revenue to its source-of-truth registry key.
-            Example: {"Revenue": 48600.0}
+        dict: A dictionary mapping the calculated gross top-line revenue to
+            its source-of-truth registry key.
+            Example: {"REVENUE": 48600.0}
     """
-    selling_price = kwargs[variable_names.UNIT_FOB]
-    orders = kwargs[variable_names.ORDERS]
-    items_per_order = kwargs[variable_names.UNITS_PER_ORDER]
-
-    # Pull the default fallback exchange rate from the base configuration parameter registry
-    default_usd_to_rmb = optional_variables[variable_names.USD_TO_RMB]
-    usd_to_rmb = kwargs.get(variable_names.USD_TO_RMB, default_usd_to_rmb)
+    selling_price = variables[variable_names.UNIT_FOB]
+    orders = variables[variable_names.ORDERS]
+    items_per_order = variables[variable_names.UNITS_PER_ORDER]
+    usd_to_rmb = variables[variable_names.USD_TO_RMB]
 
     calculated_revenue = selling_price * orders * items_per_order * usd_to_rmb
 

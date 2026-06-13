@@ -2,34 +2,24 @@ from src.config import variable_names
 from src.core.base_model import Model
 
 
-def calculate_customer_acquisition_cost(optional_variables: dict, **kwargs) -> dict:
+def calculate_customer_acquisition_cost(variables: dict) -> dict:
     """
     Calculates the strategic Customer Acquisition Cost (CAC) for the operational cycle.
 
     Mathematical Formula:
         CAC = AdvertisingCost / Orders
 
-    Note:
-        The structural formula design supports downstream expansion to include variable
-        affiliate or sales commissions: (AdvertisingCost + (Revenue * CommissionRate)) / Orders.
-        The commission components are intentionally ignored in the current iteration.
-
     Args:
-        optional_variables (dict): Mapped configuration containing default parameter fallbacks.
-        **kwargs: Arbitrary keyword arguments containing required calculation metrics:
-
-            Mandatory Keys:
-                ADVERTISING_COST (float): Total budget allocated toward marketing and acquisition channels.
-                ORDERS (int or float): Total volume of converted customer purchase orders.
+        variables (dict): Unified context containing all mandatory and
+            optional variables, resolved by the Model base class.
 
     Returns:
-        dict: A dictionary mapping the calculated customer acquisition cost to its central tracking constant.
-            Example: {"CAC": 15.50}
-            Safely returns {"CAC": 0.0} if zero orders are processed to bypass division errors.
+        dict: A dictionary mapping the calculated customer acquisition cost
+            to its central tracking constant.
+            Returns {"CAC": 0.0} if zero orders are processed.
     """
-    # Extract strictly required execution anchors
-    advertising_cost = kwargs[variable_names.ADVERTISING_COST]
-    orders = kwargs[variable_names.ORDERS]
+    advertising_cost = variables[variable_names.ADVERTISING_COST]
+    orders = variables[variable_names.ORDERS]
 
     # Protect engine against a zero-denominator division crash
     if orders == 0:

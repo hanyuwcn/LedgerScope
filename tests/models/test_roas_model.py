@@ -90,10 +90,12 @@ class TestRoasModelComprehensive(unittest.TestCase):
         model = RoasModel()
 
         class DuckTypeB:
-            def get_name(self):
+            @property
+            def name(self) -> str:
                 return variable_names.REVENUE
 
-            def get_value(self):
+            @property
+            def expected_value(self):
                 return 9000.0
 
         model.update_input_variable(DuckTypeB())

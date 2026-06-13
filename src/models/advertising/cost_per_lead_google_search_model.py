@@ -2,50 +2,34 @@ from src.config import variable_names
 from src.core.base_model import Model
 
 
-def calculate_cost_per_lead_in_google_search(optional_variables: dict, **kwargs) -> dict:
+def calculate_cost_per_lead_in_google_search(variables: dict) -> dict:
     """
     Calculates the blended Cost Per Lead (CPL) relative to total multi-channel ad spend.
 
     Mathematical Formula:
-        CPL = TotalAdsBudget / GoogleSearchLeads
-            = TotalAdsBudget / (((TotalAdsBudget * AllocationPercentage) / CPC) * ConversionRate)
-            = CPC / (ConversionRate * AllocationPercentage)
+        CPL = CPC / (ConversionRate * AllocationPercentage)
 
     Args:
-        optional_variables (dict): Mapped configuration containing default parameter fallbacks.
-        **kwargs: Arbitrary keyword arguments containing the required calculation
-            metrics extracted from the model's global configuration variables.
-
-            Mandatory Keys:
-                CPC_GOOGLE_SEARCH (float): Cost Per Click specifically for Google Search ads.
-                CONVERSION_RATE_GOOGLE_SEARCH (float): Clicks-to-leads conversion rate.
-
-            Optional Keys:
-                ALLOCATION_GOOGLE_SEARCH (float, optional): The fractional allocation percentage
-                    of total ads budget devoted exclusively to Google Search campaigns.
+        variables (dict): Unified context containing all mandatory and
+            optional variables, resolved by the Model base class.
 
     Returns:
         dict: A dictionary containing the computed blended Cost Per Lead (CPL) metric.
-            Example: {"CPL_GOOGLE_SEARCH": 62.50}
-            Returns {"CPL_GOOGLE_SEARCH": 0.0} if the denominator evaluates to zero to prevent crashes.
+            Returns {"CPL_GOOGLE_SEARCH": 0.0} if the denominator evaluates to zero.
     """
-    cpc = kwargs[variable_names.CPC_GOOGLE_SEARCH]
-    conversion_rate = kwargs[variable_names.CONVERSION_RATE_GOOGLE_SEARCH]
-
-    # Dynamically extract default value from the provided optional_variables structure
-    default_google_search_allocation_percentage = optional_variables[variable_names.ALLOCATION_GOOGLE_SEARCH]
-    google_search_allocation_percentage = kwargs.get(variable_names.ALLOCATION_GOOGLE_SEARCH,
-                                                     default_google_search_allocation_percentage)
+    cpc = variables[variable_names.CPC_GOOGLE_SEARCH]
+    conversion_rate = variables[variable_names.CONVERSION_RATE_GOOGLE_SEARCH]
+    allocation = variables[variable_names.ALLOCATION_GOOGLE_SEARCH]
 
     # Protect calculation matrix from division by zero crashes
-    denominator = conversion_rate * google_search_allocation_percentage
+    denominator = conversion_rate * allocation
     if denominator == 0:
         return {variable_names.CPL_GOOGLE_SEARCH: 0.0}
 
-    # Core operational calculation relative to total combined ad spend
-    cost_per_leads = cpc / denominator
+    # Core operational calculation
+    cost_per_lead = cpc / denominator
 
-    return {variable_names.CPL_GOOGLE_SEARCH: cost_per_leads}
+    return {variable_names.CPL_GOOGLE_SEARCH: cost_per_lead}
 
 
 class CostPerLeadGoogleSearchModel(Model):

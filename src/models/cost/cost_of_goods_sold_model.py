@@ -2,7 +2,7 @@ from src.config import variable_names
 from src.core.base_model import Model
 
 
-def calculate_cost_of_goods_sold(optional_variables: dict, **kwargs) -> dict:
+def calculate_cost_of_goods_sold(variables: dict) -> dict:
     """
     Calculates the total Cost of Goods Sold (COGS) based on physical product metrics.
 
@@ -10,27 +10,20 @@ def calculate_cost_of_goods_sold(optional_variables: dict, **kwargs) -> dict:
         COGS = UnitExWorksPrice * Orders * UnitsPerOrder
 
     Args:
-        optional_variables (dict): Mapped configuration containing default parameter fallbacks.
-            Note: This specific model implementation does not require optional parameters,
-            but accepts the argument to maintain base interface signature compliance.
-        **kwargs: Arbitrary keyword arguments containing required calculation metrics:
-
-            Mandatory Keys:
-                UnitExWorksPrice (float): The unit cost to acquire a single product item at factory origin.
-                Orders (int/float): Total transaction orders generated.
-                UnitsPerOrder (int/float): The average volume of items per transaction order.
+        variables (dict): Unified context containing all mandatory and
+            optional variables, resolved by the Model base class.
 
     Returns:
-        dict: A dictionary containing the computed COGS value mapped to the source-of-truth key.
-            Example: {"Cogs": 15000.0}
+        dict: A dictionary containing the computed COGS value mapped to
+            the source-of-truth key.
+            Example: {"COGS": 15000.0}
     """
-    purchasing_price = kwargs[variable_names.UNIT_EXW]
-    orders = kwargs[variable_names.ORDERS]
-    units_per_order = kwargs[variable_names.UNITS_PER_ORDER]
+    purchasing_price = variables[variable_names.UNIT_EXW]
+    orders = variables[variable_names.ORDERS]
+    units_per_order = variables[variable_names.UNITS_PER_ORDER]
 
     calculated_cogs = purchasing_price * orders * units_per_order
 
-    # Wrapped securely in a dictionary to satisfy the base model's .update() processor
     return {variable_names.COGS: calculated_cogs}
 
 

@@ -2,7 +2,7 @@ from src.config import variable_names
 from src.core.base_model import Model
 
 
-def calculate_monthly_expense(optional_variables: dict, **kwargs) -> dict:
+def calculate_monthly_expense(variables: dict) -> dict:
     """
     Aggregates individual fixed and variable operating expenses into a baseline
     monthly run-rate overhead.
@@ -11,25 +11,17 @@ def calculate_monthly_expense(optional_variables: dict, **kwargs) -> dict:
         MonthlyExpense = RentExpense + RenderExpense + TravelExpense
 
     Args:
-        optional_variables (dict): Mapped configuration containing default parameter fallbacks.
-        **kwargs: Arbitrary keyword arguments containing active runtime metrics:
-
-            Optional Keys:
-                RentExpense (float): Monthly real estate lease fees.
-                RenderExpense (float): Monthly infrastructure/rendering overhead.
-                TravelExpense (float): Monthly team travel allowances.
+        variables (dict): Unified context containing all mandatory and
+            optional variables, resolved by the Model base class.
 
     Returns:
-        dict: A dictionary mapping the aggregated monthly running cost to the central tracker.
-            Example: {"MonthlyExpense": 2000.0}
+        dict: A dictionary mapping the aggregated monthly running cost to the
+            central tracker.
+            Example: {"MONTHLY_EXPENSE": 2000.0}
     """
-    default_rent = optional_variables[variable_names.RENT_EXPENSE]
-    default_render = optional_variables[variable_names.RENDER_EXPENSE]
-    default_travel = optional_variables[variable_names.TRAVEL_EXPENSE]
-
-    rent = kwargs.get(variable_names.RENT_EXPENSE, default_rent)
-    render = kwargs.get(variable_names.RENDER_EXPENSE, default_render)
-    travel = kwargs.get(variable_names.TRAVEL_EXPENSE, default_travel)
+    rent = variables[variable_names.RENT_EXPENSE]
+    render = variables[variable_names.RENDER_EXPENSE]
+    travel = variables[variable_names.TRAVEL_EXPENSE]
 
     calculated_monthly = rent + render + travel
 

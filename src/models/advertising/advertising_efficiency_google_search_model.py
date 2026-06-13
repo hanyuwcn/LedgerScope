@@ -2,55 +2,33 @@ from src.config import variable_names
 from src.core.base_model import Model
 
 
-def calculate_leads_from_ads_budget_via_google_search(optional_variables: dict, **kwargs) -> dict:
+def calculate_leads_from_ads_budget_via_google_search(variables: dict) -> dict:
     """
     Calculates total prospect leads generated from specialized marketing channel investments.
 
     Mathematical Formula:
-        Traffic (Clicks) = (AdsBudget * AllocationPercentage) / (CPC * USDToRMB)
+        Traffic = (Budget * Allocation) / (CPC * USDToRMB)
         Leads = Traffic * ConversionRate
 
     Args:
-        optional_variables (dict): Mapped configuration containing default parameter fallbacks.
-        **kwargs: Arbitrary keyword arguments containing the required calculation
-            metrics extracted from the model's global configuration variables:
-
-            Mandatory Keys:
-                ADVERTISING_COST (float): The total corporate multi-channel advertising budget.
-                CPC_GOOGLE_SEARCH (float): Cost Per Click (CPC) explicitly for Google Search ads.
-                CONVERSION_RATE_GOOGLE_SEARCH (float): Click-to-Lead configuration efficiency metric.
-
-            Optional Keys:
-                USD_TO_RMB (float, optional): Cross-border foreign currency multiplier.
-                ALLOCATION_GOOGLE_SEARCH (float, optional): The fractional budget allocation percentage
-                    devoted exclusively to Google Search campaigns.
+        variables (dict): Unified context containing all mandatory and optional variables.
 
     Returns:
-        dict: A dictionary mapping the estimated lead acquisition volume to the centralized tracking registry.
-            Example: {"Leads": 1420.5}
-            Returns {"Leads": 0.0} if the denominator variables evaluate to zero to avoid runtime crashes.
+        dict: Mapping of estimated lead acquisition volume to the centralized registry.
     """
-    ads_budget = kwargs[variable_names.ADVERTISING_COST]
-    cpc = kwargs[variable_names.CPC_GOOGLE_SEARCH]
-    conversion_rate = kwargs[variable_names.CONVERSION_RATE_GOOGLE_SEARCH]
+    ads_budget = variables[variable_names.ADVERTISING_COST]
+    cpc = variables[variable_names.CPC_GOOGLE_SEARCH]
+    conversion_rate = variables[variable_names.CONVERSION_RATE_GOOGLE_SEARCH]
+    usd_to_rmb = variables[variable_names.USD_TO_RMB]
+    allocation = variables[variable_names.ALLOCATION_GOOGLE_SEARCH]
 
-    # Dynamically extract default value from the provided optional_variables structure
-    default_usd_to_rmb = optional_variables[variable_names.USD_TO_RMB]
-    usd_to_rmb = kwargs.get(variable_names.USD_TO_RMB, default_usd_to_rmb)
-
-    default_google_search_allocation_percentage = optional_variables[variable_names.ALLOCATION_GOOGLE_SEARCH]
-    google_search_allocation_percentage = kwargs.get(
-        variable_names.ALLOCATION_GOOGLE_SEARCH,
-        default_google_search_allocation_percentage
-    )
-
-    # Protect calculation matrix from division by zero crashes
+    # Protect calculation matrix from division by zero
     denominator = cpc * usd_to_rmb
     if denominator == 0:
         return {variable_names.LEADS: 0.0}
 
-    # Core operational funnel calculation with currency adjustments
-    calculated_leads = (ads_budget * google_search_allocation_percentage * conversion_rate) / denominator
+    # Core operational funnel calculation
+    calculated_leads = (ads_budget * allocation * conversion_rate) / denominator
 
     return {variable_names.LEADS: calculated_leads}
 

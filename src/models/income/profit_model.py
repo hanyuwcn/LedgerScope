@@ -2,7 +2,7 @@ from src.config import variable_names
 from src.core.base_model import Model
 
 
-def calculate_profit(optional_variables: dict, **kwargs) -> dict:
+def calculate_profit(variables: dict) -> dict:
     """
     Calculates the net operational profit generated within the execution context.
 
@@ -10,26 +10,19 @@ def calculate_profit(optional_variables: dict, **kwargs) -> dict:
         Profit = Revenue - Cost
 
     Args:
-        optional_variables (dict): Mapped configuration containing default parameter fallbacks.
-            (Maintained for interface symmetry across the pipeline architecture).
-        **kwargs: Arbitrary keyword arguments containing required calculation metrics:
-
-            Mandatory Keys:
-                REVENUE (float): Gross top-line operational revenue generated via sales channels.
-                COST (float): Aggregated operating costs, inclusive of product supply chain
-                    outlays (COGS) and direct marketing acquisition fees.
+        variables (dict): Unified context containing all mandatory and
+            optional variables, resolved by the Model base class.
 
     Returns:
-        dict: A dictionary mapping the net profit calculation directly to the source-of-truth registry.
-            Example: {"Profit": 15000.0}
+        dict: A dictionary mapping the net profit calculation directly
+            to the source-of-truth registry.
+            Example: {"PROFIT": 15000.0}
     """
-    # Extract structural required fields (will throw KeyError if missing, as intended)
-    revenue = kwargs[variable_names.REVENUE]
-    cost = kwargs[variable_names.COST]
+    revenue = variables[variable_names.REVENUE]
+    cost = variables[variable_names.COST]
 
     calculated_profit = revenue - cost
 
-    # Wrapped securely in a dictionary to satisfy the base model's .update() processor
     return {variable_names.PROFIT: calculated_profit}
 
 

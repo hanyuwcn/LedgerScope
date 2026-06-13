@@ -2,7 +2,7 @@ from src.config import variable_names
 from src.core.base_model import Model
 
 
-def calculate_total_expense_horizon(optional_variables: dict, **kwargs) -> dict:
+def calculate_total_expense_horizon(variables: dict) -> dict:
     """
     Scales the consolidated monthly running overhead across a flexible calendar duration.
 
@@ -10,23 +10,16 @@ def calculate_total_expense_horizon(optional_variables: dict, **kwargs) -> dict:
         Expense = MonthlyExpense * Months
 
     Args:
-        optional_variables (dict): Mapped configuration containing default parameter fallbacks.
-        **kwargs: Arbitrary keyword arguments containing required calculation drivers:
-
-            Mandatory Keys:
-                MonthlyExpense (float): Aggregated running operational cost per period.
-
-            Optional Keys:
-                Months (int/float): The time-horizon scale multiplier factor.
+        variables (dict): Unified context containing all mandatory and
+            optional variables, resolved by the Model base class.
 
     Returns:
-        dict: A dictionary mapping the total duration-scaled cost to the source-of-truth registry.
-            Example: {"Expense": 24000.0}
+        dict: A dictionary mapping the total duration-scaled cost to the
+            source-of-truth registry.
+            Example: {"EXPENSE": 24000.0}
     """
-    monthly_expense = kwargs[variable_names.MONTHLY_EXPENSE]
-
-    default_months = optional_variables[variable_names.MONTHS]
-    months = kwargs.get(variable_names.MONTHS, default_months)
+    monthly_expense = variables[variable_names.MONTHLY_EXPENSE]
+    months = variables[variable_names.MONTHS]
 
     calculated_total = monthly_expense * months
 
