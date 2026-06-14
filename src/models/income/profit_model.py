@@ -1,4 +1,4 @@
-from src.config import variable_names
+from src.config import variable_names as vn
 from src.core.base_model import Model
 
 
@@ -18,12 +18,12 @@ def calculate_profit(variables: dict) -> dict:
             to the source-of-truth registry.
             Example: {"PROFIT": 15000.0}
     """
-    revenue = variables[variable_names.REVENUE]
-    cost = variables[variable_names.COST]
+    revenue = variables[vn.REVENUE]
+    cost = variables[vn.COST]
 
     calculated_profit = revenue - cost
 
-    return {variable_names.PROFIT: calculated_profit}
+    return {vn.PROFIT: calculated_profit}
 
 
 class ProfitModel(Model):
@@ -64,10 +64,10 @@ class ProfitModel(Model):
 
         # Binding calculation identity and specifying the explicit output registry signature
         self._model_function = calculate_profit
-        self._output_names = [variable_names.PROFIT]
+        self._output_names = [vn.PROFIT]
 
         # Enforcing configuration dependency boundaries
         self._required_variables = [
-            variable_names.REVENUE,
-            variable_names.COST
+            vn.REVENUE,
+            vn.COST
         ]

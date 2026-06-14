@@ -1,4 +1,4 @@
-from src.config import variable_names
+from src.config import variable_names as vn
 from src.core.base_model import Model
 
 
@@ -19,16 +19,16 @@ def calculate_free_cash_flow(variables: dict) -> dict:
             Example: {"FREE_CASH_FLOW": 16500.0}
     """
     # Required input
-    net_income = variables[variable_names.NET_INCOME]
+    net_income = variables[vn.NET_INCOME]
 
     # Optional inputs (defaults handled by Model base class context)
-    depreciation = variables[variable_names.DEPRECIATION]
-    cap_ex = variables[variable_names.CAPITAL_EXPENDITURE]
+    depreciation = variables[vn.DEPRECIATION]
+    cap_ex = variables[vn.CAPITAL_EXPENDITURE]
 
     # Reconciling accounting profits back to true liquid asset flows
     calculated_fcf = net_income + depreciation - cap_ex
 
-    return {variable_names.FREE_CASH_FLOW: calculated_fcf}
+    return {vn.FREE_CASH_FLOW: calculated_fcf}
 
 
 class FreeCashFlowModel(Model):
@@ -78,15 +78,15 @@ class FreeCashFlowModel(Model):
 
         # Hooking functional engine transformations
         self._model_function = calculate_free_cash_flow
-        self._output_names = [variable_names.FREE_CASH_FLOW]
+        self._output_names = [vn.FREE_CASH_FLOW]
 
         # Explicit tracking validation boundaries
         self._required_variables = [
-            variable_names.NET_INCOME
+            vn.NET_INCOME
         ]
 
         # Establishing safe pipeline fallbacks for asset-light configurations
         self._optional_variables = {
-            variable_names.DEPRECIATION: 0.0,
-            variable_names.CAPITAL_EXPENDITURE: 0.0
+            vn.DEPRECIATION: 0.0,
+            vn.CAPITAL_EXPENDITURE: 0.0
         }

@@ -1,4 +1,4 @@
-from src.config import variable_names
+from src.config import variable_names as vn
 from src.core import Variable
 
 
@@ -9,7 +9,7 @@ class Orders(Variable):
 
     def __init__(self, min=None, exp=None, max=None):
         super().__init__(min, exp, max)
-        self._name = variable_names.ORDERS
+        self._name = vn.ORDERS
 
 
 class CloseRate(Variable):
@@ -26,7 +26,7 @@ class CloseRate(Variable):
 
     def __init__(self, min=None, exp=None, max=None):
         super().__init__(min, exp, max)
-        self._name = variable_names.CLOSE_RATE
+        self._name = vn.CLOSE_RATE
 
 
 class UnitExw(Variable):
@@ -36,7 +36,7 @@ class UnitExw(Variable):
 
     def __init__(self, min=None, exp=None, max=None):
         super().__init__(min, exp, max)
-        self._name = variable_names.UNIT_EXW
+        self._name = vn.UNIT_EXW
 
 
 class UnitRetail(Variable):
@@ -46,7 +46,7 @@ class UnitRetail(Variable):
 
     def __init__(self, min=None, exp=None, max=None):
         super().__init__(min, exp, max)
-        self._name = variable_names.UNIT_RETAIL
+        self._name = vn.UNIT_RETAIL
 
 
 class ChannelMarkupRate(Variable):
@@ -56,7 +56,7 @@ class ChannelMarkupRate(Variable):
 
     def __init__(self, min=None, exp=None, max=None):
         super().__init__(min, exp, max)
-        self._name = variable_names.CHANNEL_MARKUP_RATE
+        self._name = vn.CHANNEL_MARKUP_RATE
 
 
 class ShippingRate(Variable):
@@ -66,7 +66,7 @@ class ShippingRate(Variable):
 
     def __init__(self, min=None, exp=None, max=None):
         super().__init__(min, exp, max)
-        self._name = variable_names.SHIPPING_RATE
+        self._name = vn.SHIPPING_RATE
 
 
 class DeductionRate(Variable):
@@ -76,7 +76,7 @@ class DeductionRate(Variable):
 
     def __init__(self, min=None, exp=None, max=None):
         super().__init__(min, exp, max)
-        self._name = variable_names.DEDUCTION_RATE
+        self._name = vn.DEDUCTION_RATE
 
 
 class UnitFob(Variable):
@@ -86,7 +86,7 @@ class UnitFob(Variable):
 
     def __init__(self, min=None, exp=None, max=None):
         super().__init__(min, exp, max)
-        self._name = variable_names.UNIT_FOB
+        self._name = vn.UNIT_FOB
 
 
 class UnitsPerOrder(Variable):
@@ -96,4 +96,4 @@ class UnitsPerOrder(Variable):
 
     def __init__(self, min=None, exp=None, max=None):
         super().__init__(min, exp, max)
-        self._name = variable_names.UNITS_PER_ORDER
+        self._name = vn.UNITS_PER_ORDER

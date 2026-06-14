@@ -1,4 +1,4 @@
-from src.config import variable_names
+from src.config import variable_names as vn
 from src.core.base_model import Model
 
 
@@ -17,16 +17,16 @@ def calculate_project_roi(variables: dict) -> dict:
         dict: A dictionary mapping the calculated ROI decimal directly to the registry.
             Returns {"ROI": 0.0} if setup_cost is zero to avoid division errors.
     """
-    net_income = variables[variable_names.NET_INCOME]
-    setup_cost = variables[variable_names.SETUP_COST]
+    net_income = variables[vn.NET_INCOME]
+    setup_cost = variables[vn.SETUP_COST]
 
     # Protect engine against a zero-denominator division crash
     if setup_cost == 0:
-        return {variable_names.ROI: 0.0}
+        return {vn.ROI: 0.0}
 
     calculated_roi = net_income / setup_cost
 
-    return {variable_names.ROI: calculated_roi}
+    return {vn.ROI: calculated_roi}
 
 
 class RoiModel(Model):
@@ -45,8 +45,8 @@ class RoiModel(Model):
         ROI = NetIncome / SetupCost
 
         Where:
-        - "NetIncome" maps to variable_names.NET_INCOME (Required)
-        - "SetupCost" maps to variable_names.SETUP_COST (Required)
+        - "NetIncome" maps to vn.NET_INCOME (Required)
+        - "SetupCost" maps to vn.SETUP_COST (Required)
     """
 
     def __init__(self, input_variables: dict = None):
@@ -61,10 +61,10 @@ class RoiModel(Model):
 
         # Hooking functional engine transformations
         self._model_function = calculate_project_roi
-        self._output_names = [variable_names.ROI]
+        self._output_names = [vn.ROI]
 
         # Explicit tracking validation boundaries (anchoring core inputs)
         self._required_variables = [
-            variable_names.NET_INCOME,
-            variable_names.SETUP_COST
+            vn.NET_INCOME,
+            vn.SETUP_COST
         ]

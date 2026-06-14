@@ -1,4 +1,4 @@
-from src.config import variable_names
+from src.config import variable_names as vn
 from src.core.base_model import Model
 
 
@@ -15,7 +15,7 @@ def evaluate_capital_expenditure_function(variables: dict) -> dict:
             directly to the global configuration constant name.
             Example: {"CAPITAL_EXPENDITURE": 0.0}
     """
-    return {variable_names.CAPITAL_EXPENDITURE: 0}
+    return {vn.CAPITAL_EXPENDITURE: 0}
 
 
 class CapitalExpenditureModel(Model):
@@ -47,4 +47,4 @@ class CapitalExpenditureModel(Model):
 
         # Bind the specific functional identity and tracking metrics
         self._model_function = evaluate_capital_expenditure_function
-        self._output_names = [variable_names.CAPITAL_EXPENDITURE]
+        self._output_names = [vn.CAPITAL_EXPENDITURE]

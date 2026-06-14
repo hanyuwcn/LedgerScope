@@ -1,4 +1,4 @@
-from src.config import variable_names
+from src.config import variable_names as vn
 from src.core.base_model import Model
 
 
@@ -19,13 +19,13 @@ def calculate_monthly_expense(variables: dict) -> dict:
             central tracker.
             Example: {"MONTHLY_EXPENSE": 2000.0}
     """
-    rent = variables[variable_names.RENT_EXPENSE]
-    render = variables[variable_names.RENDER_EXPENSE]
-    travel = variables[variable_names.TRAVEL_EXPENSE]
+    rent = variables[vn.RENT_EXPENSE]
+    render = variables[vn.RENDER_EXPENSE]
+    travel = variables[vn.TRAVEL_EXPENSE]
 
     calculated_monthly = rent + render + travel
 
-    return {variable_names.MONTHLY_EXPENSE: calculated_monthly}
+    return {vn.MONTHLY_EXPENSE: calculated_monthly}
 
 
 class MonthlyExpenseModel(Model):
@@ -37,10 +37,10 @@ class MonthlyExpenseModel(Model):
     def __init__(self, input_variables: dict = None):
         super().__init__(input_variables)
         self._model_function = calculate_monthly_expense
-        self._output_names = [variable_names.MONTHLY_EXPENSE]
+        self._output_names = [vn.MONTHLY_EXPENSE]
         self._required_variables = []
         self._optional_variables = {
-            variable_names.RENT_EXPENSE: 0.0,
-            variable_names.RENDER_EXPENSE: 0.0,
-            variable_names.TRAVEL_EXPENSE: 0.0,
+            vn.RENT_EXPENSE: 0.0,
+            vn.RENDER_EXPENSE: 0.0,
+            vn.TRAVEL_EXPENSE: 0.0,
         }

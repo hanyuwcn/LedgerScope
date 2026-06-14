@@ -1,4 +1,4 @@
-from src.config import variable_names
+from src.config import variable_names as vn
 from src.core.base_model import Model
 
 
@@ -19,16 +19,16 @@ def calculate_return_on_advertising_spend(variables: dict) -> dict:
             mapped directly to the global configuration constant name.
             Returns {"ROAS": 0.0} if advertising cost is zero to prevent division errors.
     """
-    revenue = variables[variable_names.REVENUE]
-    advertising_cost = variables[variable_names.ADVERTISING_COST]
+    revenue = variables[vn.REVENUE]
+    advertising_cost = variables[vn.ADVERTISING_COST]
 
     # Protect engine against a zero-denominator division crash
     if advertising_cost == 0:
-        return {variable_names.ROAS: 0.0}
+        return {vn.ROAS: 0.0}
 
     calculated_roas = revenue / advertising_cost
 
-    return {variable_names.ROAS: calculated_roas}
+    return {vn.ROAS: calculated_roas}
 
 
 class RoasModel(Model):
@@ -47,8 +47,8 @@ class RoasModel(Model):
         ROAS = Revenue / AdvertisingCost
 
         Where:
-        - "Revenue" maps to variable_names.REVENUE
-        - "AdvertisingCost" maps to variable_names.ADVERTISING_COST
+        - "Revenue" maps to vn.REVENUE
+        - "AdvertisingCost" maps to vn.ADVERTISING_COST
     """
 
     def __init__(self, input_variables: dict = None):
@@ -63,10 +63,10 @@ class RoasModel(Model):
 
         # Binding calculation identity and specifying the explicit output registry signature
         self._model_function = calculate_return_on_advertising_spend
-        self._output_names = [variable_names.ROAS]
+        self._output_names = [vn.ROAS]
 
         # Enforcing configuration dependency boundaries
         self._required_variables = [
-            variable_names.REVENUE,
-            variable_names.ADVERTISING_COST
+            vn.REVENUE,
+            vn.ADVERTISING_COST
         ]

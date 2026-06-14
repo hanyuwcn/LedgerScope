@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.config import variable_names, settings, messages
+from src.config import variable_names as vn, settings, messages
 from src.engine import evaluate_variable_scenario_sweep, evaluate_expected_scenario
 from src.utils import check_variables_for_function, check_model_pipeline_topology_order, log
 
@@ -68,15 +68,15 @@ def get_break_even_analysis_for_one_variable(variables: dict, selected_variable:
     """
     # Initialize report map with baseline structural metadata
     variable_analysis_report = {
-        variable_names.BREAK_EVEN_VARIABLE_NAME: selected_variable,
-        variable_names.BREAK_EVEN_FEASIBILITY_STATUS: messages.BREAK_EVEN_FEASIBILITY_STATUS_CROSSOVER
+        vn.BREAK_EVEN_VARIABLE_NAME: selected_variable,
+        vn.BREAK_EVEN_FEASIBILITY_STATUS: messages.BREAK_EVEN_FEASIBILITY_STATUS_CROSSOVER
     }
 
     # 1. Capture baseline model state and extract the expected outcome
     expected_variable_val = variables[selected_variable].expected_value
 
-    variable_analysis_report[variable_names.BREAK_EVEN_EXPECTED_VARIABLE_VALUE] = expected_variable_val
-    variable_analysis_report[variable_names.BREAK_EVEN_EXPECTED_RESULT] = \
+    variable_analysis_report[vn.BREAK_EVEN_EXPECTED_VARIABLE_VALUE] = expected_variable_val
+    variable_analysis_report[vn.BREAK_EVEN_EXPECTED_RESULT] = \
         evaluate_expected_scenario(variables, model_pipeline)[output_name]
 
     # 2. Simulate range scenarios for the target variable
@@ -94,12 +94,12 @@ def get_break_even_analysis_for_one_variable(variables: dict, selected_variable:
         # 3. Apply operational boundary rules
         if all_scenarios_meet_goal:
             variable_analysis_report[
-                variable_names.BREAK_EVEN_FEASIBILITY_STATUS] = messages.BREAK_EVEN_FEASIBILITY_ALWAYS_FEASIBLE
+                vn.BREAK_EVEN_FEASIBILITY_STATUS] = messages.BREAK_EVEN_FEASIBILITY_ALWAYS_FEASIBLE
             break_even_index = 0 if impact_is_positive else (len(simulated_outcomes) - 1)
 
         elif no_scenarios_meet_goal:
             variable_analysis_report[
-                variable_names.BREAK_EVEN_FEASIBILITY_STATUS] = messages.BREAK_EVEN_FEASIBILITY_UNREACHABLE
+                vn.BREAK_EVEN_FEASIBILITY_STATUS] = messages.BREAK_EVEN_FEASIBILITY_UNREACHABLE
             break_even_index = (len(simulated_outcomes) - 1) if impact_is_positive else 0
 
         else:
@@ -110,8 +110,8 @@ def get_break_even_analysis_for_one_variable(variables: dict, selected_variable:
                 break_even_index = find_last_index_above_target_decreasing(simulated_outcomes, goal)
 
         threshold_variable_val = variable_test_range[break_even_index]
-        variable_analysis_report[variable_names.BREAK_EVEN_POINT_THRESHOLD_VARIABLE_VALUE] = threshold_variable_val
-        variable_analysis_report[variable_names.BREAK_EVEN_POINT_THRESHOLD_RESULT] = simulated_outcomes[
+        variable_analysis_report[vn.BREAK_EVEN_POINT_THRESHOLD_VARIABLE_VALUE] = threshold_variable_val
+        variable_analysis_report[vn.BREAK_EVEN_POINT_THRESHOLD_RESULT] = simulated_outcomes[
             break_even_index]
 
         # 4. Unified Directional Safety Margin Calculation
@@ -120,9 +120,9 @@ def get_break_even_analysis_for_one_variable(variables: dict, selected_variable:
             directional_modifier = 1 if impact_is_positive else -1
             safety_margin = directional_modifier * (
                     expected_variable_val - threshold_variable_val) / expected_variable_val
-            variable_analysis_report[variable_names.BREAK_EVEN_SAFETY_MARGIN_PERCENTAGE] = safety_margin
+            variable_analysis_report[vn.BREAK_EVEN_SAFETY_MARGIN_PERCENTAGE] = safety_margin
         else:
-            variable_analysis_report[variable_names.BREAK_EVEN_SAFETY_MARGIN_PERCENTAGE] = 0.0
+            variable_analysis_report[vn.BREAK_EVEN_SAFETY_MARGIN_PERCENTAGE] = 0.0
 
     except ValueError:
         log.info(messages.ERROR_VARIABLE_NOT_MONOTONIC_EFFECT.format(variable=selected_variable, result=output_name))

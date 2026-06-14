@@ -1,4 +1,4 @@
-from src.config import variable_names
+from src.config import variable_names as vn
 from src.core import Variable
 
 
@@ -9,7 +9,7 @@ class Expense(Variable):
 
     def __init__(self, min=None, exp=None, max=None):
         super().__init__(min, exp, max)
-        self._name = variable_names.EXPENSE
+        self._name = vn.EXPENSE
 
 
 class MonthlyExpense(Variable):
@@ -19,7 +19,7 @@ class MonthlyExpense(Variable):
 
     def __init__(self, min=None, exp=None, max=None):
         super().__init__(min, exp, max)
-        self._name = variable_names.MONTHLY_EXPENSE
+        self._name = vn.MONTHLY_EXPENSE
 
 
 class RentExpense(Variable):
@@ -29,7 +29,7 @@ class RentExpense(Variable):
 
     def __init__(self, min=None, exp=None, max=None):
         super().__init__(min, exp, max)
-        self._name = variable_names.RENT_EXPENSE
+        self._name = vn.RENT_EXPENSE
 
 
 class TravelExpense(Variable):
@@ -39,7 +39,7 @@ class TravelExpense(Variable):
 
     def __init__(self, min=None, exp=None, max=None):
         super().__init__(min, exp, max)
-        self._name = variable_names.TRAVEL_EXPENSE
+        self._name = vn.TRAVEL_EXPENSE
 
 
 class RenderExpense(Variable):
@@ -49,4 +49,4 @@ class RenderExpense(Variable):
 
     def __init__(self, min=None, exp=None, max=None):
         super().__init__(min, exp, max)
-        self._name = variable_names.RENDER_EXPENSE
+        self._name = vn.RENDER_EXPENSE

@@ -1,4 +1,4 @@
-from src.config import variable_names
+from src.config import variable_names as vn
 from src.core.base_model import Model
 
 
@@ -18,14 +18,14 @@ def calculate_revenue(variables: dict) -> dict:
             its source-of-truth registry key.
             Example: {"REVENUE": 48600.0}
     """
-    selling_price = variables[variable_names.UNIT_FOB]
-    orders = variables[variable_names.ORDERS]
-    items_per_order = variables[variable_names.UNITS_PER_ORDER]
-    usd_to_rmb = variables[variable_names.USD_TO_RMB]
+    selling_price = variables[vn.UNIT_FOB]
+    orders = variables[vn.ORDERS]
+    items_per_order = variables[vn.UNITS_PER_ORDER]
+    usd_to_rmb = variables[vn.USD_TO_RMB]
 
     calculated_revenue = selling_price * orders * items_per_order * usd_to_rmb
 
-    return {variable_names.REVENUE: calculated_revenue}
+    return {vn.REVENUE: calculated_revenue}
 
 
 class RevenueModel(Model):
@@ -43,10 +43,10 @@ class RevenueModel(Model):
         Revenue = Orders * UnitsPerOrder * UnitFob * USDToRMB
 
         Where:
-        - "Orders" maps to variable_names.ORDERS
-        - "UnitsPerOrder" maps to variable_names.UNITS_PER_ORDER
-        - "UnitFob" maps to variable_names.UNIT_FOB
-        - "USDToRMB" maps to variable_names.USD_TO_RMB
+        - "Orders" maps to vn.ORDERS
+        - "UnitsPerOrder" maps to vn.UNITS_PER_ORDER
+        - "UnitFob" maps to vn.UNIT_FOB
+        - "USDToRMB" maps to vn.USD_TO_RMB
     """
 
     def __init__(self, input_variables: dict = None):
@@ -61,16 +61,16 @@ class RevenueModel(Model):
 
         # Binding calculation identity and specifying the explicit output registry signature
         self._model_function = calculate_revenue
-        self._output_names = [variable_names.REVENUE]
+        self._output_names = [vn.REVENUE]
 
         # Enforcing configuration dependency boundaries
         self._required_variables = [
-            variable_names.UNIT_FOB,
-            variable_names.ORDERS,
-            variable_names.UNITS_PER_ORDER
+            vn.UNIT_FOB,
+            vn.ORDERS,
+            vn.UNITS_PER_ORDER
         ]
 
         # Migrated from standard list footprint to map defaults transparently
         self._optional_variables = {
-            variable_names.USD_TO_RMB: 1.0
+            vn.USD_TO_RMB: 1.0
         }

@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.config import variable_names
+from src.config import variable_names as vn
 from src.engine import evaluate_variable_scenario_sweep
 from src.utils import check_variables_for_function, check_model_pipeline_topology_order
 
@@ -77,7 +77,7 @@ def get_comparative_statics_for_one_variable(
         dict: A sanitized, JSON-compliant sensitivity dataset containing the boundary matrix inputs,
             their corresponding downstream evaluations, and the localized operational elasticity metric.
     """
-    single_variable_analysis_report = {variable_names.COMPARATIVE_STATICS_VARIABLE_NAME: selected_variable}
+    single_variable_analysis_report = {vn.COMPARATIVE_STATICS_VARIABLE_NAME: selected_variable}
 
     # Extract baseline dictionary and pull specific range benchmarks under ceteris paribus constraints
     variable_instance = variables[selected_variable]
@@ -94,20 +94,20 @@ def get_comparative_statics_for_one_variable(
     dependent_scenario_outcomes = [outcome[output_name] for outcome in variable_scenario_outcomes]
 
     # Record independent range inputs
-    single_variable_analysis_report[variable_names.COMPARATIVE_STATICS_MIN_VARIABLE_VALUE] = independent_variable_steps[
+    single_variable_analysis_report[vn.COMPARATIVE_STATICS_MIN_VARIABLE_VALUE] = independent_variable_steps[
         0]
-    single_variable_analysis_report[variable_names.COMPARATIVE_STATICS_EXPECTED_VARIABLE_VALUE] = \
+    single_variable_analysis_report[vn.COMPARATIVE_STATICS_EXPECTED_VARIABLE_VALUE] = \
         independent_variable_steps[1]
-    single_variable_analysis_report[variable_names.COMPARATIVE_STATICS_MAX_VARIABLE_VALUE] = independent_variable_steps[
+    single_variable_analysis_report[vn.COMPARATIVE_STATICS_MAX_VARIABLE_VALUE] = independent_variable_steps[
         2]
 
     # Record dependent model outcomes
-    single_variable_analysis_report[variable_names.COMPARATIVE_STATICS_MIN_RESULT] = dependent_scenario_outcomes[0]
-    single_variable_analysis_report[variable_names.COMPARATIVE_STATICS_EXPECTED_RESULT] = dependent_scenario_outcomes[1]
-    single_variable_analysis_report[variable_names.COMPARATIVE_STATICS_MAX_RESULT] = dependent_scenario_outcomes[2]
+    single_variable_analysis_report[vn.COMPARATIVE_STATICS_MIN_RESULT] = dependent_scenario_outcomes[0]
+    single_variable_analysis_report[vn.COMPARATIVE_STATICS_EXPECTED_RESULT] = dependent_scenario_outcomes[1]
+    single_variable_analysis_report[vn.COMPARATIVE_STATICS_MAX_RESULT] = dependent_scenario_outcomes[2]
 
     # Calculate elasticity utilizing structural parameter lookups
-    single_variable_analysis_report[variable_names.COMPARATIVE_STATICS_ELASTICITY] = compute_elasticity(
+    single_variable_analysis_report[vn.COMPARATIVE_STATICS_ELASTICITY] = compute_elasticity(
         **single_variable_analysis_report)
 
     # Sanitize payload from NumPy data structures to native Python primitives for secure JSON transmission
@@ -145,22 +145,22 @@ def compute_elasticity(**kwargs) -> float:
         float: The final isolated elasticity ratio coefficient. Returns 0.0 under undefined zero boundaries.
     """
     check_variables_for_function(kwargs, [
-        variable_names.COMPARATIVE_STATICS_EXPECTED_VARIABLE_VALUE,
-        variable_names.COMPARATIVE_STATICS_EXPECTED_RESULT,
-        variable_names.COMPARATIVE_STATICS_MIN_VARIABLE_VALUE,
-        variable_names.COMPARATIVE_STATICS_MIN_RESULT,
-        variable_names.COMPARATIVE_STATICS_MAX_VARIABLE_VALUE,
-        variable_names.COMPARATIVE_STATICS_MAX_RESULT
+        vn.COMPARATIVE_STATICS_EXPECTED_VARIABLE_VALUE,
+        vn.COMPARATIVE_STATICS_EXPECTED_RESULT,
+        vn.COMPARATIVE_STATICS_MIN_VARIABLE_VALUE,
+        vn.COMPARATIVE_STATICS_MIN_RESULT,
+        vn.COMPARATIVE_STATICS_MAX_VARIABLE_VALUE,
+        vn.COMPARATIVE_STATICS_MAX_RESULT
     ])
 
-    independent_expected = kwargs[variable_names.COMPARATIVE_STATICS_EXPECTED_VARIABLE_VALUE]
-    dependent_expected = kwargs[variable_names.COMPARATIVE_STATICS_EXPECTED_RESULT]
+    independent_expected = kwargs[vn.COMPARATIVE_STATICS_EXPECTED_VARIABLE_VALUE]
+    dependent_expected = kwargs[vn.COMPARATIVE_STATICS_EXPECTED_RESULT]
 
-    independent_min = kwargs[variable_names.COMPARATIVE_STATICS_MIN_VARIABLE_VALUE]
-    dependent_min = kwargs[variable_names.COMPARATIVE_STATICS_MIN_RESULT]
+    independent_min = kwargs[vn.COMPARATIVE_STATICS_MIN_VARIABLE_VALUE]
+    dependent_min = kwargs[vn.COMPARATIVE_STATICS_MIN_RESULT]
 
-    independent_max = kwargs[variable_names.COMPARATIVE_STATICS_MAX_VARIABLE_VALUE]
-    dependent_max = kwargs[variable_names.COMPARATIVE_STATICS_MAX_RESULT]
+    independent_max = kwargs[vn.COMPARATIVE_STATICS_MAX_VARIABLE_VALUE]
+    dependent_max = kwargs[vn.COMPARATIVE_STATICS_MAX_RESULT]
 
     # Intercept condition 1: Flat boundary parameters across evaluation steps (zero parameter runway)
     delta_independent = independent_max - independent_min

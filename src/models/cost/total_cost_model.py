@@ -1,4 +1,4 @@
-from src.config import variable_names
+from src.config import variable_names as vn
 from src.core.base_model import Model
 
 
@@ -17,13 +17,13 @@ def calculate_total_cost(variables: dict) -> dict:
         dict: A dictionary mapping the consolidated cost to the central tracking constant.
             Example: {"TotalCost": 12500.0}
     """
-    cogs = variables[variable_names.COGS]
-    ads_cost = variables[variable_names.ADVERTISING_COST]
-    shipping_cost = variables[variable_names.SHIPPING_COST]
+    cogs = variables[vn.COGS]
+    ads_cost = variables[vn.ADVERTISING_COST]
+    shipping_cost = variables[vn.SHIPPING_COST]
 
     calculated_cost = cogs + ads_cost + shipping_cost
 
-    return {variable_names.COST: calculated_cost}
+    return {vn.COST: calculated_cost}
 
 
 class TotalCostModel(Model):
@@ -42,9 +42,9 @@ class TotalCostModel(Model):
         TotalCost = COGS + AdvertisingCost + ShippingCost
 
         Where:
-        - "COGS" maps to variable_names.COGS
-        - "AdvertisingCost" maps to variable_names.ADVERTISING_COST
-        - "ShippingCost" maps to variable_names.SHIPPING_COST
+        - "COGS" maps to vn.COGS
+        - "AdvertisingCost" maps to vn.ADVERTISING_COST
+        - "ShippingCost" maps to vn.SHIPPING_COST
     """
 
     def __init__(self, input_variables: dict = None):
@@ -52,13 +52,13 @@ class TotalCostModel(Model):
         super().__init__(input_variables)
 
         self._model_function = calculate_total_cost
-        self._output_names = [variable_names.COST]
+        self._output_names = [vn.COST]
 
         self._required_variables = [
-            variable_names.COGS
+            vn.COGS
         ]
 
         self._optional_variables = {
-            variable_names.ADVERTISING_COST: 0.0,
-            variable_names.SHIPPING_COST: 0.0
+            vn.ADVERTISING_COST: 0.0,
+            vn.SHIPPING_COST: 0.0
         }

@@ -1,4 +1,4 @@
-from src.config import variable_names
+from src.config import variable_names as vn
 from src.core import Variable
 
 
@@ -14,7 +14,7 @@ class AdvertisingBudget(Variable):
 
     def __init__(self, min=None, exp=None, max=None):
         super().__init__(min, exp, max)
-        self._name = variable_names.ADVERTISING_COST
+        self._name = vn.ADVERTISING_COST
 
 
 class GoogleSearchConversionRate(Variable):
@@ -30,7 +30,7 @@ class GoogleSearchConversionRate(Variable):
 
     def __init__(self, min=None, exp=None, max=None):
         super().__init__(min, exp, max)
-        self._name = variable_names.CONVERSION_RATE_GOOGLE_SEARCH
+        self._name = vn.CONVERSION_RATE_GOOGLE_SEARCH
 
 
 class GoogleSearchCostPerClick(Variable):
@@ -47,7 +47,7 @@ class GoogleSearchCostPerClick(Variable):
 
     def __init__(self, min=None, exp=None, max=None):
         super().__init__(min, exp, max)
-        self._name = variable_names.CPC_GOOGLE_SEARCH
+        self._name = vn.CPC_GOOGLE_SEARCH
 
 
 class GoogleSearchAllocationPercentage(Variable):
@@ -63,4 +63,4 @@ class GoogleSearchAllocationPercentage(Variable):
 
     def __init__(self, min=None, exp=None, max=None):
         super().__init__(min, exp, max)
-        self._name = variable_names.ALLOCATION_GOOGLE_SEARCH
+        self._name = vn.ALLOCATION_GOOGLE_SEARCH

@@ -1,4 +1,4 @@
-from src.config import variable_names
+from src.config import variable_names as vn
 from src.core.base_model import Model
 
 
@@ -19,19 +19,19 @@ def calculate_unit_contribution_margin(variables: dict) -> dict:
             Returns {"UNIT_CONTRIBUTION_MARGIN": 0.0} if the total unit
             volume is zero to prevent division by zero.
     """
-    profit = variables[variable_names.PROFIT]
-    orders = variables[variable_names.ORDERS]
-    items_per_order = variables[variable_names.UNITS_PER_ORDER]
+    profit = variables[vn.PROFIT]
+    orders = variables[vn.ORDERS]
+    items_per_order = variables[vn.UNITS_PER_ORDER]
 
     total_unit_volume = orders * items_per_order
 
     # Protect engine against a zero-denominator division crash
     if total_unit_volume == 0:
-        return {variable_names.UNIT_CONTRIBUTION_MARGIN: 0.0}
+        return {vn.UNIT_CONTRIBUTION_MARGIN: 0.0}
 
     calculated_unit_contribution_margin = profit / total_unit_volume
 
-    return {variable_names.UNIT_CONTRIBUTION_MARGIN: calculated_unit_contribution_margin}
+    return {vn.UNIT_CONTRIBUTION_MARGIN: calculated_unit_contribution_margin}
 
 
 class UnitContributionMarginModel(Model):
@@ -50,9 +50,9 @@ class UnitContributionMarginModel(Model):
         UnitContributionMargin = Profit / (Orders * UnitsPerOrder)
 
         Where:
-        - "Profit" maps to variable_names.PROFIT
-        - "Orders" maps to variable_names.ORDERS
-        - "UnitsPerOrder" maps to variable_names.UNITS_PER_ORDER
+        - "Profit" maps to vn.PROFIT
+        - "Orders" maps to vn.ORDERS
+        - "UnitsPerOrder" maps to vn.UNITS_PER_ORDER
     """
 
     def __init__(self, input_variables: dict = None):
@@ -67,11 +67,11 @@ class UnitContributionMarginModel(Model):
 
         # Hooking functional engine transformations
         self._model_function = calculate_unit_contribution_margin
-        self._output_names = [variable_names.UNIT_CONTRIBUTION_MARGIN]
+        self._output_names = [vn.UNIT_CONTRIBUTION_MARGIN]
 
         # Explicit tracking validation boundaries (anchoring core inputs)
         self._required_variables = [
-            variable_names.PROFIT,
-            variable_names.ORDERS,
-            variable_names.UNITS_PER_ORDER
+            vn.PROFIT,
+            vn.ORDERS,
+            vn.UNITS_PER_ORDER
         ]

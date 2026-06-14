@@ -1,4 +1,4 @@
-from src.config import variable_names
+from src.config import variable_names as vn
 from src.core.base_model import Model
 
 
@@ -22,15 +22,15 @@ def calculate_price_architecture(variables: dict) -> dict:
     Returns:
         dict: A consolidated breakdown of per-unit pricing leakages and profit capture.
     """
-    units = variables[variable_names.UNITS_PER_ORDER] * variables[variable_names.ORDERS]
-    unit_retail_price = variables[variable_names.UNIT_RETAIL]
-    cogs = variables[variable_names.COGS]
-    profit = variables[variable_names.PROFIT]
+    units = variables[vn.UNITS_PER_ORDER] * variables[vn.ORDERS]
+    unit_retail_price = variables[vn.UNIT_RETAIL]
+    cogs = variables[vn.COGS]
+    profit = variables[vn.PROFIT]
 
-    shipping_rate = variables[variable_names.SHIPPING_RATE]
-    tariff_rate = variables[variable_names.TARIFF_RATE]
-    markup_rate = variables[variable_names.CHANNEL_MARKUP_RATE]
-    usd_to_rmb = variables[variable_names.USD_TO_RMB]
+    shipping_rate = variables[vn.SHIPPING_RATE]
+    tariff_rate = variables[vn.TARIFF_RATE]
+    markup_rate = variables[vn.CHANNEL_MARKUP_RATE]
+    usd_to_rmb = variables[vn.USD_TO_RMB]
 
     # Compute breakdown (Waterfall sequence)
     # Note: Ensure units > 0 in upstream validation
@@ -42,11 +42,11 @@ def calculate_price_architecture(variables: dict) -> dict:
     retail_margin = unit_retail_price * markup_rate * usd_to_rmb
 
     return {
-        variable_names.COGS_PER_UNIT: cogs_per_unit,
-        variable_names.PROFIT_PER_UNIT: profit_per_unit,
-        variable_names.SHIPPING_COST_PER_UNIT: shipping_cost,
-        variable_names.TARIFF_PER_UNIT: tariff_cost,
-        variable_names.RETAIL_MARGIN_PER_UNIT: retail_margin,
+        vn.COGS_PER_UNIT: cogs_per_unit,
+        vn.PROFIT_PER_UNIT: profit_per_unit,
+        vn.SHIPPING_COST_PER_UNIT: shipping_cost,
+        vn.TARIFF_PER_UNIT: tariff_cost,
+        vn.RETAIL_MARGIN_PER_UNIT: retail_margin,
     }
 
 
@@ -63,11 +63,11 @@ class PriceArchitectureModel(Model):
         RetailPrice = COGS + Shipping + Tariff + RetailerMargin + NetProfit
 
         Where:
-        - "CogsPerUnit" maps to variable_names.COGS_PER_UNIT
-        - "ProfitPerUnit" maps to variable_names.PROFIT_PER_UNIT
-        - "ShippingCostPerUnit" maps to variable_names.SHIPPING_COST_PER_UNIT
-        - "TariffPerUnit" maps to variable_names.TARIFF_PER_UNIT
-        - "RetailMarginPerUnit" maps to variable_names.RETAIL_MARGIN_PER_UNIT
+        - "CogsPerUnit" maps to vn.COGS_PER_UNIT
+        - "ProfitPerUnit" maps to vn.PROFIT_PER_UNIT
+        - "ShippingCostPerUnit" maps to vn.SHIPPING_COST_PER_UNIT
+        - "TariffPerUnit" maps to vn.TARIFF_PER_UNIT
+        - "RetailMarginPerUnit" maps to vn.RETAIL_MARGIN_PER_UNIT
 
     Architectural Roadmap (Future Stages):
         - Stage 2: Integration of sensitivity analysis to test margin compression.
@@ -78,24 +78,24 @@ class PriceArchitectureModel(Model):
         super().__init__(input_variables)
         self._model_function = calculate_price_architecture
         self._output_names = [
-            variable_names.COGS_PER_UNIT,
-            variable_names.PROFIT_PER_UNIT,
-            variable_names.SHIPPING_COST_PER_UNIT,
-            variable_names.TARIFF_PER_UNIT,
-            variable_names.RETAIL_MARGIN_PER_UNIT,
+            vn.COGS_PER_UNIT,
+            vn.PROFIT_PER_UNIT,
+            vn.SHIPPING_COST_PER_UNIT,
+            vn.TARIFF_PER_UNIT,
+            vn.RETAIL_MARGIN_PER_UNIT,
         ]
 
         self._required_variables = [
-            variable_names.UNITS_PER_ORDER,
-            variable_names.ORDERS,
-            variable_names.COGS,
-            variable_names.UNIT_RETAIL,
-            variable_names.PROFIT
+            vn.UNITS_PER_ORDER,
+            vn.ORDERS,
+            vn.COGS,
+            vn.UNIT_RETAIL,
+            vn.PROFIT
         ]
 
         self._optional_variables = {
-            variable_names.SHIPPING_RATE: 0.0,
-            variable_names.TARIFF_RATE: 0.0,
-            variable_names.CHANNEL_MARKUP_RATE: 0.0,
-            variable_names.USD_TO_RMB: 1.0
+            vn.SHIPPING_RATE: 0.0,
+            vn.TARIFF_RATE: 0.0,
+            vn.CHANNEL_MARKUP_RATE: 0.0,
+            vn.USD_TO_RMB: 1.0
         }

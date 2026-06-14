@@ -1,4 +1,4 @@
-from src.config import messages, variable_names
+from src.config import messages, variable_names as vn
 from src.engine import evaluate_stochastic_iteration
 from src.utils import check_variables_for_function, check_model_pipeline_topology_order
 from src.utils import log
@@ -48,7 +48,7 @@ def run_monte_carlo(
             data_record = {metric: calculated_state[metric] for metric in tracked_outputs}
 
         # Inject run telemetry metadata
-        data_record[variable_names.SYSTEM_RUN_ID] = iteration_idx
+        data_record[vn.SYSTEM_RUN_ID] = iteration_idx
         simulation_results.append(data_record)
 
     return simulation_results

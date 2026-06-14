@@ -1,4 +1,4 @@
-from src.config import variable_names, settings
+from src.config import variable_names as vn, settings
 from src.core.base_model import Model
 
 
@@ -18,14 +18,14 @@ def calculate_market_price(variables: dict) -> dict:
             market capitalization valuation.
             Example: {"MARKET_PRICE": 960000.0}
     """
-    net_income = variables[variable_names.NET_INCOME]
-    months = variables[variable_names.MONTHS]
-    pe_ratio = variables[variable_names.PE_RATIO]
+    net_income = variables[vn.NET_INCOME]
+    months = variables[vn.MONTHS]
+    pe_ratio = variables[vn.PE_RATIO]
 
     # Calculate time-weighted annualized market equity value
     market_price = (net_income * 12.0 * pe_ratio) / months
 
-    return {variable_names.MARKET_PRICE: market_price}
+    return {vn.MARKET_PRICE: market_price}
 
 
 class MarketPriceModel(Model):
@@ -43,10 +43,10 @@ class MarketPriceModel(Model):
         MarketPrice = (NetIncome * 12 * PeRatio) / Months
 
         Where:
-        - "NetIncome" maps to variable_names.NET_INCOME
-        - "Months" maps to variable_names.MONTHS
-        - "PeRatio" maps to variable_names.PE_RATIO
-        - "MarketPrice" maps to variable_names.MARKET_PRICE
+        - "NetIncome" maps to vn.NET_INCOME
+        - "Months" maps to vn.MONTHS
+        - "PeRatio" maps to vn.PE_RATIO
+        - "MarketPrice" maps to vn.MARKET_PRICE
     """
 
     def __init__(self, input_variables: dict = None):
@@ -61,15 +61,15 @@ class MarketPriceModel(Model):
 
         # Binding calculation identity and specifying the explicit output registry signature
         self._model_function = calculate_market_price
-        self._output_names = [variable_names.MARKET_PRICE]
+        self._output_names = [vn.MARKET_PRICE]
 
         # Enforcing configuration dependency boundaries
         self._required_variables = [
-            variable_names.NET_INCOME,
+            vn.NET_INCOME,
         ]
 
         # Establish default baselines: assume monthly income baseline (1 month) and bind standard P/E ratio
         self._optional_variables = {
-            variable_names.MONTHS: 1,
-            variable_names.PE_RATIO: settings.DEFAULT_PE_RATIO
+            vn.MONTHS: 1,
+            vn.PE_RATIO: settings.DEFAULT_PE_RATIO
         }

@@ -1,4 +1,4 @@
-from src.config import variable_names
+from src.config import variable_names as vn
 from src.core.base_model import Model
 
 
@@ -18,17 +18,17 @@ def calculate_net_income(variables: dict) -> dict:
             its source-of-truth registry key.
             Example: {"NET_INCOME": 7600.0}
     """
-    revenue = variables[variable_names.REVENUE]
-    cost = variables[variable_names.COST]
-    expense = variables[variable_names.EXPENSE]
-    depreciation = variables[variable_names.DEPRECIATION]
-    tax_rate = variables[variable_names.TAX_RATE]
+    revenue = variables[vn.REVENUE]
+    cost = variables[vn.COST]
+    expense = variables[vn.EXPENSE]
+    depreciation = variables[vn.DEPRECIATION]
+    tax_rate = variables[vn.TAX_RATE]
 
     # Core corporate accounting math block
     pre_tax_income = revenue - cost - expense - depreciation
     calculated_net_income = pre_tax_income * (1.0 - tax_rate)
 
-    return {variable_names.NET_INCOME: calculated_net_income}
+    return {vn.NET_INCOME: calculated_net_income}
 
 
 class NetIncomeModel(Model):
@@ -51,11 +51,11 @@ class NetIncomeModel(Model):
         NetIncome = (Revenue - Cost - Expense - Depreciation) * (1.0 - TaxRate)
 
         Where:
-        - "Revenue" maps to variable_names.REVENUE (Required)
-        - "Cost" maps to variable_names.COST (Required)
-        - "Expense" maps to variable_names.EXPENSE (Optional, Defaults to 0.0)
-        - "Depreciation" maps to variable_names.DEPRECIATION (Optional, Defaults to 0.0)
-        - "TaxRate" maps to variable_names.TAX_RATE (Optional, Defaults to 0.0)
+        - "Revenue" maps to vn.REVENUE (Required)
+        - "Cost" maps to vn.COST (Required)
+        - "Expense" maps to vn.EXPENSE (Optional, Defaults to 0.0)
+        - "Depreciation" maps to vn.DEPRECIATION (Optional, Defaults to 0.0)
+        - "TaxRate" maps to vn.TAX_RATE (Optional, Defaults to 0.0)
     """
 
     def __init__(self, input_variables: dict = None):
@@ -70,17 +70,17 @@ class NetIncomeModel(Model):
 
         # Connect the calculation engine and primary output register
         self._model_function = calculate_net_income
-        self._output_names = [variable_names.NET_INCOME]
+        self._output_names = [vn.NET_INCOME]
 
         # Revenue and core cost remain mandatory data inputs for processing
         self._required_variables = [
-            variable_names.REVENUE,
-            variable_names.COST
+            vn.REVENUE,
+            vn.COST
         ]
 
         # Shifted structural tracking lists into explicit dictionary default fallbacks
         self._optional_variables = {
-            variable_names.EXPENSE: 0.0,
-            variable_names.DEPRECIATION: 0.0,
-            variable_names.TAX_RATE: 0.0
+            vn.EXPENSE: 0.0,
+            vn.DEPRECIATION: 0.0,
+            vn.TAX_RATE: 0.0
         }

@@ -8,7 +8,6 @@
 - Have a detailed design doc after codebase completion
    - Write Design doc in both languages
 
-- Replace `variable_names.` to `vn`
 
     - Workflow
       - go through each module with AI to discuss the interfaces and functionality 
@@ -83,3 +82,4 @@
         - ExwModel(for simplicity reason, shipping cost will be counted as % in deduction cost)
         - MarketPrice = Price-to-ratio * 12 * net income / months
         - Correct analysis tests and visualization tests
+        - Replace `variable_names.` to `vn`

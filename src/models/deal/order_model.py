@@ -1,4 +1,4 @@
-from src.config import variable_names
+from src.config import variable_names as vn
 from src.core.base_model import Model
 
 
@@ -18,12 +18,12 @@ def calculate_orders(variables: dict) -> dict:
             to the operational registry.
             Example: {"ORDERS": 64.8}
     """
-    leads = variables[variable_names.LEADS]
-    close_rate = variables[variable_names.CLOSE_RATE]
+    leads = variables[vn.LEADS]
+    close_rate = variables[vn.CLOSE_RATE]
 
     calculated_orders = leads * close_rate
 
-    return {variable_names.ORDERS: calculated_orders}
+    return {vn.ORDERS: calculated_orders}
 
 
 class OrderModel(Model):
@@ -42,8 +42,8 @@ class OrderModel(Model):
         Orders = Leads * CloseRate
 
         Where:
-        - "Leads" maps to variable_names.LEADS
-        - "CloseRate" maps to variable_names.CLOSE_RATE
+        - "Leads" maps to vn.LEADS
+        - "CloseRate" maps to vn.CLOSE_RATE
     """
 
     def __init__(self, input_variables: dict = None):
@@ -58,10 +58,10 @@ class OrderModel(Model):
 
         # Binding calculation identity and specifying the explicit output registry signature
         self._model_function = calculate_orders
-        self._output_names = [variable_names.ORDERS]
+        self._output_names = [vn.ORDERS]
 
         # Enforcing configuration dependency boundaries
         self._required_variables = [
-            variable_names.LEADS,
-            variable_names.CLOSE_RATE
+            vn.LEADS,
+            vn.CLOSE_RATE
         ]

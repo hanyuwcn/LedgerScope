@@ -1,4 +1,4 @@
-from src.config import variable_names
+from src.config import variable_names as vn
 from src.core.base_model import Model
 
 
@@ -18,12 +18,12 @@ def calculate_unit_free_on_board(variables: dict) -> dict:
             port valuation to its designated registry signature.
             Example: {"UNIT_FOB": 75.0}
     """
-    unit_retail = variables[variable_names.UNIT_RETAIL]
-    deduction_rate = variables[variable_names.DEDUCTION_RATE]
+    unit_retail = variables[vn.UNIT_RETAIL]
+    deduction_rate = variables[vn.DEDUCTION_RATE]
 
     unit_free_on_board = unit_retail * (1.0 - deduction_rate)
 
-    return {variable_names.UNIT_FOB: unit_free_on_board}
+    return {vn.UNIT_FOB: unit_free_on_board}
 
 
 class UnitFobModel(Model):
@@ -42,9 +42,9 @@ class UnitFobModel(Model):
         UnitFob = UnitRetail * (1 - DeductionRate)
 
         Where:
-        - "UnitRetail" maps to variable_names.UNIT_RETAIL
-        - "DeductionRate" maps to variable_names.DEDUCTION_RATE
-        - "UnitFob" maps to variable_names.UNIT_FOB
+        - "UnitRetail" maps to vn.UNIT_RETAIL
+        - "DeductionRate" maps to vn.DEDUCTION_RATE
+        - "UnitFob" maps to vn.UNIT_FOB
     """
 
     def __init__(self, input_variables: dict = None):
@@ -59,14 +59,14 @@ class UnitFobModel(Model):
 
         # Binding structural identities and specifying the explicit output registry signature
         self._model_function = calculate_unit_free_on_board
-        self._output_names = [variable_names.UNIT_FOB]
+        self._output_names = [vn.UNIT_FOB]
 
         # Enforcing configuration dependency boundaries
         self._required_variables = [
-            variable_names.UNIT_RETAIL
+            vn.UNIT_RETAIL
         ]
 
         # Transparently fallback to zero deduction to support isolated baseline simulations
         self._optional_variables = {
-            variable_names.DEDUCTION_RATE: 0.0
+            vn.DEDUCTION_RATE: 0.0
         }

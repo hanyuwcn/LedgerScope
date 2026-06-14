@@ -1,4 +1,4 @@
-from src.config import variable_names
+from src.config import variable_names as vn
 from src.core.base_model import Model
 
 
@@ -18,16 +18,16 @@ def calculate_customer_acquisition_cost(variables: dict) -> dict:
             to its central tracking constant.
             Returns {"CAC": 0.0} if zero orders are processed.
     """
-    advertising_cost = variables[variable_names.ADVERTISING_COST]
-    orders = variables[variable_names.ORDERS]
+    advertising_cost = variables[vn.ADVERTISING_COST]
+    orders = variables[vn.ORDERS]
 
     # Protect engine against a zero-denominator division crash
     if orders == 0:
-        return {variable_names.CAC: 0.0}
+        return {vn.CAC: 0.0}
 
     calculated_cac = advertising_cost / orders
 
-    return {variable_names.CAC: calculated_cac}
+    return {vn.CAC: calculated_cac}
 
 
 class CacModel(Model):
@@ -45,8 +45,8 @@ class CacModel(Model):
         CAC = AdvertisingCost / Orders
 
         Where:
-        - "AdvertisingCost" maps to variable_names.ADVERTISING_COST
-        - "Orders" maps to variable_names.ORDERS
+        - "AdvertisingCost" maps to vn.ADVERTISING_COST
+        - "Orders" maps to vn.ORDERS
     """
 
     def __init__(self, input_variables: dict = None):
@@ -61,10 +61,10 @@ class CacModel(Model):
 
         # Hooking functional engine transformations
         self._model_function = calculate_customer_acquisition_cost
-        self._output_names = [variable_names.CAC]
+        self._output_names = [vn.CAC]
 
         # Explicit tracking validation boundaries (anchoring core inputs)
         self._required_variables = [
-            variable_names.ADVERTISING_COST,
-            variable_names.ORDERS
+            vn.ADVERTISING_COST,
+            vn.ORDERS
         ]

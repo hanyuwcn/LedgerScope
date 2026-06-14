@@ -1,4 +1,4 @@
-from src.config import variable_names
+from src.config import variable_names as vn
 from src.core import Variable
 
 
@@ -9,7 +9,7 @@ class Cost(Variable):
 
     def __init__(self, min=None, exp=None, max=None):
         super().__init__(min, exp, max)
-        self._name = variable_names.COST
+        self._name = vn.COST
 
 
 class AdvertisingCost(Variable):
@@ -19,7 +19,7 @@ class AdvertisingCost(Variable):
 
     def __init__(self, min=None, exp=None, max=None):
         super().__init__(min, exp, max)
-        self._name = variable_names.ADVERTISING_COST
+        self._name = vn.ADVERTISING_COST
 
 
 class SetupCost(Variable):
@@ -29,4 +29,4 @@ class SetupCost(Variable):
 
     def __init__(self, min=None, exp=None, max=None):
         super().__init__(min, exp, max)
-        self._name = variable_names.SETUP_COST
+        self._name = vn.SETUP_COST

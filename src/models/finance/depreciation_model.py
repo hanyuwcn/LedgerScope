@@ -1,4 +1,4 @@
-from src.config import variable_names
+from src.config import variable_names as vn
 from src.core.base_model import Model
 
 
@@ -15,7 +15,7 @@ def evaluate_depreciation_function(variables: dict) -> dict:
             directly to the global configuration constant name.
             Example: {"DEPRECIATION": 0.0}
     """
-    return {variable_names.DEPRECIATION: 0}
+    return {vn.DEPRECIATION: 0}
 
 
 class DepreciationModel(Model):
@@ -48,4 +48,4 @@ class DepreciationModel(Model):
 
         # Bind the specific functional identity and tracking metrics
         self._model_function = evaluate_depreciation_function
-        self._output_names = [variable_names.DEPRECIATION]
+        self._output_names = [vn.DEPRECIATION]

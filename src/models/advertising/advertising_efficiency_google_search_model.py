@@ -1,4 +1,4 @@
-from src.config import variable_names
+from src.config import variable_names as vn
 from src.core.base_model import Model
 
 
@@ -16,21 +16,21 @@ def calculate_leads_from_ads_budget_via_google_search(variables: dict) -> dict:
     Returns:
         dict: Mapping of estimated lead acquisition volume to the centralized registry.
     """
-    ads_budget = variables[variable_names.ADVERTISING_COST]
-    cpc = variables[variable_names.CPC_GOOGLE_SEARCH]
-    conversion_rate = variables[variable_names.CONVERSION_RATE_GOOGLE_SEARCH]
-    usd_to_rmb = variables[variable_names.USD_TO_RMB]
-    allocation = variables[variable_names.ALLOCATION_GOOGLE_SEARCH]
+    ads_budget = variables[vn.ADVERTISING_COST]
+    cpc = variables[vn.CPC_GOOGLE_SEARCH]
+    conversion_rate = variables[vn.CONVERSION_RATE_GOOGLE_SEARCH]
+    usd_to_rmb = variables[vn.USD_TO_RMB]
+    allocation = variables[vn.ALLOCATION_GOOGLE_SEARCH]
 
     # Protect calculation matrix from division by zero
     denominator = cpc * usd_to_rmb
     if denominator == 0:
-        return {variable_names.LEADS: 0.0}
+        return {vn.LEADS: 0.0}
 
     # Core operational funnel calculation
     calculated_leads = (ads_budget * allocation * conversion_rate) / denominator
 
-    return {variable_names.LEADS: calculated_leads}
+    return {vn.LEADS: calculated_leads}
 
 
 class AdvertisingEfficiencyGoogleSearchModel(Model):
@@ -48,11 +48,11 @@ class AdvertisingEfficiencyGoogleSearchModel(Model):
         Leads = ((Budget * Allocation) / (CPC * ExchangeRate)) * ConversionRate
 
         Where:
-        - "Budget" maps to variable_names.ADVERTISING_COST
-        - "Allocation" maps to variable_names.ALLOCATION_GOOGLE_SEARCH
-        - "CPC" maps to variable_names.CPC_GOOGLE_SEARCH
-        - "ExchangeRate" maps to variable_names.USD_TO_RMB
-        - "ConversionRate" maps to variable_names.CONVERSION_RATE_GOOGLE_SEARCH
+        - "Budget" maps to vn.ADVERTISING_COST
+        - "Allocation" maps to vn.ALLOCATION_GOOGLE_SEARCH
+        - "CPC" maps to vn.CPC_GOOGLE_SEARCH
+        - "ExchangeRate" maps to vn.USD_TO_RMB
+        - "ConversionRate" maps to vn.CONVERSION_RATE_GOOGLE_SEARCH
     """
 
     def __init__(self, input_variables: dict = None):
@@ -61,7 +61,7 @@ class AdvertisingEfficiencyGoogleSearchModel(Model):
 
         Args:
             input_variables (dict, optional): The active runtime configuration context dictionary
-                containing variables and metrics (e.g., {variable_names.ADVERTISING_COST: 2500}).
+                containing variables and metrics (e.g., {vn.ADVERTISING_COST: 2500}).
                 If None, it defaults securely to an empty dictionary via the parent class.
         """
         # Triggers parent to bind the input variable dictionary maps defensively
@@ -69,16 +69,16 @@ class AdvertisingEfficiencyGoogleSearchModel(Model):
 
         # Explicitly configure the execution bounds for this subclass pipeline step
         self._model_function = calculate_leads_from_ads_budget_via_google_search
-        self._output_names = [variable_names.LEADS]
+        self._output_names = [vn.LEADS]
 
         self._required_variables = [
-            variable_names.ADVERTISING_COST,
-            variable_names.CPC_GOOGLE_SEARCH,
-            variable_names.CONVERSION_RATE_GOOGLE_SEARCH,
+            vn.ADVERTISING_COST,
+            vn.CPC_GOOGLE_SEARCH,
+            vn.CONVERSION_RATE_GOOGLE_SEARCH,
         ]
 
         # Centralized mapping dictionary with 1.0 as the historical default state
         self._optional_variables = {
-            variable_names.USD_TO_RMB: 1.0,
-            variable_names.ALLOCATION_GOOGLE_SEARCH: 1.0
+            vn.USD_TO_RMB: 1.0,
+            vn.ALLOCATION_GOOGLE_SEARCH: 1.0
         }

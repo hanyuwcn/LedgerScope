@@ -1,4 +1,4 @@
-from src.config import variable_names
+from src.config import variable_names as vn
 from src.core.base_model import Model
 
 
@@ -18,14 +18,14 @@ def calculate_deduction_rate(variables: dict) -> dict:
             to its master registry key signature.
             Example: {"DEDUCTION_RATE": 0.43}
     """
-    shipping_rate = variables[variable_names.SHIPPING_RATE]
-    tariff_rate = variables[variable_names.TARIFF_RATE]
-    channel_markup_rate = variables[variable_names.CHANNEL_MARKUP_RATE]
+    shipping_rate = variables[vn.SHIPPING_RATE]
+    tariff_rate = variables[vn.TARIFF_RATE]
+    channel_markup_rate = variables[vn.CHANNEL_MARKUP_RATE]
 
     # Accumulate stacked percentage leaks
     deduction_rate = shipping_rate + tariff_rate + channel_markup_rate
 
-    return {variable_names.DEDUCTION_RATE: deduction_rate}
+    return {vn.DEDUCTION_RATE: deduction_rate}
 
 
 class DeductionRateModel(Model):
@@ -43,10 +43,10 @@ class DeductionRateModel(Model):
         DeductionRate = ShippingRate + TariffRate + ChannelMarkupRate
 
         Where:
-        - "ShippingRate" maps to variable_names.SHIPPING_RATE
-        - "TariffRate" maps to variable_names.TARIFF_RATE
-        - "ChannelMarkupRate" maps to variable_names.CHANNEL_MARKUP_RATE
-        - "DeductionRate" maps to variable_names.DEDUCTION_RATE
+        - "ShippingRate" maps to vn.SHIPPING_RATE
+        - "TariffRate" maps to vn.TARIFF_RATE
+        - "ChannelMarkupRate" maps to vn.CHANNEL_MARKUP_RATE
+        - "DeductionRate" maps to vn.DEDUCTION_RATE
     """
 
     def __init__(self, input_variables: dict = None):
@@ -61,7 +61,7 @@ class DeductionRateModel(Model):
 
         # Hooking functional pointer logic and mapping outputs to the central registry
         self._model_function = calculate_deduction_rate
-        self._output_names = [variable_names.DEDUCTION_RATE]
+        self._output_names = [vn.DEDUCTION_RATE]
 
         # Establishing required variables (all metrics default to optional to support flexible baseline runs)
         self._required_variables = [
@@ -69,7 +69,7 @@ class DeductionRateModel(Model):
 
         # Migrated from standard list footprint to map defaults transparently to 0.0
         self._optional_variables = {
-            variable_names.SHIPPING_RATE: 0.0,
-            variable_names.TARIFF_RATE: 0.0,
-            variable_names.CHANNEL_MARKUP_RATE: 0.0
+            vn.SHIPPING_RATE: 0.0,
+            vn.TARIFF_RATE: 0.0,
+            vn.CHANNEL_MARKUP_RATE: 0.0
         }
