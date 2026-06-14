@@ -8,6 +8,7 @@
 - Have a detailed design doc after codebase completion
    - Write Design doc in both languages
 
+- Replace `variable_names.` to `vn`
 
     - Workflow
       - go through each module with AI to discuss the interfaces and functionality 
