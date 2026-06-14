@@ -49,7 +49,7 @@ VARIABLE_FORMATTING_MAP = {
     FREE_CASH_FLOW: lambda v: fmt(v, s='¥'),
 
     ### Price Architecture
-    COGS_PER_UNIT: lambda v: fmt(v, s='¥'),
+    COST_PER_UNIT: lambda v: fmt(v, d=1, s='¥'),
     SHIPPING_COST_PER_UNIT: lambda v: fmt(v, s='¥'),
     TARIFF_PER_UNIT: lambda v: fmt(v, s='¥'),
     RETAIL_MARGIN_PER_UNIT: lambda v: fmt(v, s='¥'),

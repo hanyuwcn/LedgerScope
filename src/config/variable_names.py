@@ -43,12 +43,12 @@ CPL_GOOGLE_SEARCH = "GoogleSearchCostPerLeads"
 LEADS = "Leads"
 
 ### Costs
-COST = "Cost"
 ADVERTISING_COST = "AdvertisingCost"
 SHIPPING_COST = "ShippingCost"
 COGS = "Cogs"
 MANAGEMENT_COST = "ManagementCost"
 SETUP_COST = "SetupCost"
+COST = "Cost"
 
 ### Revenue
 REVENUE = "Revenue"
@@ -66,7 +66,8 @@ UNIT_CONTRIBUTION_MARGIN = "UnitContributionMargin"
 MARKET_PRICE = "MarketPrice"
 
 ### Price Architecture
-COGS_PER_UNIT = "CogsPerUnit"
+# COGS_PER_UNIT = "CogsPerUnit"
+COST_PER_UNIT = "CostPerUnit"
 SHIPPING_COST_PER_UNIT = "ShippingCostPerUnit"
 TARIFF_PER_UNIT = "TariffPerUnit"
 RETAIL_MARGIN_PER_UNIT = "RetailerMarginPerUnit"

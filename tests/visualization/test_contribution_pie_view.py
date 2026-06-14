@@ -6,7 +6,7 @@ from src.analysis import stochastic_contribution_analysis
 from src.config import variable_names
 from src.core import Variable
 from src.models import NetIncomeModel, MarketPriceModel
-from src.variables import Cost, PriceToEarningsRatio
+from src.variables import PriceToEarningsRatio
 from src.visualization.styles import contribution_pie_styles
 from src.visualization.views.contribution_pie_view import generate_contribution_pie_chart
 
@@ -19,7 +19,7 @@ class TestContributionPieViewEngine(unittest.TestCase):
 
         self.variables = {
             variable_names.REVENUE: Variable(min=80000.0, exp=100000.0, max=120000.0),
-            variable_names.COST: Cost(min=30000.0, exp=40000.0, max=50000.0),
+            variable_names.COST: Variable(min=30000.0, exp=40000.0, max=50000.0),
             variable_names.PE_RATIO: PriceToEarningsRatio(min=5.0, exp=8.0, max=10.0)
         }
 

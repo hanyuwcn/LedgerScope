@@ -2,14 +2,14 @@ from src.config import variable_names as vn
 from src.core import Variable
 
 
-class Cost(Variable):
+class ShippingCost(Variable):
     """
-    Represents the baseline operational or variable cost structure.
+    Represents the per-unit logistical cost component in USD.
     """
 
     def __init__(self, min=None, exp=None, max=None):
         super().__init__(min, exp, max)
-        self._name = vn.COST
+        self._name = vn.SHIPPING_COST
 
 
 class AdvertisingCost(Variable):

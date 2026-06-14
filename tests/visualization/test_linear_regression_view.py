@@ -6,7 +6,7 @@ from src.analysis import stochastic_bivariate_simulation
 from src.config import variable_names
 from src.core import Variable
 from src.models import NetIncomeModel, MarketPriceModel
-from src.variables import Cost, PriceToEarningsRatio
+from src.variables import PriceToEarningsRatio
 from src.visualization.views.linear_regression_view import generate_linear_regression_from_lists
 
 
@@ -18,7 +18,7 @@ class TestLinearRegressionViewEngine(unittest.TestCase):
 
         self.variables = {
             variable_names.REVENUE: Variable(min=80000.0, exp=100000.0, max=120000.0),
-            variable_names.COST: Cost(min=30000.0, exp=40000.0, max=50000.0),
+            variable_names.COST: Variable(min=30000.0, exp=40000.0, max=50000.0),
             variable_names.PE_RATIO: PriceToEarningsRatio(min=5.0, exp=8.0, max=10.0)
         }
 

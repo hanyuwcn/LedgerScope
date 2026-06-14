@@ -4,7 +4,7 @@ from src.analysis import comparative_statics
 from src.config import variable_names
 from src.core import Variable
 from src.models import NetIncomeModel, MarketPriceModel
-from src.variables import Cost, PriceToEarningsRatio
+from src.variables import PriceToEarningsRatio
 
 
 def _create_var(min_v, exp_v, max_v):
@@ -19,7 +19,7 @@ class TestComparativeStaticsIntegration(unittest.TestCase):
 
         self.variables = {
             variable_names.REVENUE: _create_var(80000.0, 100000.0, 120000.0),
-            variable_names.COST: Cost(min=30000.0, exp=40000.0, max=50000.0),
+            variable_names.COST: _create_var(30000.0, 40000.0, 50000.0),
             variable_names.PE_RATIO: PriceToEarningsRatio(min=5.0, exp=8.0, max=10.0)
         }
 
@@ -88,7 +88,7 @@ class TestComparativeStaticsIntegration(unittest.TestCase):
 
     def test_comparative_statics_returns_zero_on_zero_equilibrium(self):
         """Verify elasticity returns 0.0 when baseline result is at zero equilibrium."""
-        self.variables[variable_names.COST] = Cost(min=100000.0, exp=100000.0, max=100000.0)
+        self.variables[variable_names.COST] = _create_var(100000.0, 100000.0, 100000.0)
 
         reports = comparative_statics(
             variables=self.variables,

@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 
 from src.config import variable_names
-from src.variables.costs import Cost, SetupCost, AdvertisingCost
+from src.variables.costs import ShippingCost, SetupCost, AdvertisingCost
 
 
 class TestCostVariables(unittest.TestCase):
@@ -11,7 +11,7 @@ class TestCostVariables(unittest.TestCase):
     def setUp(self):
         """Initialize the streamlined cost parameters using the updated constructor contract."""
         # Cost defaults to an uninitialized placeholder (Rule 5)
-        self.cost = Cost()
+        self.shipping_cost = ShippingCost()
         # SetupCost preset parameters: min=6000, max=15000
         self.setup_cost = SetupCost(min=6000, max=15000)
         # AdvertisingCost preset parameters: min=10000, max=30000
@@ -23,7 +23,7 @@ class TestCostVariables(unittest.TestCase):
 
     def test_cost_identity_mappings(self):
         """Verify that each class properly assigns its respective global config key name."""
-        self.assertEqual(self.cost.name, variable_names.COST)
+        self.assertEqual(self.shipping_cost.name, variable_names.SHIPPING_COST)
         self.assertEqual(self.setup_cost.name, variable_names.SETUP_COST)
         self.assertEqual(self.ad_cost.name, variable_names.ADVERTISING_COST)
 
@@ -31,11 +31,11 @@ class TestCostVariables(unittest.TestCase):
     # BOUNDARY CONFIGURATION TESTS (Based on presets)
     # =====================================================================
 
-    def test_cost_placeholder_rule(self):
-        """Verify Cost defaults to Rule 5 (Pure Placeholder with all None values)."""
-        self.assertIsNone(self.cost.min_value)
-        self.assertIsNone(self.cost.max_value)
-        self.assertIsNone(self.cost.expected_value)
+    def test_shipping_cost_placeholder_rule(self):
+        """Verify Shipping Cost defaults to Rule 5 (Pure Placeholder with all None values)."""
+        self.assertIsNone(self.shipping_cost.min_value)
+        self.assertIsNone(self.shipping_cost.max_value)
+        self.assertIsNone(self.shipping_cost.expected_value)
 
     def test_setup_cost_range(self):
         """Verify SetupCost respects Rule 3 (Range Bound) and computes midpoint expected value."""

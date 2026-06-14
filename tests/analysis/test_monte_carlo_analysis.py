@@ -4,7 +4,7 @@ from src.analysis import run_monte_carlo
 from src.config import variable_names
 from src.core import Variable
 from src.models import NetIncomeModel, MarketPriceModel
-from src.variables import Cost, PriceToEarningsRatio
+from src.variables import PriceToEarningsRatio
 
 
 def _create_var(min_v, exp_v, max_v):
@@ -19,7 +19,7 @@ class TestMonteCarloIntegration(unittest.TestCase):
 
         self.variables = {
             variable_names.REVENUE: _create_var(80000.0, 100000.0, 120000.0),
-            variable_names.COST: Cost(min=30000.0, exp=40000.0, max=50000.0),
+            variable_names.COST: _create_var(30000.0, 40000.0, 50000.0),
             variable_names.PE_RATIO: PriceToEarningsRatio(min=5.0, exp=8.0, max=10.0)
         }
 

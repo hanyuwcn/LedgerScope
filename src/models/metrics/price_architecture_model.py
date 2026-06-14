@@ -9,11 +9,11 @@ def calculate_price_architecture(variables: dict) -> dict:
 
     Mathematical Formulas:
         - units = UnitsPerOrder * Orders
-        - CogsPerUnit = COGS / units
+        - CostPerUnit = TotalCost / units
         - ProfitPerUnit = Profit / units
-        - ShippingPerUnit = UnitRetail * ShippingRate * USDToRMB
-        - TariffPerUnit = UnitRetail * TariffRate * USDToRMB
-        - RetailMarginPerUnit = UnitRetail * ChannelMarkupRate * USDToRMB
+        - ShippingPerUnit = UnitRetail * ShippingRate
+        - TariffPerUnit = UnitRetail * TariffRate
+        - RetailMarginPerUnit = UnitRetail * ChannelMarkupRate
 
     Args:
         variables (dict): Unified context containing all mandatory and
@@ -24,29 +24,28 @@ def calculate_price_architecture(variables: dict) -> dict:
     """
     units = variables[vn.UNITS_PER_ORDER] * variables[vn.ORDERS]
     unit_retail_price = variables[vn.UNIT_RETAIL]
-    cogs = variables[vn.COGS]
+    total_cost = variables[vn.COST]
     profit = variables[vn.PROFIT]
 
     shipping_rate = variables[vn.SHIPPING_RATE]
     tariff_rate = variables[vn.TARIFF_RATE]
     markup_rate = variables[vn.CHANNEL_MARKUP_RATE]
-    usd_to_rmb = variables[vn.USD_TO_RMB]
 
     # Compute breakdown (Waterfall sequence)
     # Note: Ensure units > 0 in upstream validation
-    cogs_per_unit = cogs / units if units != 0 else 0
+    cost_per_unit = total_cost / units if units != 0 else 0
     profit_per_unit = profit / units if units != 0 else 0
 
-    shipping_cost = unit_retail_price * shipping_rate * usd_to_rmb
-    tariff_cost = unit_retail_price * tariff_rate * usd_to_rmb
-    retail_margin = unit_retail_price * markup_rate * usd_to_rmb
+    unit_shipping_cost = unit_retail_price * shipping_rate
+    unit_tariff_cost = unit_retail_price * tariff_rate
+    unit_retail_margin = unit_retail_price * markup_rate
 
     return {
-        vn.COGS_PER_UNIT: cogs_per_unit,
+        vn.COST_PER_UNIT: cost_per_unit,
         vn.PROFIT_PER_UNIT: profit_per_unit,
-        vn.SHIPPING_COST_PER_UNIT: shipping_cost,
-        vn.TARIFF_PER_UNIT: tariff_cost,
-        vn.RETAIL_MARGIN_PER_UNIT: retail_margin,
+        vn.SHIPPING_COST_PER_UNIT: unit_shipping_cost,
+        vn.TARIFF_PER_UNIT: unit_tariff_cost,
+        vn.RETAIL_MARGIN_PER_UNIT: unit_retail_margin,
     }
 
 
@@ -56,14 +55,15 @@ class PriceArchitectureModel(Model):
 
     Description:
         This model performs the 'post-mortem' analysis on retail pricing. It systematically
-        strips the retail price into its constituent financial components: manufacturing costs,
-        logistical friction, import duties, distributor premiums, and final bottom-line profit.
+        strips the retail price into its constituent financial components: total operational
+        costs, logistical friction, import duties, distributor premiums, and final
+        bottom-line profit.
 
     Calculation Equation:
-        RetailPrice = COGS + Shipping + Tariff + RetailerMargin + NetProfit
+        RetailPrice = CostPerUnit + Shipping + Tariff + RetailerMargin + NetProfit
 
         Where:
-        - "CogsPerUnit" maps to vn.COGS_PER_UNIT
+        - "CostPerUnit" maps to vn.COST_PER_UNIT
         - "ProfitPerUnit" maps to vn.PROFIT_PER_UNIT
         - "ShippingCostPerUnit" maps to vn.SHIPPING_COST_PER_UNIT
         - "TariffPerUnit" maps to vn.TARIFF_PER_UNIT
@@ -78,7 +78,7 @@ class PriceArchitectureModel(Model):
         super().__init__(input_variables)
         self._model_function = calculate_price_architecture
         self._output_names = [
-            vn.COGS_PER_UNIT,
+            vn.COST_PER_UNIT,
             vn.PROFIT_PER_UNIT,
             vn.SHIPPING_COST_PER_UNIT,
             vn.TARIFF_PER_UNIT,
@@ -87,8 +87,8 @@ class PriceArchitectureModel(Model):
 
         self._required_variables = [
             vn.UNITS_PER_ORDER,
+            vn.COST,
             vn.ORDERS,
-            vn.COGS,
             vn.UNIT_RETAIL,
             vn.PROFIT
         ]
@@ -96,6 +96,5 @@ class PriceArchitectureModel(Model):
         self._optional_variables = {
             vn.SHIPPING_RATE: 0.0,
             vn.TARIFF_RATE: 0.0,
-            vn.CHANNEL_MARKUP_RATE: 0.0,
-            vn.USD_TO_RMB: 1.0
+            vn.CHANNEL_MARKUP_RATE: 0.0
         }

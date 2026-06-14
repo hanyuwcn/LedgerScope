@@ -12,8 +12,8 @@ from .advertising import (
     GoogleSearchAllocationPercentage,
 )
 from .costs import (
-    Cost,
     SetupCost,
+    ShippingCost,
     AdvertisingCost,
 )
 from .deals import (
@@ -50,8 +50,8 @@ __all__ = [
     "GoogleSearchAllocationPercentage",
 
     # Costs
-    "Cost",
     "SetupCost",
+    "ShippingCost",
     "AdvertisingCost",
 
     # Deal Architecture (Margin Matrix & Volume Primitives)

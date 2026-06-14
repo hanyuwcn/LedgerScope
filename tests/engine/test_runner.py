@@ -10,7 +10,7 @@ from src.engine import (
 from src.models import UnitContributionMarginModel, CostOfGoodsSoldModel, TotalCostModel
 from src.variables import (
     AdvertisingCost, GoogleSearchConversionRate, GoogleSearchCostPerClick,
-    USDToRMB, UnitsPerOrder, UnitExw, Cost
+    USDToRMB, UnitsPerOrder, UnitExw, ShippingRate, ShippingCost, Orders
 )
 
 
@@ -115,8 +115,8 @@ class TestEvaluateVariableScenario(unittest.TestCase):
             variable_names.USD_TO_RMB: USDToRMB(exp=1.0),
             variable_names.UNITS_PER_ORDER: UnitsPerOrder(exp=2.0),
             variable_names.UNIT_EXW: UnitExw(exp=15.0),
-            variable_names.SHIPPING_COST: Cost(exp=500.0),
-            variable_names.ORDERS: Cost(exp=25.0)
+            variable_names.SHIPPING_COST: ShippingRate(exp=500.0),
+            variable_names.ORDERS: Orders(exp=25.0)
         }
 
     def test_evaluate_variable_scenario_extracts_and_runs_expected_values_perfectly(self):
@@ -140,8 +140,8 @@ class TestEvaluateStochasticIteration(unittest.TestCase):
             variable_names.USD_TO_RMB: USDToRMB(exp=1.0),
             variable_names.UNITS_PER_ORDER: UnitsPerOrder(exp=2.0),
             variable_names.UNIT_EXW: UnitExw(exp=15.0),
-            variable_names.SHIPPING_COST: Cost(exp=500.0),
-            variable_names.ORDERS: Cost(exp=25.0)
+            variable_names.SHIPPING_COST: ShippingCost(exp=500.0),
+            variable_names.ORDERS: Orders(exp=25.0)
         }
 
     def test_iteration_uses_expected_values_when_no_inputs_are_shuffled(self):
@@ -192,8 +192,8 @@ class TestEvaluateVariableScenarioSweep(unittest.TestCase):
             variable_names.USD_TO_RMB: USDToRMB(exp=1.0),
             variable_names.UNITS_PER_ORDER: UnitsPerOrder(exp=2.0),
             variable_names.UNIT_EXW: UnitExw(exp=15.0),
-            variable_names.SHIPPING_COST: Cost(exp=500.0),
-            variable_names.ORDERS: Cost(exp=25.0)
+            variable_names.SHIPPING_COST: ShippingCost(exp=500.0),
+            variable_names.ORDERS: Orders(exp=25.0)
         }
 
     def test_sweep_calculates_mathematical_scenarios_accurately_across_list_bounds(self):
