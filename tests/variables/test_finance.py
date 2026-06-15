@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 
 from src.config import variable_names
-from src.variables.finance import InterestRate, TaxRate, USDToRMB, TariffRate, PriceToEarningsRatio
+from src.variables import InterestRate, TaxRate, USDToRMB, TariffRate
 
 
 class TestFinanceVariables(unittest.TestCase):
@@ -22,9 +22,6 @@ class TestFinanceVariables(unittest.TestCase):
         # TariffRate: Explicit test window provided for the pricing waterfall layer (Rule 1)
         self.tariff_rate = TariffRate(min=0.15, exp=0.25, max=0.35)
 
-        # PriceToEarningsRatio: Explicit test window override (Rule 1)
-        self.pe_ratio = PriceToEarningsRatio(min=5, exp=8, max=10)
-
     # =====================================================================
     # IDENTITY & NAMING TESTS
     # =====================================================================
@@ -35,7 +32,6 @@ class TestFinanceVariables(unittest.TestCase):
         self.assertEqual(self.tax_rate.name, variable_names.TAX_RATE)
         self.assertEqual(self.usd_to_rmb.name, variable_names.USD_TO_RMB)
         self.assertEqual(self.tariff_rate.name, variable_names.TARIFF_RATE)
-        self.assertEqual(self.pe_ratio.name, variable_names.PE_RATIO)
 
     # =====================================================================
     # BOUNDARY CONFIGURATION TESTS (Based on presets)
@@ -65,12 +61,6 @@ class TestFinanceVariables(unittest.TestCase):
         self.assertEqual(self.tariff_rate.expected_value, 0.25)
         self.assertEqual(self.tariff_rate.max_value, 0.35)
 
-    def test_price_to_earnings_ratio_range(self):
-        """Verify PriceToEarningsRatio captures specified testing scale coordinates exactly."""
-        self.assertEqual(self.pe_ratio.min_value, 5)
-        self.assertEqual(self.pe_ratio.expected_value, 8)
-        self.assertEqual(self.pe_ratio.max_value, 10)
-
     # =====================================================================
     # BEHAVIORAL METHOD TESTS
     # =====================================================================
@@ -94,11 +84,9 @@ class TestFinanceVariables(unittest.TestCase):
             rand_exchange = self.usd_to_rmb.get_random_value()
             rand_tariff = self.tariff_rate.get_random_value()
             rand_tax = self.tax_rate.get_random_value()
-            rand_pe = self.pe_ratio.get_random_value()
 
             self.assertTrue(6.0 <= rand_exchange <= 7.5)
             self.assertTrue(0.15 <= rand_tariff <= 0.35)
-            self.assertTrue(5 <= rand_pe <= 10)
             self.assertEqual(rand_tax, 0.20)
 
 

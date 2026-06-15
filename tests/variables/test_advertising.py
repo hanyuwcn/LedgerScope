@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 
 from src.config import variable_names
-from src.variables.advertising import (
+from src.variables import (
     AdvertisingBudget,
     GoogleSearchConversionRate,
     GoogleSearchCostPerClick,
@@ -27,7 +27,7 @@ class TestAdvertisingVariables(unittest.TestCase):
 
     def test_advertising_identity_mappings(self):
         """Verify that each advertising funnel class maps to its respective global config key name."""
-        self.assertEqual(self.ads_budget.name, variable_names.ADVERTISING_COST)
+        self.assertEqual(self.ads_budget.name, variable_names.ADVERTISING_EXPENSE)
         self.assertEqual(self.google_conv_rate.name, variable_names.CONVERSION_RATE_GOOGLE_SEARCH)
         self.assertEqual(self.google_cpc.name, variable_names.CPC_GOOGLE_SEARCH)
         self.assertEqual(self.google_allocation.name, variable_names.ALLOCATION_GOOGLE_SEARCH)

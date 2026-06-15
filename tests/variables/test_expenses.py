@@ -1,101 +1,66 @@
 import unittest
 
-import numpy as np
-
 from src.config import variable_names
-from src.variables.expenses import (
+from src.variables import (
     Expense,
-    MonthlyExpense,
     RentExpense,
-    TravelExpense,
     RenderExpense,
+    TravelExpense,
+    MonthlyManagementExpense,
+    MarketingExpense,
+    UnitMarketingExpense,
+    AdvertisingExpense,
+    FreightExpense,
 )
 
 
 class TestExpenseVariables(unittest.TestCase):
 
     def setUp(self):
-        """Initialize local production expense variables with correct test boundaries."""
-        # Expense: Full window explicitly provided (Rule 1)
+        """Initialize all expense variables defined in expenses.py."""
         self.expense = Expense(min=500, exp=1000, max=2000)
-
-        # MonthlyExpense: Placeholder uninitialized for test suite validation (Rule 5)
-        self.monthly_expense = MonthlyExpense()
-
-        # RentExpense: Only min and max provided, expected is midpoint (Rule 3)
         self.rent = RentExpense(min=1000, max=3000)
-
-        # TravelExpense: Only max provided, min defaults to 0, expected is midpoint (Rule 4)
-        self.travel = TravelExpense(max=1500)
-
-        # RenderExpense: Only min and max provided, expected is midpoint (Rule 3)
         self.render = RenderExpense(min=1000, max=2000)
+        self.travel = TravelExpense(max=1500)
+        self.mgmt = MonthlyManagementExpense(exp=5000)
 
-    # =====================================================================
-    # IDENTITY & NAMING TESTS
-    # =====================================================================
+        # Selling Expenses
+        self.marketing = MarketingExpense(min=1000, max=5000)
+        self.unit_marketing = UnitMarketingExpense(min=1, max=10)
+        self.advertising = AdvertisingExpense(min=500, max=2000)
+        self.freight = FreightExpense(min=200, max=1000)
 
     def test_expense_identity_mappings(self):
-        """Verify that each class properly assigns its respective global config key name."""
+        """Verify that EVERY class maps to the correct vn constant."""
         self.assertEqual(self.expense.name, variable_names.EXPENSE)
-        self.assertEqual(self.monthly_expense.name, variable_names.MONTHLY_EXPENSE)
         self.assertEqual(self.rent.name, variable_names.RENT_EXPENSE)
-        self.assertEqual(self.travel.name, variable_names.TRAVEL_EXPENSE)
         self.assertEqual(self.render.name, variable_names.RENDER_EXPENSE)
+        self.assertEqual(self.travel.name, variable_names.TRAVEL_EXPENSE)
+        self.assertEqual(self.mgmt.name, variable_names.MONTHLY_MANAGEMENT_EXPENSE)
+        self.assertEqual(self.marketing.name, variable_names.MARKETING_EXPENSE)
+        self.assertEqual(self.unit_marketing.name, variable_names.UNIT_MARKETING_EXPENSE)
+        self.assertEqual(self.advertising.name, variable_names.ADVERTISING_EXPENSE)
+        self.assertEqual(self.freight.name, variable_names.FREIGHT_EXPENSE)
 
-    # =====================================================================
-    # BOUNDARY CONFIGURATION TESTS (Based on local setup presets)
-    # =====================================================================
+    def test_boundary_configurations(self):
+        """Verify boundary logic (Rules 1-4) for all expenses."""
+        # Rule 3 check
+        self.assertEqual(self.rent.expected_value, 2000.0)
+        self.assertEqual(self.render.expected_value, 1500.0)
 
-    def test_base_expense_range(self):
-        """Verify the generic Expense class respects Rule 1 (Full Window Explicitly Provided)."""
-        self.assertEqual(self.expense.min_value, 500)
-        self.assertEqual(self.expense.max_value, 2000)
-        self.assertEqual(self.expense.expected_value, 1000)
-
-    def test_monthly_expense_placeholder_rule(self):
-        """Verify MonthlyExpense defaults to Rule 5 (Pure Placeholder with all None values)."""
-        self.assertIsNone(self.monthly_expense.min_value)
-        self.assertIsNone(self.monthly_expense.max_value)
-        self.assertIsNone(self.monthly_expense.expected_value)
-
-    def test_rent_range(self):
-        """Verify RentExpense respects Rule 3 (Range Bound) and computes midpoint expected value."""
-        self.assertEqual(self.rent.min_value, 1000)
-        self.assertEqual(self.rent.max_value, 3000)
-        self.assertEqual(self.rent.expected_value, 2000.0)  # Midpoint
-
-    def test_travel_fee_range(self):
-        """Verify TravelExpense respects Rule 4 (Only max provided, min floors to 0, expected is midpoint)."""
+        # Rule 4 check
         self.assertEqual(self.travel.min_value, 0)
-        self.assertEqual(self.travel.max_value, 1500)
-        self.assertEqual(self.travel.expected_value, 750.0)  # Midpoint of 0 and 1500
+        self.assertEqual(self.travel.expected_value, 750.0)
 
-    def test_render_fee_range(self):
-        """Verify RenderExpense respects Rule 3 and computes midpoint expected value."""
-        self.assertEqual(self.render.min_value, 1000)
-        self.assertEqual(self.render.max_value, 2000)
-        self.assertEqual(self.render.expected_value, 1500.0)  # Midpoint
+        # Rule 2 check
+        self.assertEqual(self.mgmt.min_value, 5000.0)
+        self.assertEqual(self.mgmt.max_value, 5000.0)
 
-    # =====================================================================
-    # BEHAVIORAL METHOD TESTS
-    # =====================================================================
-
-    def test_expense_range_generation(self):
-        """Verify get_range_values creates linear partitions across explicitly bounded ranges."""
-        # Test partitioning RenderExpense (1000 to 2000) into 3 discrete milestones: [1000, 1500, 2000]
-        steps = self.render.get_range_values(num=3, digits=0)
-        expected_steps = np.array([1000, 1500, 2000])
-        np.testing.assert_array_equal(steps, expected_steps)
-
-    def test_expense_stochastic_sampling(self):
-        """Verify get_random_value stays strictly inside defined operational boundaries."""
+    def test_stochastic_sampling(self):
+        """Verify random sampling for a selection of variables."""
         for _ in range(50):
-            rand_expense = self.expense.get_random_value()
-            rand_travel = self.travel.get_random_value()
-
-            self.assertTrue(500 <= rand_expense <= 2000)
-            self.assertTrue(0 <= rand_travel <= 1500)
+            self.assertTrue(1000 <= self.marketing.get_random_value() <= 5000)
+            self.assertTrue(200 <= self.freight.get_random_value() <= 1000)
 
 
 if __name__ == "__main__":

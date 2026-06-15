@@ -5,16 +5,11 @@ from src.core import Variable
 class AdvertisingBudget(Variable):
     """
     Represents the total financial capital allocated for advertisement spend.
-
-    Funnel Role: Top-of-funnel resource input.
-    Default Operational Bounds:
-        - Minimum: 1500.0
-        - Maximum: 3000.0
     """
 
     def __init__(self, min=None, exp=None, max=None):
         super().__init__(min, exp, max)
-        self._name = vn.ADVERTISING_COST
+        self._name = vn.ADVERTISING_EXPENSE
 
 
 class GoogleSearchConversionRate(Variable):

@@ -4,78 +4,97 @@ LedgerScope Primitive Declarations.
 Aggregates and exposes the unified financial and transactional variables 
 across costs, logistical deals, operational overhead, and currency matrices.
 """
-
 from .advertising import (
     AdvertisingBudget,
     GoogleSearchConversionRate,
     GoogleSearchCostPerClick,
     GoogleSearchAllocationPercentage,
 )
-from .costs import (
-    SetupCost,
-    ShippingCost,
-    AdvertisingCost,
-)
-from .deals import (
+from .brand import (
     Orders,
     CloseRate,
-    UnitExw,
-    UnitRetail,
-    ChannelMarkupRate,
-    ShippingRate,
-    DeductionRate,
-    UnitFob,
     UnitsPerOrder,
+    UnitsSold,
+    UnitExwPrice,
+    UnitFobPrice,
 )
+from .common import Months
 from .expenses import (
     Expense,
-    MonthlyExpense,
     RentExpense,
-    TravelExpense,
     RenderExpense,
+    TravelExpense,
+    MonthlyManagementExpense,
+    MarketingExpense,
+    UnitMarketingExpense,
+    AdvertisingExpense,
+    FreightExpense,
 )
 from .finance import (
     InterestRate,
     TaxRate,
     TariffRate,
     USDToRMB,
+)
+from .investment import (
     PriceToEarningsRatio,
+    SetupInvestment,
+)
+from .merchant import (
+    UnitRetailPrice,
+    DeductionRate,
+    RetailMarginRate,
+    FreightRate,
+    UnitFreightExpense,
+    UnitTariff,
+    UnitRetailMargin,
 )
 
 __all__ = [
-    # Performance Marketing & Advertising Funnel
+    # Common
+    "Months",
+
+    # Advertising
     "AdvertisingBudget",
     "GoogleSearchConversionRate",
     "GoogleSearchCostPerClick",
     "GoogleSearchAllocationPercentage",
 
-    # Costs
-    "SetupCost",
-    "ShippingCost",
-    "AdvertisingCost",
-
-    # Deal Architecture (Margin Matrix & Volume Primitives)
+    # Brand
     "Orders",
     "CloseRate",
-    "UnitExw",
-    "UnitRetail",
-    "ChannelMarkupRate",
-    "ShippingRate",
-    "DeductionRate",
-    "UnitFob",
     "UnitsPerOrder",
+    "UnitsSold",
+    "UnitExwPrice",
+    "UnitFobPrice",
 
-    # Operational Expenses
+    # Merchant
+    "UnitRetailPrice",
+    "DeductionRate",
+    "RetailMarginRate",
+    "FreightRate",
+    "UnitFreightExpense",
+    "UnitTariff",
+    "UnitRetailMargin",
+
+    # Expenses
     "Expense",
-    "MonthlyExpense",
     "RentExpense",
-    "TravelExpense",
     "RenderExpense",
+    "TravelExpense",
+    "MonthlyManagementExpense",
+    "MarketingExpense",
+    "UnitMarketingExpense",
+    "AdvertisingExpense",
+    "FreightExpense",
 
-    # Macro Finance Metrics & Valuation Multipliers
+    # Finance
     "InterestRate",
     "TaxRate",
     "TariffRate",
     "USDToRMB",
+
+    # Investment
     "PriceToEarningsRatio",
+    "SetupInvestment",
 ]

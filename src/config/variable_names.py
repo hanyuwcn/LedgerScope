@@ -1,6 +1,7 @@
 ## Variable Names
 
 SYSTEM_RUN_ID = "simulation_run_id"
+MODEL_DEFAULT_OUTPUT_NAME = "Output"
 
 ### Below are the common Variable names
 MONTHS = "Months"
@@ -8,32 +9,20 @@ MONTHS = "Months"
 ### Below are the Variable names, which MUST matches the correspondant argument names in the aggregation functions
 ### Expenses
 EXPENSE = "Expense"
-MONTHLY_EXPENSE = "MonthlyExpense"
+
+#### Management Expense
 RENT_EXPENSE = "RentExpense"
 RENDER_EXPENSE = "RenderExpense"
 TRAVEL_EXPENSE = "TravelExpense"
+MONTHLY_MANAGEMENT_EXPENSE = "MonthlyManagementExpense"
+MANAGEMENT_EXPENSE = "ManagementExpense"
+UNIT_FIXED_OVERHEAD_EXPENSE = "UnitFixedOverheadExpense"
 
-### Investment
-CAPITAL_EXPENDITURE = "CapitalExpenditure"
-DEPRECIATION = "Depreciation"
-
-### Deals
-ORDERS = "Orders"
-CLOSE_RATE = "CloseRate"
-UNITS_PER_ORDER = "UnitsPerOrder"
-UNIT_EXW = "UnitExWorksPrice"
-UNIT_FOB = "UnitFreeOnBoardPrice"
-UNIT_RETAIL = "UnitRetailPrice"
-DEDUCTION_RATE = "DeductionRate"
-CHANNEL_MARKUP_RATE = "ChannelMarkupRate"
-SHIPPING_RATE = "ShippingRate"
-
-### Finance
-TAX_RATE = "TaxRate"
-TARIFF_RATE = "TariffRate"
-USD_TO_RMB = "USDToRMB"
-INTEREST_RATE = "InterestRate"
-PE_RATIO = "PriceToEarningsRatio"
+#### Selling Expense
+MARKETING_EXPENSE = "MarketingExpense"
+UNIT_MARKETING_EXPENSE = "UnitMarketingExpense"
+ADVERTISING_EXPENSE = "AdvertisingExpense"
+FREIGHT_EXPENSE = "FreightExpense"
 
 ### Ads
 CONVERSION_RATE_GOOGLE_SEARCH = "GoogleSearchConversionRate"
@@ -42,36 +31,62 @@ ALLOCATION_GOOGLE_SEARCH = "AllocationGoogleSearch"
 CPL_GOOGLE_SEARCH = "GoogleSearchCostPerLeads"
 LEADS = "Leads"
 
+### Brand
+ORDERS = "Orders"
+CLOSE_RATE = "CloseRate"
+UNITS_PER_ORDER = "UnitsPerOrder"
+UNITS_SOLD = "UnitsSold"
+UNIT_EXW_PRICE = "UnitExWorksPrice"
+UNIT_FOB_PRICE = "UnitFreeOnBoardPrice"
+
+### Merchant
+UNIT_RETAIL_PRICE = "UnitRetailPrice"
+UNIT_RETAIL_PRICE_IN_RMB = "UnitRetailPrice(RMB)"
+DEDUCTION_RATE = "DeductionRate"
+CHANNEL_MARKUP_RATE = "ChannelMarkupRate"
+FREIGHT_RATE = "FreightRate"
+UNIT_FREIGHT_EXPENSE = "UnitFreightExpense"
+UNIT_FREIGHT_EXPENSE_IN_RMB = "UnitFreightExpense(RMB)"
+UNIT_TARIFF = "UnitTariff"
+UNIT_TARIFF_IN_RMB = "UnitTariff(RMB)"
+UNIT_RETAIL_MARGIN = "UnitRetailerMargin"
+UNIT_RETAIL_MARGIN_IN_RMB = "UnitRetailerMargin(RMB)"
+
+### Finance
+TAX_RATE = "TaxRate"
+TARIFF_RATE = "TariffRate"
+USD_TO_RMB = "USDToRMB"
+INTEREST_RATE = "InterestRate"
+
 ### Costs
-ADVERTISING_COST = "AdvertisingCost"
-SHIPPING_COST = "ShippingCost"
 COGS = "Cogs"
-MANAGEMENT_COST = "ManagementCost"
-SETUP_COST = "SetupCost"
 COST = "Cost"
 
-### Revenue
+### Income
 REVENUE = "Revenue"
-REVENUE_GOODS_SOLD = "GoodsSold"
-
-### Metrics
-MODEL_DEFAULT_OUTPUT_NAME = "Output"
+# REVENUE_GOODS_SOLD = "GoodsSold"
 NET_INCOME = "NetIncome"
 PROFIT = "Profit"
-ROI = "ROI"
+UNIT_GROSS_PROFIT = "UnitGrossProfit"
 FREE_CASH_FLOW = "FreeCashFlow"
-ROAS = "ReturnOnAdvertisingSpend"
-CAC = "CustomerAcquisitionCost"
-UNIT_CONTRIBUTION_MARGIN = "UnitContributionMargin"
+
+### Investment
+CAPITAL_EXPENDITURE = "CapitalExpenditure"
+DEPRECIATION = "Depreciation"
+SETUP_INVESTMENT = "SetupInvestment"
+PE_RATIO = "PriceToEarningsRatio"
 MARKET_PRICE = "MarketPrice"
 
 ### Price Architecture
-# COGS_PER_UNIT = "CogsPerUnit"
-COST_PER_UNIT = "CostPerUnit"
-SHIPPING_COST_PER_UNIT = "ShippingCostPerUnit"
-TARIFF_PER_UNIT = "TariffPerUnit"
-RETAIL_MARGIN_PER_UNIT = "RetailerMarginPerUnit"
-PROFIT_PER_UNIT = "ProfitPerUnit"
+# COST_PER_UNIT = "CostPerUnit"
+# SHIPPING_COST_PER_UNIT = "ShippingCostPerUnit"
+# UNIT_CONTRIBUTION_MARGIN = "UnitContributionMargin"
+
+
+### Metrics
+ROI = "ROI"
+ROAS = "ReturnOnAdvertisingSpend"
+CAC = "CustomerAcquisitionCost"
 
 ## Break even analysis
 BREAK_EVEN_VARIABLE_NAME = "BreakEvenVariable"

@@ -40,13 +40,3 @@ class TariffRate(Variable):
     def __init__(self, min=None, exp=settings.DEFAULT_TARIFF_RATE, max=None):
         super().__init__(min, exp, max)
         self._name = vn.TARIFF_RATE
-
-
-class PriceToEarningsRatio(Variable):
-    """
-    Valuation multiplier capturing market valuation premiums relative to earnings metrics.
-    """
-
-    def __init__(self, min=None, exp=settings.DEFAULT_PE_RATIO, max=None):
-        super().__init__(min, exp, max)
-        self._name = vn.PE_RATIO
