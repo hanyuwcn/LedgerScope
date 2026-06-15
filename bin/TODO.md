@@ -1,5 +1,11 @@
 - Review all the tests
 
+- Cost per unit = ads per unit + cogs per unit
+  - Remove shipping cost from total cost
+  - Add Ads per unit and cogs per unit(unitExw)
+  - Add a model to exchange all currencies to rmb
+
+
 - Write final report(ctnd)
    - Restructure final report
    - Write report in both languages
