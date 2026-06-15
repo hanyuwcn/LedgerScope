@@ -203,17 +203,22 @@ Unit Retail Price = Unit EXW Price
 
 ```mermaid
 flowchart TD
-    START[Unit Retail Price: 100] --> S1[– Unit Freight Expense: 5<br>(Freight borne by Brand)]
-    S1 --> S2[– Unit Tariff Expense: 5<br>(Government tariffs)]
-    S2 --> S3[– Unit Channel Markup: 25<br>(Distributor/Merchant profit)]
-    S3 --> S4[= Unit FOB Price: 65]
-    
-    S4 --> S5[– Unit EXW Price: 30<br>(Raw material/Manufacturer)]
-    S5 --> S6[= Unit Gross Profit: 35]
-    
-    S6 --> S7[– Unit Marketing Expense: 10<br>(Advertiser/Marketing platform)]
-    S7 --> S8[– Unit Fixed Overhead Expense: 10<br>(Brand fixed costs)]
-    S8 --> END[Unit Operating Income: 15<br>(Brand net profit)]
+    START["Unit Retail Price: 100"] --> S1["– Unit Freight Expense: 5
+    (Freight borne by Brand)"]
+    S1 --> S2["– Unit Tariff Expense: 5
+    (Government tariffs)"]
+    S2 --> S3["– Unit Channel Markup: 25
+    (Distributor/Merchant profit)"]
+    S3 --> S4["= Unit FOB Price: 65"]
+    S4 --> S5["– Unit EXW Price: 30
+    (Raw material/Manufacturer)"]
+    S5 --> S6["= Unit Gross Profit: 35"]
+    S6 --> S7["– Unit Marketing Expense: 10
+    (Advertiser/Marketing platform)"]
+    S7 --> S8["– Unit Fixed Overhead Expense: 10
+    (Brand fixed costs)"]
+    S8 --> END["= Unit Operating Income: 15
+    (Brand net profit)"]
 ```
 
 ---
