@@ -7,7 +7,7 @@ def calculate_deduction_rate(variables: dict) -> dict:
     Calculates the aggregate gross margin deduction rate leakage coefficient.
 
     Mathematical Formula:
-        DeductionRate = FreightRate + TariffRate + ChannelMarkupRate
+        DeductionRate = MerchantFreightRate + TariffRate + ChannelMarkupRate
 
     Args:
         variables (dict): Unified context containing all mandatory and
@@ -18,7 +18,7 @@ def calculate_deduction_rate(variables: dict) -> dict:
             to its master registry key signature.
             Example: {"DeductionRate": 0.43}
     """
-    freight_rate = variables[vn.FREIGHT_RATE]
+    freight_rate = variables[vn.MERCHANT_FREIGHT_RATE]
     tariff_rate = variables[vn.TARIFF_RATE]
     channel_markup_rate = variables[vn.CHANNEL_MARKUP_RATE]
 
@@ -40,10 +40,10 @@ class DeductionRateModel(Model):
         valuation blocks (such as UnitFobModel).
 
     Calculation Equation:
-        DeductionRate = FreightRate + TariffRate + ChannelMarkupRate
+        DeductionRate = MerchantFreightRate + TariffRate + ChannelMarkupRate
 
         Where:
-        - "FreightRate" maps to vn.FREIGHT_RATE
+        - "MerchantFreightRate" maps to vn.MERCHANT_FREIGHT_RATE
         - "TariffRate" maps to vn.TARIFF_RATE
         - "ChannelMarkupRate" maps to vn.CHANNEL_MARKUP_RATE
         - "DeductionRate" maps to vn.DEDUCTION_RATE
@@ -68,7 +68,7 @@ class DeductionRateModel(Model):
 
         # Migrated from standard list footprint to map defaults transparently to 0.0
         self._optional_variables = {
-            vn.FREIGHT_RATE: 0.0,
+            vn.MERCHANT_FREIGHT_RATE: 0.0,
             vn.TARIFF_RATE: 0.0,
             vn.CHANNEL_MARKUP_RATE: 0.0
         }

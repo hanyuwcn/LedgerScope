@@ -9,12 +9,12 @@ def check_operating_income(variables: dict) -> None:
     Validates that the Unit Operating Income reconciles with the product
     margin after accounting for marketing and fixed overheads.
 
-    Note: Unit Freight Expense is forcibly set to 0.0 as this is a
+    Note: Unit Brand Freight Expense is forcibly set to 0.0 as this is a
           non-brand-borne expense in the current business model.
 
     Reconciliation Formula:
         UnitOperatingIncome = (UnitFobPrice - UnitExwPrice -
-                               UnitMarketingExpense - UnitFreightExpense -
+                               UnitMarketingExpense - UnitBrandFreightExpense -
                                UnitFixedOverheadExpense)
 
     Args:
@@ -31,12 +31,12 @@ def check_operating_income(variables: dict) -> None:
     unit_fixed_overhead_expense = variables[vn.UNIT_FIXED_OVERHEAD_EXPENSE]
 
     # Brand-side business rule: Freight is not borne by the brand
-    unit_freight_expense = 0.0
+    unit_brand_freight_expense = 0.0
 
     if not math.isclose(unit_fob_price
                         - unit_exw_price
                         - unit_marketing_expense
-                        - unit_freight_expense
+                        - unit_brand_freight_expense
                         - unit_fixed_overhead_expense,
                         unit_operating_income,
                         rel_tol=settings.AUDIT_REL_TOL,
@@ -45,7 +45,7 @@ def check_operating_income(variables: dict) -> None:
             f"Reconciliation error: unit_fob_price({unit_fob_price}) "
             f"- unit_exw_price({unit_exw_price}) "
             f"- unit_marketing_expense({unit_marketing_expense}) "
-            f"- unit_freight_expense({unit_freight_expense}) "
+            f"- unit_brand_freight_expense({unit_brand_freight_expense}) "
             f"- unit_fixed_overhead_expense({unit_fixed_overhead_expense}) "
             f"!= unit_operating_income({unit_operating_income})"
         )
@@ -61,7 +61,7 @@ class UnitOperatingIncomeAuditor(Auditor):
         expenses (e.g., freight).
 
     Audit Logic:
-        - Ensures: OperatingIncome == (FOB - EXW - Marketing - Freight(0) - FixedOverhead)
+        - Ensures: OperatingIncome == (FOB - EXW - Marketing - BrandFreight(0) - FixedOverhead)
     """
 
     def __init__(self, input_variables: dict = None):
@@ -72,12 +72,12 @@ class UnitOperatingIncomeAuditor(Auditor):
             vn.UNIT_OPERATING_INCOME,
             vn.UNIT_FOB_PRICE,
             vn.UNIT_EXW_PRICE,
-            # Keeping freight as a required variable ensures it exists
-            # in context even if we ignore its value.
-            vn.UNIT_FREIGHT_EXPENSE_IN_RMB,
         ]
 
         self._optional_variables = {
             vn.UNIT_MARKETING_EXPENSE: 0.0,
-            vn.UNIT_FIXED_OVERHEAD_EXPENSE: 0.0
+            vn.UNIT_FIXED_OVERHEAD_EXPENSE: 0.0,
+            # Keeping freight as a required variable ensures it exists
+            # in context even if we ignore its value.
+            vn.BRAND_FREIGHT_EXPENSE: 0.0,
         }

@@ -2,7 +2,7 @@ from src.auditors import PriceArchitectureAuditor, DeductionAuditor, UnitGrossPr
 
 from src.models import (
     AdvertisingEfficiencyGoogleSearchModel, CostOfGoodsSoldModel,
-    UnitFixedOverheadExpenseModel, FreightExpenseModel, UnitMarketingExpenseModel,
+    UnitFixedOverheadExpenseModel, BrandFreightExpenseModel, UnitMarketingExpenseModel,
     TotalSellingExpenseModel, TotalManagementExpenseModel, AdvertisingExpenseModel,
     UnitRetailMarginModel, UnitTariffModel,
     RevenueModel, TotalExpenseModel, DepreciationModel, CapitalExpenditureModel,
@@ -23,7 +23,7 @@ PIPELINE_REGISTRY = {
     "selling_expense": TotalSellingExpenseModel,
     "advertising_expense": AdvertisingExpenseModel,
     "management_expense": TotalManagementExpenseModel,
-    "freight_expense": FreightExpenseModel,
+    "brand_freight_expense": BrandFreightExpenseModel,
     "currency_exchange": CurrencyExchangeModel,
     "order": OrderModel,
     "cogs": CostOfGoodsSoldModel,

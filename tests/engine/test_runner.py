@@ -10,7 +10,8 @@ from src.engine import (
 from src.models import (UnitGrossProfitModel, CostOfGoodsSoldModel, TotalExpenseModel, UnitsSoldModel,
                         TotalSellingExpenseModel, AdvertisingExpenseModel)
 from src.variables import (GoogleSearchConversionRate, GoogleSearchCostPerClick,
-                           USDToRMB, UnitsPerOrder, UnitExwPrice, FreightRate, FreightExpense, Orders, MarketingExpense
+                           USDToRMB, UnitsPerOrder, UnitExwPrice, FreightRate, BrandFreightExpense, Orders,
+                           MarketingExpense
                            )
 
 
@@ -45,7 +46,7 @@ class TestEvaluateChainedModelsPipeline(unittest.TestCase):
             variable_names.USD_TO_RMB: 1.0,  # No conversion shift
             variable_names.UNITS_PER_ORDER: 2.0,  # 2 items per transaction
             variable_names.UNIT_EXW_PRICE: 15.0,  # $15 base purchase price
-            variable_names.FREIGHT_EXPENSE: 500.0,  # Operational shipping cost
+            variable_names.BRAND_FREIGHT_EXPENSE: 500.0,  # Operational shipping cost
             variable_names.ORDERS: 25.0  # Injected directly to drive downstream matrix matching
         }
 
@@ -137,7 +138,7 @@ class TestEvaluateVariableScenario(unittest.TestCase):
             variable_names.USD_TO_RMB: USDToRMB(exp=1.0),
             variable_names.UNITS_PER_ORDER: UnitsPerOrder(exp=2.0),
             variable_names.UNIT_EXW_PRICE: UnitExwPrice(exp=15.0),
-            variable_names.FREIGHT_EXPENSE: FreightRate(exp=500.0),
+            variable_names.BRAND_FREIGHT_EXPENSE: FreightRate(exp=500.0),
             variable_names.ORDERS: Orders(exp=25.0)
         }
 
@@ -166,7 +167,7 @@ class TestEvaluateStochasticIteration(unittest.TestCase):
             variable_names.USD_TO_RMB: USDToRMB(exp=1.0),
             variable_names.UNITS_PER_ORDER: UnitsPerOrder(exp=2.0),
             variable_names.UNIT_EXW_PRICE: UnitExwPrice(exp=15.0),
-            variable_names.FREIGHT_EXPENSE: FreightExpense(exp=500.0),
+            variable_names.BRAND_FREIGHT_EXPENSE: BrandFreightExpense(exp=500.0),
             variable_names.ORDERS: Orders(exp=25.0)
         }
 
@@ -222,7 +223,7 @@ class TestEvaluateVariableScenarioSweep(unittest.TestCase):
             variable_names.USD_TO_RMB: USDToRMB(exp=1.0),
             variable_names.UNITS_PER_ORDER: UnitsPerOrder(exp=2.0),
             variable_names.UNIT_EXW_PRICE: UnitExwPrice(exp=15.0),
-            variable_names.FREIGHT_EXPENSE: FreightExpense(exp=500.0),
+            variable_names.BRAND_FREIGHT_EXPENSE: BrandFreightExpense(exp=500.0),
             variable_names.ORDERS: Orders(exp=25.0)
         }
 

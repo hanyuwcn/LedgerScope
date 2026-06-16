@@ -16,9 +16,9 @@ class TestDeductionAuditor(unittest.TestCase):
             vn.UNIT_FOB_PRICE: 100.0,
             vn.UNIT_RETAIL_PRICE: 200.0,
             vn.TARIFF_RATE: 0.1,
-            vn.FREIGHT_RATE: 0.1,
+            vn.MERCHANT_FREIGHT_RATE: 0.1,
             vn.CHANNEL_MARKUP_RATE: 0.1,
-            vn.UNIT_FREIGHT_EXPENSE: 30.0,
+            vn.UNIT_MERCHANT_FREIGHT_EXPENSE: 30.0,
             vn.UNIT_TARIFF: 30.0,
             vn.UNIT_RETAIL_MARGIN: 40.0
         }
@@ -35,7 +35,7 @@ class TestDeductionAuditor(unittest.TestCase):
             vn.UNIT_FOB_PRICE: 100.0,
             vn.UNIT_RETAIL_PRICE: 200.0,
             vn.TARIFF_RATE: 0.5,
-            vn.FREIGHT_RATE: 0.6,  # Total = 1.1
+            vn.MERCHANT_FREIGHT_RATE: 0.6,  # Total = 1.1
             vn.CHANNEL_MARKUP_RATE: 0.0
         }
         auditor = DeductionAuditor(inputs)
@@ -48,7 +48,7 @@ class TestDeductionAuditor(unittest.TestCase):
         inputs = {
             vn.UNIT_FOB_PRICE: 100.0,
             vn.UNIT_RETAIL_PRICE: 500.0,  # Wrong total
-            vn.UNIT_FREIGHT_EXPENSE: 10.0,
+            vn.UNIT_MERCHANT_FREIGHT_EXPENSE: 10.0,
             vn.UNIT_TARIFF: 10.0,
             vn.UNIT_RETAIL_MARGIN: 10.0
         }

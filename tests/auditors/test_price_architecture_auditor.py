@@ -18,7 +18,7 @@ class TestPriceArchitectureAuditor(unittest.TestCase):
             vn.UNIT_MARKETING_EXPENSE: 50.0,
             vn.UNIT_FIXED_OVERHEAD_EXPENSE: 50.0,
             vn.UNIT_OPERATING_INCOME: 300.0,
-            vn.UNIT_FREIGHT_EXPENSE_IN_RMB: 100.0,
+            vn.UNIT_MERCHANT_FREIGHT_EXPENSE_IN_RMB: 100.0,
             vn.UNIT_TARIFF_IN_RMB: 100.0,
             vn.UNIT_RETAIL_MARGIN_IN_RMB: 200.0
         }

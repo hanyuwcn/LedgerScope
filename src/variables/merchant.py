@@ -32,17 +32,18 @@ class RetailMarginRate(Variable):
         self._name = vn.CHANNEL_MARKUP_RATE
 
 
-class FreightRate(Variable):
+class MerchantFreightRate(Variable):
     """
-    Logistics overhead coefficient mapping the variable cross-border or localized haulage metrics.
+    Logistics overhead coefficient mapping the variable cross-border or localized haulage metrics by the merchant
+    or distributor.
     """
 
     def __init__(self, min=None, exp=None, max=None):
         super().__init__(min, exp, max)
-        self._name = vn.FREIGHT_RATE
+        self._name = vn.MERCHANT_FREIGHT_RATE
 
 
-class UnitFreightExpense(Variable):
+class UnitMerchantFreightExpense(Variable):
     """
     The calculated monetary cost of logistics per unit, borne by the merchant
     or distributor, often derived from the Unit Retail Price and Freight Rate.
@@ -50,7 +51,7 @@ class UnitFreightExpense(Variable):
 
     def __init__(self, min=None, exp=None, max=None):
         super().__init__(min, exp, max)
-        self._name = vn.UNIT_FREIGHT_EXPENSE
+        self._name = vn.UNIT_MERCHANT_FREIGHT_EXPENSE
 
 
 class UnitTariff(Variable):

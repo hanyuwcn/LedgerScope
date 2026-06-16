@@ -9,6 +9,7 @@ DO NOT REORDER IMPORTS. MAINTAIN ALIGNMENT WITH CORRESPONDING MODELS.
 """
 
 from .deduction_auditor import DeductionAuditor
+from .freight_expense_auditor import FreightExpenseAuditor
 from .price_architecture_auditor import PriceArchitectureAuditor
 from .unit_gross_profit_auditor import UnitGrossProfitAuditor
 from .unit_operating_income_auditor import UnitOperatingIncomeAuditor
@@ -19,4 +20,5 @@ __all__ = [
     "UnitGrossProfitAuditor",
     "UnitOperatingIncomeAuditor",
     "DeductionAuditor",
+    "FreightExpenseAuditor",
 ]

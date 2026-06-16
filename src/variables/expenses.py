@@ -89,7 +89,7 @@ class AdvertisingExpense(Variable):
         self._name = vn.ADVERTISING_EXPENSE
 
 
-class FreightExpense(Variable):
+class BrandFreightExpense(Variable):
     """
     Captures the total aggregate logistics and shipping costs incurred by the Brand
     for the fulfillment of orders during the period.
@@ -97,4 +97,4 @@ class FreightExpense(Variable):
 
     def __init__(self, min=None, exp=None, max=None):
         super().__init__(min, exp, max)
-        self._name = vn.FREIGHT_EXPENSE
+        self._name = vn.BRAND_FREIGHT_EXPENSE

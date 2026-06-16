@@ -18,12 +18,12 @@ def calculate_total_selling_expense(variables: dict) -> dict:
             the central pipeline registry.
             Example: {"SELLING_EXPENSE": 5000.0}
     """
-    # freight_expense = variables.get(vn.FREIGHT_EXPENSE, 0.0)
+    # brand_freight_expense = variables.get(vn.BRAND_FREIGHT_EXPENSE, 0.0)
     # marketing_expense = variables.get(vn.MARKETING_EXPENSE, 0.0)
-    freight_expense = variables[vn.FREIGHT_EXPENSE]
+    brand_freight_expense = variables[vn.BRAND_FREIGHT_EXPENSE]
     marketing_expense = variables[vn.MARKETING_EXPENSE]
 
-    calculated_total_selling_expense = freight_expense + marketing_expense
+    calculated_total_selling_expense = brand_freight_expense + marketing_expense
     return {vn.SELLING_EXPENSE: calculated_total_selling_expense}
 
 
@@ -38,10 +38,10 @@ class TotalSellingExpenseModel(Model):
         expense modeling and profitability analysis.
 
     Calculation Equation:
-        TotalSellingExpense = FreightExpense + MarketingExpense
+        TotalSellingExpense = BrandFreightExpense + MarketingExpense
 
         Where:
-        - "FreightExpense" maps to vn.FREIGHT_EXPENSE (Optional)
+        - "BrandFreightExpense" maps to vn.BRAND_FREIGHT_EXPENSE (Optional)
         - "MarketingExpense" maps to vn.MARKETING_EXPENSE (Optional)
         - "TotalSellingExpense" maps to vn.SELLING_EXPENSE
     """
@@ -61,6 +61,6 @@ class TotalSellingExpenseModel(Model):
 
         # Defining optional boundaries with default zero-values for stability
         self._optional_variables = {
-            vn.FREIGHT_EXPENSE: 0.0,
+            vn.BRAND_FREIGHT_EXPENSE: 0.0,
             vn.MARKETING_EXPENSE: 0.0,
         }

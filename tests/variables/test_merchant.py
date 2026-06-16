@@ -5,8 +5,8 @@ from src.variables import (
     UnitRetailPrice,
     DeductionRate,
     RetailMarginRate,
-    FreightRate,
-    UnitFreightExpense,
+    MerchantFreightRate,
+    UnitMerchantFreightExpense,
     UnitTariff,
     UnitRetailMargin
 )
@@ -19,8 +19,8 @@ class TestMerchantVariables(unittest.TestCase):
         self.retail_price = UnitRetailPrice(min=8000, exp=10000, max=12000)
         self.deduction_rate = DeductionRate(min=0.20, exp=0.30, max=0.40)
         self.margin_rate = RetailMarginRate(min=0.10, exp=0.15, max=0.20)
-        self.freight_rate = FreightRate(min=0.02, exp=0.05, max=0.08)
-        self.freight_expense = UnitFreightExpense(min=50, exp=100, max=150)
+        self.freight_rate = MerchantFreightRate(min=0.02, exp=0.05, max=0.08)
+        self.freight_expense = UnitMerchantFreightExpense(min=50, exp=100, max=150)
         self.tariff = UnitTariff(min=20, exp=40, max=60)
         self.retail_margin = UnitRetailMargin(min=200, exp=400, max=600)
 
@@ -33,8 +33,8 @@ class TestMerchantVariables(unittest.TestCase):
         self.assertEqual(self.retail_price.name, vn.UNIT_RETAIL_PRICE)
         self.assertEqual(self.deduction_rate.name, vn.DEDUCTION_RATE)
         self.assertEqual(self.margin_rate.name, vn.CHANNEL_MARKUP_RATE)
-        self.assertEqual(self.freight_rate.name, vn.FREIGHT_RATE)
-        self.assertEqual(self.freight_expense.name, vn.UNIT_FREIGHT_EXPENSE)
+        self.assertEqual(self.freight_rate.name, vn.MERCHANT_FREIGHT_RATE)
+        self.assertEqual(self.freight_expense.name, vn.UNIT_MERCHANT_FREIGHT_EXPENSE)
         self.assertEqual(self.tariff.name, vn.UNIT_TARIFF)
         self.assertEqual(self.retail_margin.name, vn.UNIT_RETAIL_MARGIN)
 

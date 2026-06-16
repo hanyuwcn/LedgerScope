@@ -17,7 +17,7 @@ class TestUnitOperatingIncomeAuditor(unittest.TestCase):
             vn.UNIT_OPERATING_INCOME: 50.0,
             vn.UNIT_FOB_PRICE: 250.0,
             vn.UNIT_EXW_PRICE: 200.0,
-            vn.UNIT_FREIGHT_EXPENSE_IN_RMB: 100.0  # Should be ignored (set to 0.0)
+            vn.UNIT_MERCHANT_FREIGHT_EXPENSE_IN_RMB: 100.0  # Should be ignored (set to 0.0)
         }
         auditor = UnitOperatingIncomeAuditor(inputs)
         auditor.evaluate()
@@ -31,7 +31,7 @@ class TestUnitOperatingIncomeAuditor(unittest.TestCase):
             vn.UNIT_EXW_PRICE: 200.0,
             vn.UNIT_MARKETING_EXPENSE: 50.0,
             vn.UNIT_FIXED_OVERHEAD_EXPENSE: 50.0,
-            vn.UNIT_FREIGHT_EXPENSE_IN_RMB: 999.0  # Should be ignored
+            vn.UNIT_MERCHANT_FREIGHT_EXPENSE_IN_RMB: 999.0  # Should be ignored
         }
         auditor = UnitOperatingIncomeAuditor(inputs)
         auditor.evaluate()
@@ -47,7 +47,7 @@ class TestUnitOperatingIncomeAuditor(unittest.TestCase):
             vn.UNIT_OPERATING_INCOME: 40.0,
             vn.UNIT_FOB_PRICE: 250.0,
             vn.UNIT_EXW_PRICE: 200.0,
-            vn.UNIT_FREIGHT_EXPENSE_IN_RMB: 0.0
+            vn.UNIT_MERCHANT_FREIGHT_EXPENSE_IN_RMB: 0.0
         }
         auditor = UnitOperatingIncomeAuditor(inputs)
 

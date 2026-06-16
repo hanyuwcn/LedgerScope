@@ -1,7 +1,5 @@
 - Review all the tests
 
-- separate freight for seller freight and buyer freight. auditor for only one of them > 0
-
 - Write final report(ctnd)
    - Restructure final report
    - Write report in both languages
@@ -85,3 +83,4 @@
         - MarketPrice = Price-to-ratio * 12 * net income / months
         - Correct analysis tests and visualization tests
         - Replace `variable_names.` to `vn`
+        - separate freight for seller freight and buyer freight. auditor for only one of them > 0

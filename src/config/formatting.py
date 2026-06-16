@@ -20,7 +20,7 @@ VARIABLE_FORMATTING_MAP = {
     MARKETING_EXPENSE: lambda v: fmt(v, s='¥'),
     UNIT_MARKETING_EXPENSE: lambda v: fmt(v, d=1, s='$'),
     ADVERTISING_EXPENSE: lambda v: fmt(v, s='¥'),
-    FREIGHT_EXPENSE: lambda v: fmt(v, d=1, s='$'),
+    BRAND_FREIGHT_EXPENSE: lambda v: fmt(v, d=1, s='$'),
     SELLING_EXPENSE: lambda v: fmt(v, d=1, s='$'),
 
     ### Advertising
@@ -44,9 +44,9 @@ VARIABLE_FORMATTING_MAP = {
     UNIT_RETAIL_PRICE_IN_RMB: lambda v: fmt(v, s='¥'),
     DEDUCTION_RATE: lambda v: fmt(v, d=1, p=True),
     CHANNEL_MARKUP_RATE: lambda v: fmt(v, d=1, p=True),
-    FREIGHT_RATE: lambda v: fmt(v, d=1, p=True),
-    UNIT_FREIGHT_EXPENSE: lambda v: fmt(v, d=1, s='$'),
-    UNIT_FREIGHT_EXPENSE_IN_RMB: lambda v: fmt(v, d=1, s='¥'),
+    MERCHANT_FREIGHT_RATE: lambda v: fmt(v, d=1, p=True),
+    UNIT_MERCHANT_FREIGHT_EXPENSE: lambda v: fmt(v, d=1, s='$'),
+    UNIT_MERCHANT_FREIGHT_EXPENSE_IN_RMB: lambda v: fmt(v, d=1, s='¥'),
     UNIT_TARIFF: lambda v: fmt(v, s='$'),
     UNIT_TARIFF_IN_RMB: lambda v: fmt(v, s='¥'),
     UNIT_RETAIL_MARGIN: lambda v: fmt(v, s='$'),

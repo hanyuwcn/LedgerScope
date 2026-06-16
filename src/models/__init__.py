@@ -13,7 +13,7 @@ from .expense.management.monthly_management_expense_model import MonthlyExpenseM
 from .expense.management.total_management_expense_model import TotalManagementExpenseModel
 from .expense.management.unit_fixed_overhead_expense_model import UnitFixedOverheadExpenseModel
 from .expense.selling.advertising_expense_model import AdvertisingExpenseModel
-from .expense.selling.freight_expense_model import FreightExpenseModel
+from .expense.selling.freight_expense_model import BrandFreightExpenseModel
 from .expense.selling.total_selling_expense_model import TotalSellingExpenseModel
 from .expense.selling.unit_marketing_expense_model import UnitMarketingExpenseModel
 from .expense.total_expense_model import TotalExpenseModel
@@ -30,7 +30,7 @@ from .investment.market_price_model import MarketPriceModel
 from .merchant.currency_exchange_model import CurrencyExchangeModel
 from .merchant.deduction_rate_model import DeductionRateModel
 from .merchant.unit_fob_price_model import UnitFobModel
-from .merchant.unit_freight_expense_model import UnitFreightExpenseModel
+from .merchant.unit_freight_expense_model import UnitMerchantFreightExpenseModel
 from .merchant.unit_retail_margin_model import UnitRetailMarginModel
 from .merchant.unit_tariff_model import UnitTariffModel
 from .metrics.cac_model import CacModel
@@ -42,7 +42,7 @@ __all__ = [
     "MonthlyExpenseModel",
     "TotalManagementExpenseModel",
     "UnitFixedOverheadExpenseModel",
-    "FreightExpenseModel",
+    "BrandFreightExpenseModel",
     "UnitMarketingExpenseModel",
     "TotalExpenseModel",
     "AdvertisingExpenseModel",
@@ -58,7 +58,7 @@ __all__ = [
     "UnitsSoldModel",
 
     # 4. Merchant
-    "UnitFreightExpenseModel",
+    "UnitMerchantFreightExpenseModel",
     "DeductionRateModel",
     "UnitFobModel",
     "UnitRetailMarginModel",

@@ -28,7 +28,7 @@ def check_price_architecture(variables: dict) -> None:
     unit_marketing_expense = variables[vn.UNIT_MARKETING_EXPENSE]
     unit_fixed_overhead_expense = variables[vn.UNIT_FIXED_OVERHEAD_EXPENSE]
     unit_operating_income = variables[vn.UNIT_OPERATING_INCOME]
-    unit_freight_expense = variables[vn.UNIT_FREIGHT_EXPENSE_IN_RMB]
+    unit_freight_expense = variables[vn.UNIT_MERCHANT_FREIGHT_EXPENSE_IN_RMB]
     unit_tariff_expense = variables[vn.UNIT_TARIFF_IN_RMB]
     unit_retail_margin = variables[vn.UNIT_RETAIL_MARGIN_IN_RMB]
 
@@ -77,7 +77,7 @@ class PriceArchitectureAuditor(Auditor):
         self._optional_variables = {
             vn.UNIT_FIXED_OVERHEAD_EXPENSE: 0.0,
             vn.UNIT_MARKETING_EXPENSE: 0.0,
-            vn.UNIT_FREIGHT_EXPENSE_IN_RMB: 0.0,
+            vn.UNIT_MERCHANT_FREIGHT_EXPENSE_IN_RMB: 0.0,
             vn.UNIT_TARIFF_IN_RMB: 0.0,
             vn.UNIT_RETAIL_MARGIN_IN_RMB: 0.0
         }

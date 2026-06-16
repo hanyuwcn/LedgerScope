@@ -20,7 +20,8 @@ def calculate_merchant_attributes_in_rmb(variables: dict) -> dict:
     currency_exchange_rate = variables[vn.USD_TO_RMB]
 
     return {vn.UNIT_RETAIL_PRICE_IN_RMB: variables[vn.UNIT_RETAIL_PRICE] * currency_exchange_rate,
-            vn.UNIT_FREIGHT_EXPENSE_IN_RMB: variables[vn.UNIT_FREIGHT_EXPENSE] * currency_exchange_rate,
+            vn.UNIT_MERCHANT_FREIGHT_EXPENSE_IN_RMB: variables[
+                                                         vn.UNIT_MERCHANT_FREIGHT_EXPENSE] * currency_exchange_rate,
             vn.UNIT_TARIFF_IN_RMB: variables[vn.UNIT_TARIFF] * currency_exchange_rate,
             vn.UNIT_RETAIL_MARGIN_IN_RMB: variables[vn.UNIT_RETAIL_MARGIN] * currency_exchange_rate,
             vn.UNIT_FOB_PRICE_IN_RMB: variables[vn.UNIT_FOB_PRICE] * currency_exchange_rate,
@@ -59,7 +60,7 @@ class CurrencyExchangeModel(Model):
         self._model_function = calculate_merchant_attributes_in_rmb
         self._output_names = [
             vn.UNIT_RETAIL_PRICE_IN_RMB,
-            vn.UNIT_FREIGHT_EXPENSE_IN_RMB,
+            vn.UNIT_MERCHANT_FREIGHT_EXPENSE_IN_RMB,
             vn.UNIT_TARIFF_IN_RMB,
             vn.UNIT_RETAIL_MARGIN_IN_RMB,
             vn.UNIT_FOB_PRICE_IN_RMB,
@@ -72,7 +73,7 @@ class CurrencyExchangeModel(Model):
 
         self._optional_variables = {
             vn.UNIT_RETAIL_PRICE: 0.0,
-            vn.UNIT_FREIGHT_EXPENSE: 0.0,
+            vn.UNIT_MERCHANT_FREIGHT_EXPENSE: 0.0,
             vn.UNIT_TARIFF: 0.0,
             vn.UNIT_RETAIL_MARGIN: 0.0,
             vn.UNIT_FOB_PRICE: 0.0,

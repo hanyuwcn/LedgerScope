@@ -32,7 +32,7 @@ class TestDeductionRateModel(unittest.TestCase):
         self.assertEqual(
             model._optional_variables,
             {
-                variable_names.FREIGHT_RATE: 0.0,
+                variable_names.MERCHANT_FREIGHT_RATE: 0.0,
                 variable_names.TARIFF_RATE: 0.0,
                 variable_names.CHANNEL_MARKUP_RATE: 0.0
             }
@@ -46,7 +46,7 @@ class TestDeductionRateModel(unittest.TestCase):
         """Verify the property setter completely updates the operational variable context."""
         model = DeductionRateModel()
         fresh_inputs = {
-            variable_names.FREIGHT_RATE: 0.08,
+            variable_names.MERCHANT_FREIGHT_RATE: 0.08,
             variable_names.TARIFF_RATE: 0.25,
             variable_names.CHANNEL_MARKUP_RATE: 0.20
         }
@@ -77,8 +77,8 @@ class TestDeductionRateModel(unittest.TestCase):
         model = DeductionRateModel()
 
         # Context A: Explicit string key variable modification
-        model.update_input_variable(variable_names.FREIGHT_RATE, 0.15)
-        self.assertEqual(model.input_variables[variable_names.FREIGHT_RATE], 0.15)
+        model.update_input_variable(variable_names.MERCHANT_FREIGHT_RATE, 0.15)
+        self.assertEqual(model.input_variables[variable_names.MERCHANT_FREIGHT_RATE], 0.15)
 
         # Context B: Structural duck-typed object validation Type A (.name, .expected_value)
         class DuckTypeA:
@@ -96,7 +96,7 @@ class TestDeductionRateModel(unittest.TestCase):
     def test_check_variables_success_with_all_metrics(self):
         """Verify check_variables clears execution cleanly when metrics are provided."""
         inputs = {
-            variable_names.FREIGHT_RATE: 0.08,
+            variable_names.MERCHANT_FREIGHT_RATE: 0.08,
             variable_names.TARIFF_RATE: 0.25,
             variable_names.CHANNEL_MARKUP_RATE: 0.20
         }
@@ -114,7 +114,7 @@ class TestDeductionRateModel(unittest.TestCase):
     def test_evaluate_success_with_all_parameters(self):
         """Verify stacked percentage leakage aggregation runs cleanly when parameters are explicit."""
         inputs = {
-            variable_names.FREIGHT_RATE: 0.08,
+            variable_names.MERCHANT_FREIGHT_RATE: 0.08,
             variable_names.TARIFF_RATE: 0.25,
             variable_names.CHANNEL_MARKUP_RATE: 0.20
         }
@@ -129,7 +129,7 @@ class TestDeductionRateModel(unittest.TestCase):
         """Verify leakage calculation falls back to zero safely if parameters are omitted."""
         # Scenario where only freight and tariffs are active; channel markup is omitted
         inputs = {
-            variable_names.FREIGHT_RATE: 0.04,
+            variable_names.MERCHANT_FREIGHT_RATE: 0.04,
             variable_names.TARIFF_RATE: 0.15
             # CHANNEL_MARKUP_RATE omitted intentionally (defaults to 0.0)
         }

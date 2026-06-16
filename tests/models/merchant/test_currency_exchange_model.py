@@ -16,7 +16,7 @@ class TestCurrencyExchangeModel(unittest.TestCase):
 
         expected_outputs = [
             vn.UNIT_RETAIL_PRICE_IN_RMB,
-            vn.UNIT_FREIGHT_EXPENSE_IN_RMB,
+            vn.UNIT_MERCHANT_FREIGHT_EXPENSE_IN_RMB,
             vn.UNIT_TARIFF_IN_RMB,
             vn.UNIT_RETAIL_MARGIN_IN_RMB,
             vn.UNIT_FOB_PRICE_IN_RMB,
@@ -34,7 +34,7 @@ class TestCurrencyExchangeModel(unittest.TestCase):
         inputs = {
             vn.USD_TO_RMB: rate,
             vn.UNIT_RETAIL_PRICE: 100.0,
-            vn.UNIT_FREIGHT_EXPENSE: 10.0,
+            vn.UNIT_MERCHANT_FREIGHT_EXPENSE: 10.0,
             vn.UNIT_TARIFF: 5.0,
             vn.UNIT_RETAIL_MARGIN: 20.0,
             vn.UNIT_FOB_PRICE: 50.0,
@@ -43,7 +43,7 @@ class TestCurrencyExchangeModel(unittest.TestCase):
         result = model.evaluate()
 
         self.assertEqual(result[vn.UNIT_RETAIL_PRICE_IN_RMB], 100.0 * rate)
-        self.assertEqual(result[vn.UNIT_FREIGHT_EXPENSE_IN_RMB], 10.0 * rate)
+        self.assertEqual(result[vn.UNIT_MERCHANT_FREIGHT_EXPENSE_IN_RMB], 10.0 * rate)
         self.assertEqual(result[vn.UNIT_TARIFF_IN_RMB], 5.0 * rate)
         self.assertEqual(result[vn.UNIT_RETAIL_MARGIN_IN_RMB], 20.0 * rate)
         self.assertEqual(result[vn.UNIT_FOB_PRICE_IN_RMB], 50.0 * rate)
@@ -54,7 +54,7 @@ class TestCurrencyExchangeModel(unittest.TestCase):
         result = model.evaluate()
 
         self.assertEqual(result[vn.UNIT_RETAIL_PRICE_IN_RMB], 0.0)
-        self.assertEqual(result[vn.UNIT_FREIGHT_EXPENSE_IN_RMB], 0.0)
+        self.assertEqual(result[vn.UNIT_MERCHANT_FREIGHT_EXPENSE_IN_RMB], 0.0)
 
     # -----------------------------------------------------------------
     # 3. EXPLICIT ERROR HANDLING

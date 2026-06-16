@@ -28,7 +28,7 @@ from .expenses import (
     MarketingExpense,
     UnitMarketingExpense,
     AdvertisingExpense,
-    FreightExpense,
+    BrandFreightExpense,
 )
 from .finance import (
     InterestRate,
@@ -44,8 +44,8 @@ from .merchant import (
     UnitRetailPrice,
     DeductionRate,
     RetailMarginRate,
-    FreightRate,
-    UnitFreightExpense,
+    MerchantFreightRate,
+    UnitMerchantFreightExpense,
     UnitTariff,
     UnitRetailMargin,
 )
@@ -72,8 +72,8 @@ __all__ = [
     "UnitRetailPrice",
     "DeductionRate",
     "RetailMarginRate",
-    "FreightRate",
-    "UnitFreightExpense",
+    "MerchantFreightRate",
+    "UnitMerchantFreightExpense",
     "UnitTariff",
     "UnitRetailMargin",
 
@@ -86,7 +86,7 @@ __all__ = [
     "MarketingExpense",
     "UnitMarketingExpense",
     "AdvertisingExpense",
-    "FreightExpense",
+    "BrandFreightExpense",
 
     # Finance
     "InterestRate",

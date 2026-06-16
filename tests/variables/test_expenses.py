@@ -10,7 +10,7 @@ from src.variables import (
     MarketingExpense,
     UnitMarketingExpense,
     AdvertisingExpense,
-    FreightExpense,
+    BrandFreightExpense,
 )
 
 
@@ -28,7 +28,7 @@ class TestExpenseVariables(unittest.TestCase):
         self.marketing = MarketingExpense(min=1000, max=5000)
         self.unit_marketing = UnitMarketingExpense(min=1, max=10)
         self.advertising = AdvertisingExpense(min=500, max=2000)
-        self.freight = FreightExpense(min=200, max=1000)
+        self.freight = BrandFreightExpense(min=200, max=1000)
 
     def test_expense_identity_mappings(self):
         """Verify that EVERY class maps to the correct vn constant."""
@@ -40,7 +40,7 @@ class TestExpenseVariables(unittest.TestCase):
         self.assertEqual(self.marketing.name, variable_names.MARKETING_EXPENSE)
         self.assertEqual(self.unit_marketing.name, variable_names.UNIT_MARKETING_EXPENSE)
         self.assertEqual(self.advertising.name, variable_names.ADVERTISING_EXPENSE)
-        self.assertEqual(self.freight.name, variable_names.FREIGHT_EXPENSE)
+        self.assertEqual(self.freight.name, variable_names.BRAND_FREIGHT_EXPENSE)
 
     def test_boundary_configurations(self):
         """Verify boundary logic (Rules 1-4) for all expenses."""

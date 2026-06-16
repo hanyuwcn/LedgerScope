@@ -18,7 +18,7 @@ class TestTotalSellingExpenseModel(unittest.TestCase):
         self.assertEqual(model.output_names, [variable_names.SELLING_EXPENSE])
 
         # Verify default values for optional variables
-        self.assertEqual(model._optional_variables[variable_names.FREIGHT_EXPENSE], 0.0)
+        self.assertEqual(model._optional_variables[variable_names.BRAND_FREIGHT_EXPENSE], 0.0)
         self.assertEqual(model._optional_variables[variable_names.MARKETING_EXPENSE], 0.0)
 
     # -----------------------------------------------------------------
@@ -28,7 +28,7 @@ class TestTotalSellingExpenseModel(unittest.TestCase):
     def test_evaluate_success_with_all_parameters(self):
         """Verify summation: FreightExpense + MarketingExpense."""
         inputs = {
-            variable_names.FREIGHT_EXPENSE: 500.0,
+            variable_names.BRAND_FREIGHT_EXPENSE: 500.0,
             variable_names.MARKETING_EXPENSE: 2500.0
         }
         model = TotalSellingExpenseModel(inputs)
@@ -60,7 +60,7 @@ class TestTotalSellingExpenseModel(unittest.TestCase):
     def test_parameter_mutation(self):
         """Verify dynamic updates to the TotalSellingExpenseModel context."""
         model = TotalSellingExpenseModel()
-        model.update_input_variable(variable_names.FREIGHT_EXPENSE, 200.0)
+        model.update_input_variable(variable_names.BRAND_FREIGHT_EXPENSE, 200.0)
         model.update_input_variable(variable_names.MARKETING_EXPENSE, 800.0)
 
         result = model.evaluate()

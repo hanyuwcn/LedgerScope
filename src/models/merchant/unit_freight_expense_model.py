@@ -2,12 +2,12 @@ from src.config import variable_names as vn
 from src.core.base_model import Model
 
 
-def calculate_unit_freight_expense(variables: dict) -> dict:
+def calculate_unit_merchant_freight_expense(variables: dict) -> dict:
     """
     Calculates the consolidated shipping (freight) cost for unit-level logistics.
 
     Mathematical Formula:
-        UnitFreightExpense = UnitRetailPrice * FreightRate
+        UnitMerchantFreightExpense = UnitRetailPrice * MerchantFreightRate
 
     Args:
         variables (dict): Unified context containing all mandatory and
@@ -16,17 +16,17 @@ def calculate_unit_freight_expense(variables: dict) -> dict:
     Returns:
         dict: A single-element dictionary mapping the computed unit freight
             expense to the central pipeline registry.
-            Example: {"UnitFreightExpense": 45.50}
+            Example: {"UnitMerchantFreightExpense": 45.50}
     """
     unit_retail_price = variables[vn.UNIT_RETAIL_PRICE]
-    unit_freight_rate = variables[vn.FREIGHT_RATE]
+    unit_merchant_freight_rate = variables[vn.MERCHANT_FREIGHT_RATE]
 
-    unit_freight_expense = unit_retail_price * unit_freight_rate
+    unit_merchant_freight_expense = unit_retail_price * unit_merchant_freight_rate
 
-    return {vn.UNIT_FREIGHT_EXPENSE: unit_freight_expense}
+    return {vn.UNIT_MERCHANT_FREIGHT_EXPENSE: unit_merchant_freight_expense}
 
 
-class UnitFreightExpenseModel(Model):
+class UnitMerchantFreightExpenseModel(Model):
     """
     Pipeline calculation block responsible for assessing unit-level freight logistics.
 
@@ -37,17 +37,17 @@ class UnitFreightExpenseModel(Model):
         through the fulfillment ecosystem.
 
     Calculation Equation:
-        UnitFreightExpense = UnitRetailPrice * FreightRate
+        UnitMerchantFreightExpense = UnitRetailPrice * MerchantFreightRate
 
         Where:
         - "UnitRetailPrice" maps to vn.UNIT_RETAIL_PRICE
-        - "FreightRate" maps to vn.FREIGHT_RATE
-        - "UnitFreightExpense" maps to vn.UNIT_FREIGHT_EXPENSE
+        - "MerchantFreightRate" maps to vn.MERCHANT_FREIGHT_RATE
+        - "UnitMerchantFreightExpense" maps to vn.UNIT_MERCHANT_FREIGHT_EXPENSE
     """
 
     def __init__(self, input_variables: dict = None):
         """
-        Initializes the UnitFreightExpenseModel with explicit parameter validation boundaries.
+        Initializes the UnitMerchantFreightExpenseModel with explicit parameter validation boundaries.
 
         Args:
             input_variables (dict, optional): The active runtime configuration context dictionary.
@@ -56,8 +56,8 @@ class UnitFreightExpenseModel(Model):
         super().__init__(input_variables)
 
         # Hooking functional logic and mapping outputs to the central registry
-        self._model_function = calculate_unit_freight_expense
-        self._output_names = [vn.UNIT_FREIGHT_EXPENSE]
+        self._model_function = calculate_unit_merchant_freight_expense
+        self._output_names = [vn.UNIT_MERCHANT_FREIGHT_EXPENSE]
 
         # Establishing dependencies for the pipeline layer
         self._required_variables = [
@@ -66,5 +66,5 @@ class UnitFreightExpenseModel(Model):
 
         # Mapping defaults transparently to facilitate baseline logistics simulations
         self._optional_variables = {
-            vn.FREIGHT_RATE: 0.0,
+            vn.MERCHANT_FREIGHT_RATE: 0.0,
         }
