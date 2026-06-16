@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from src.analysis import run_monte_carlo
 from src.config import variable_names
 from src.core import Variable
-from src.models import NetIncomeModel, MarketPriceModel
+from src.models import NetIncomeModel, MarketPriceModel, OperatingIncomeModel
 from src.variables import PriceToEarningsRatio
 from src.visualization.views.histogram_distribution_view import generate_histogram_from_array
 
@@ -14,18 +14,18 @@ class TestHistogramDistributionViewEngine(unittest.TestCase):
 
     def setUp(self):
         """Standardize fixture using the core fiscal pipeline."""
-        self.pipeline = [NetIncomeModel(), MarketPriceModel()]
+        self.pipeline = [OperatingIncomeModel(), NetIncomeModel(), MarketPriceModel()]
 
         self.variables = {
             variable_names.REVENUE: Variable(min=80000.0, exp=100000.0, max=120000.0),
-            variable_names.COST: Variable(min=30000.0, exp=40000.0, max=50000.0),
+            variable_names.COGS: Variable(min=30000.0, exp=40000.0, max=50000.0),
             variable_names.PE_RATIO: PriceToEarningsRatio(min=5.0, exp=8.0, max=10.0)
         }
 
         # Generate production-ready simulation data
         self.simulation_data = run_monte_carlo(
             variables=self.variables,
-            shuffled_inputs=[variable_names.REVENUE, variable_names.COST],
+            shuffled_inputs=[variable_names.REVENUE, variable_names.COGS],
             model_pipeline=self.pipeline,
             tracked_outputs=[variable_names.MARKET_PRICE],
             iterations=100

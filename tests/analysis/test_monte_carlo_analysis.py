@@ -3,7 +3,7 @@ import unittest
 from src.analysis import run_monte_carlo
 from src.config import variable_names
 from src.core import Variable
-from src.models import NetIncomeModel, MarketPriceModel
+from src.models import NetIncomeModel, MarketPriceModel, OperatingIncomeModel
 from src.variables import PriceToEarningsRatio
 
 
@@ -15,11 +15,11 @@ class TestMonteCarloIntegration(unittest.TestCase):
 
     def setUp(self):
         """Build fiscal pipeline for simulation."""
-        self.pipeline = [NetIncomeModel(), MarketPriceModel()]
+        self.pipeline = [OperatingIncomeModel(), NetIncomeModel(), MarketPriceModel()]
 
         self.variables = {
             variable_names.REVENUE: _create_var(80000.0, 100000.0, 120000.0),
-            variable_names.COST: _create_var(30000.0, 40000.0, 50000.0),
+            variable_names.COGS: _create_var(30000.0, 40000.0, 50000.0),
             variable_names.PE_RATIO: PriceToEarningsRatio(min=5.0, exp=8.0, max=10.0)
         }
 
@@ -64,7 +64,7 @@ class TestMonteCarloIntegration(unittest.TestCase):
             )
 
     def test_run_monte_carlo_aborts_on_missing_registry_mandatory_input(self):
-        """Verify registry guardrail raises KeyError when mandatory input (COST) is absent."""
+        """Verify registry guardrail raises KeyError when mandatory input (COGS) is absent."""
         invalid_variables = {
             variable_names.REVENUE: self.variables[variable_names.REVENUE],
             variable_names.PE_RATIO: self.variables[variable_names.PE_RATIO]

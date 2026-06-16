@@ -5,7 +5,7 @@ import pandas as pd
 from src.analysis import run_two_way_sensitivity_analysis
 from src.config import variable_names
 from src.core import Variable
-from src.models import NetIncomeModel, MarketPriceModel
+from src.models import NetIncomeModel, MarketPriceModel, OperatingIncomeModel
 from src.variables import PriceToEarningsRatio
 
 
@@ -18,11 +18,11 @@ class TestTwoWaySensitivityIntegration(unittest.TestCase):
     def setUp(self):
         """Build fiscal pipeline for Two-Way sensitivity grid."""
         # Standard valid pipeline: NetIncome -> MarketPrice
-        self.pipeline = [NetIncomeModel(), MarketPriceModel()]
+        self.pipeline = [OperatingIncomeModel(), NetIncomeModel(), MarketPriceModel()]
 
         self.variables = {
             variable_names.REVENUE: _create_var(80000.0, 100000.0, 120000.0),
-            variable_names.COST: _create_var(30000.0, 40000.0, 50000.0),
+            variable_names.COGS: _create_var(30000.0, 40000.0, 50000.0),
             variable_names.PE_RATIO: PriceToEarningsRatio(min=5.0, exp=8.0, max=10.0)
         }
 
@@ -35,7 +35,7 @@ class TestTwoWaySensitivityIntegration(unittest.TestCase):
         df = run_two_way_sensitivity_analysis(
             variables=self.variables,
             param_x_name=variable_names.REVENUE,
-            param_y_name=variable_names.COST,
+            param_y_name=variable_names.COGS,
             model_pipeline=self.pipeline,
             target_output_name=variable_names.MARKET_PRICE,
             x_steps=3,
@@ -44,20 +44,20 @@ class TestTwoWaySensitivityIntegration(unittest.TestCase):
 
         self.assertIsInstance(df, pd.DataFrame)
         self.assertEqual(df.shape, (3, 3))
-        self.assertEqual(df.index.name, variable_names.COST)
+        self.assertEqual(df.index.name, variable_names.COGS)
         self.assertEqual(df.columns.name, variable_names.REVENUE)
 
     def test_run_two_way_sensitivity_analysis_validates_economic_trend(self):
-        """Verify sensitivity matrix logic: high revenue/low cost yields highest value."""
+        """Verify sensitivity matrix logic: high revenue/low cogs yields highest value."""
         df = run_two_way_sensitivity_analysis(
             variables=self.variables,
             param_x_name=variable_names.REVENUE,
-            param_y_name=variable_names.COST,
+            param_y_name=variable_names.COGS,
             model_pipeline=self.pipeline,
             target_output_name=variable_names.MARKET_PRICE
         )
 
-        # Ensure price increases with revenue and decreases with cost
+        # Ensure price increases with revenue and decreases with cogs
         self.assertGreater(df.iloc[-1, -1], df.iloc[0, 0])
 
     # -----------------------------------------------------------------
@@ -65,8 +65,8 @@ class TestTwoWaySensitivityIntegration(unittest.TestCase):
     # -----------------------------------------------------------------
 
     def test_run_two_way_sensitivity_analysis_aborts_on_missing_registry_variable(self):
-        """Verify registry guardrail raises KeyError when required inputs (COST) are missing."""
-        # COST is mandatory and lacks a default value, unlike PE_RATIO
+        """Verify registry guardrail raises KeyError when required inputs (COGS) are missing."""
+        # COGS is mandatory and lacks a default value, unlike PE_RATIO
         invalid_variables = {
             variable_names.REVENUE: self.variables[variable_names.REVENUE],
             variable_names.PE_RATIO: self.variables[variable_names.PE_RATIO]
@@ -90,7 +90,7 @@ class TestTwoWaySensitivityIntegration(unittest.TestCase):
             run_two_way_sensitivity_analysis(
                 variables=self.variables,
                 param_x_name=variable_names.REVENUE,
-                param_y_name=variable_names.COST,
+                param_y_name=variable_names.COGS,
                 model_pipeline=broken_pipeline,
                 target_output_name=variable_names.MARKET_PRICE
             )
@@ -102,7 +102,7 @@ class TestTwoWaySensitivityIntegration(unittest.TestCase):
             run_two_way_sensitivity_analysis(
                 variables=self.variables,
                 param_x_name=variable_names.REVENUE,
-                param_y_name=variable_names.COST,
+                param_y_name=variable_names.COGS,
                 model_pipeline=self.pipeline,
                 target_output_name="INVALID_METRIC"
             )

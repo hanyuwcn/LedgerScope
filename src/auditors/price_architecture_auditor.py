@@ -6,64 +6,62 @@ from src.core import Auditor
 
 def check_price_architecture(variables: dict) -> None:
     """
-    Validates the Price Waterfall for a single product context.
+    Validates that the sum of all individual unit-level cost and margin
+    components reconciles with the total Unit Retail Price.
 
-    Note: Cost and Profit are denominated in RMB.
-          FOB, Retail, Shipping, and Tariff are denominated in USD.
-
-    Mathematical Formulas:
-        - UnitFob(RMB) = CostPerUnit + ProfitPerUnit
-        - RetailPrice(USD) = UnitFob(USD) + Shipping + Tariff + RetailMargin
+    Reconciliation Formula:
+        UnitRetailPrice = (UnitEXWPrice + UnitMarketingExpense +
+                          UnitFixedOverheadExpense + UnitOperatingIncome +
+                          UnitFreightExpense + UnitTariffExpense +
+                          UnitRetailMargin)
 
     Args:
-        variables (dict): Unified context containing all mandatory and
-            optional variables, resolved by the Model base class.
+        variables (dict): Unified context containing all price components
+            normalized to RMB, pre-merged by the base Model orchestrator.
 
     Raises:
-        ValueError: If the calculated components do not reconcile with
-            the UnitFob or UnitRetail.
+        ValueError: If the sum of components deviates from the Retail Price
+            beyond the configured tolerance levels.
     """
-    cost_per_unit = variables[vn.COST_PER_UNIT]
-    profit_per_unit = variables[vn.PROFIT_PER_UNIT]
-    unit_fob = variables[vn.UNIT_FOB]
-    unit_retail_price = variables[vn.UNIT_RETAIL]
-    shipping_cost_per_unit = variables[vn.SHIPPING_COST_PER_UNIT]
-    tariff_per_unit = variables[vn.TARIFF_PER_UNIT]
-    retail_margin_per_unit = variables[vn.RETAIL_MARGIN_PER_UNIT]
-    usd_to_rmb = variables[vn.USD_TO_RMB]
+    unit_retail_price = variables[vn.UNIT_RETAIL_PRICE_IN_RMB]
+    unit_exw_price = variables[vn.UNIT_EXW_PRICE]
+    unit_marketing_expense = variables[vn.UNIT_MARKETING_EXPENSE]
+    unit_fixed_overhead_expense = variables[vn.UNIT_FIXED_OVERHEAD_EXPENSE]
+    unit_operating_income = variables[vn.UNIT_OPERATING_INCOME]
+    unit_freight_expense = variables[vn.UNIT_FREIGHT_EXPENSE_IN_RMB]
+    unit_tariff_expense = variables[vn.UNIT_TARIFF_IN_RMB]
+    unit_retail_margin = variables[vn.UNIT_RETAIL_MARGIN_IN_RMB]
 
-    # Audit 1: Cost + Profit (RMB) == FOB (USD * Rate) (RMB)
-    if not math.isclose(cost_per_unit + profit_per_unit, unit_fob * usd_to_rmb,
-                        rel_tol=settings.AUDIT_REL_TOL, abs_tol=settings.AUDIT_ABS_TOL):
-        raise ValueError(f"Reconciliation error: cost_per_unit({cost_per_unit}) "
-                         f"+ profit_per_unit({profit_per_unit}) "
-                         f"!= unit_fob_in_rmb({unit_fob * usd_to_rmb})")
-
-    # Audit 2: FOB + Deductions (USD) == Retail (USD)
-    if not math.isclose(unit_fob + shipping_cost_per_unit + tariff_per_unit + retail_margin_per_unit,
+    if not math.isclose(unit_exw_price
+                        + unit_marketing_expense
+                        + unit_fixed_overhead_expense
+                        + unit_operating_income
+                        + unit_freight_expense
+                        + unit_tariff_expense
+                        + unit_retail_margin,
                         unit_retail_price,
-                        rel_tol=settings.AUDIT_REL_TOL, abs_tol=settings.AUDIT_ABS_TOL):
-        raise ValueError(f"Reconciliation error: unit_fob({unit_fob}) "
-                         f"+ shipping_cost_per_unit({shipping_cost_per_unit}) "
-                         f"+ tariff_per_unit({tariff_per_unit}) "
-                         f"+ retail_margin_per_unit({retail_margin_per_unit}) "
-                         f"!= unit_retail_price({unit_retail_price})")
+                        rel_tol=settings.AUDIT_REL_TOL,
+                        abs_tol=settings.AUDIT_ABS_TOL):
+        raise ValueError(
+            f"Reconciliation error: unit_exw_price({unit_exw_price}) "
+            f"+ unit_marketing_expense({unit_marketing_expense}) "
+            f"+ unit_fixed_overhead_expense({unit_fixed_overhead_expense}) "
+            f"+ unit_operating_income({unit_operating_income}) "
+            f"+ unit_freight_expense({unit_freight_expense}) "
+            f"+ unit_tariff_expense({unit_tariff_expense}) "
+            f"+ unit_retail_margin({unit_retail_margin}) "
+            f"!= unit_retail_price({unit_retail_price})"
+        )
 
 
 class PriceArchitectureAuditor(Auditor):
     """
-    Pipeline guardrail to verify the Pricing Waterfall decomposition.
+    Pipeline guardrail ensuring price waterfall integrity.
 
     Description:
-        This auditor reconciles the unit-economic breakdown (RMB) against
-        international trade values (USD).
-
-        Note: Cost and Profit are in RMB; FOB, Retail, Shipping, and
-        Tariff are in USD.
-
-    Reconciliation Logic:
-        1. Base Value: (Cost_per_unit + Profit_per_unit) == (Unit_FOB * USD_TO_RMB)
-        2. Full Waterfall: Unit_FOB + Shipping + Tariff + Margin == Unit_Retail
+        This auditor verifies that all constituent costs and margins in the
+        unit-level price waterfall aggregate to the final retail price.
+        It acts as a circuit breaker for the calculation pipeline.
     """
 
     def __init__(self, input_variables: dict = None):
@@ -71,15 +69,15 @@ class PriceArchitectureAuditor(Auditor):
         self._model_function = check_price_architecture
 
         self._required_variables = [
-            vn.COST_PER_UNIT,
-            vn.PROFIT_PER_UNIT,
-            vn.UNIT_FOB,
-            vn.UNIT_RETAIL,
+            vn.UNIT_RETAIL_PRICE_IN_RMB,
+            vn.UNIT_EXW_PRICE,
+            vn.UNIT_OPERATING_INCOME,
         ]
 
         self._optional_variables = {
-            vn.SHIPPING_COST_PER_UNIT: 0.0,
-            vn.TARIFF_PER_UNIT: 0.0,
-            vn.RETAIL_MARGIN_PER_UNIT: 0.0,
-            vn.USD_TO_RMB: 1.0,
+            vn.UNIT_FIXED_OVERHEAD_EXPENSE: 0.0,
+            vn.UNIT_MARKETING_EXPENSE: 0.0,
+            vn.UNIT_FREIGHT_EXPENSE_IN_RMB: 0.0,
+            vn.UNIT_TARIFF_IN_RMB: 0.0,
+            vn.UNIT_RETAIL_MARGIN_IN_RMB: 0.0
         }

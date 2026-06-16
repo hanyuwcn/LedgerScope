@@ -3,7 +3,7 @@ import unittest
 from src.analysis import stochastic_bivariate_simulation
 from src.config import variable_names
 from src.core import Variable
-from src.models import NetIncomeModel, MarketPriceModel
+from src.models import NetIncomeModel, MarketPriceModel, OperatingIncomeModel
 from src.variables import PriceToEarningsRatio
 
 
@@ -15,12 +15,12 @@ class TestBivariateRegressionIntegration(unittest.TestCase):
 
     def setUp(self):
         """Build fiscal pipeline for OLS regression simulation."""
-        self.pipeline = [NetIncomeModel(), MarketPriceModel()]
+        self.pipeline = [OperatingIncomeModel(), NetIncomeModel(), MarketPriceModel()]
 
         # Scenario: Revenue drives MarketPrice (Bivariate X, Y)
         self.variables = {
             variable_names.REVENUE: _create_var(80000.0, 100000.0, 120000.0),
-            variable_names.COST: _create_var(30000.0, 40000.0, 50000.0),
+            variable_names.COGS: _create_var(30000.0, 40000.0, 50000.0),
             variable_names.PE_RATIO: PriceToEarningsRatio(min=5.0, exp=8.0, max=10.0)
         }
 
@@ -50,7 +50,7 @@ class TestBivariateRegressionIntegration(unittest.TestCase):
     # -----------------------------------------------------------------
 
     def test_stochastic_bivariate_simulation_aborts_on_missing_registry_variable(self):
-        """Verify registry guardrail raises KeyError when required inputs (COST) are missing."""
+        """Verify registry guardrail raises KeyError when required inputs (COGS) are missing."""
         invalid_variables = {
             variable_names.REVENUE: self.variables[variable_names.REVENUE],
             variable_names.PE_RATIO: self.variables[variable_names.PE_RATIO]

@@ -3,7 +3,7 @@ import unittest
 from src.analysis import comparative_statics
 from src.config import variable_names
 from src.core import Variable
-from src.models import NetIncomeModel, MarketPriceModel
+from src.models import NetIncomeModel, MarketPriceModel, OperatingIncomeModel
 from src.variables import PriceToEarningsRatio
 
 
@@ -15,11 +15,11 @@ class TestComparativeStaticsIntegration(unittest.TestCase):
 
     def setUp(self):
         """Build the high-level fiscal pipeline (Net Income -> Market Price)."""
-        self.pipeline = [NetIncomeModel(), MarketPriceModel()]
+        self.pipeline = [OperatingIncomeModel(), NetIncomeModel(), MarketPriceModel()]
 
         self.variables = {
             variable_names.REVENUE: _create_var(80000.0, 100000.0, 120000.0),
-            variable_names.COST: _create_var(30000.0, 40000.0, 50000.0),
+            variable_names.COGS: _create_var(30000.0, 40000.0, 50000.0),
             variable_names.PE_RATIO: PriceToEarningsRatio(min=5.0, exp=8.0, max=10.0)
         }
 
@@ -44,7 +44,7 @@ class TestComparativeStaticsIntegration(unittest.TestCase):
     # -----------------------------------------------------------------
 
     def test_comparative_statics_aborts_on_missing_registry_variable(self):
-        """Verify registry guardrail raises KeyError when mandatory input (COST) is absent."""
+        """Verify registry guardrail raises KeyError when mandatory input (COGS) is absent."""
         invalid_variables = {
             variable_names.REVENUE: self.variables[variable_names.REVENUE],
             variable_names.PE_RATIO: self.variables[variable_names.PE_RATIO]
@@ -88,7 +88,7 @@ class TestComparativeStaticsIntegration(unittest.TestCase):
 
     def test_comparative_statics_returns_zero_on_zero_equilibrium(self):
         """Verify elasticity returns 0.0 when baseline result is at zero equilibrium."""
-        self.variables[variable_names.COST] = _create_var(100000.0, 100000.0, 100000.0)
+        self.variables[variable_names.COGS] = _create_var(100000.0, 100000.0, 100000.0)
 
         reports = comparative_statics(
             variables=self.variables,

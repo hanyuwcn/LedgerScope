@@ -8,7 +8,7 @@ def calculate_return_on_advertising_spend(variables: dict) -> dict:
     performance tracking, with robust handling for zero-cost scenarios.
 
     Mathematical Formula:
-        ROAS = Revenue / AdvertisingCost
+        ROAS = Revenue / AdvertisingExpense
 
     Args:
         variables (dict): Unified context containing all mandatory and
@@ -17,16 +17,16 @@ def calculate_return_on_advertising_spend(variables: dict) -> dict:
     Returns:
         dict: A dictionary containing the computed Return on Advertising Spend (ROAS),
             mapped directly to the global configuration constant name.
-            Returns {"ROAS": 0.0} if advertising cost is zero to prevent division errors.
+            Returns {"ROAS": 0.0} if advertising expense is zero to prevent division errors.
     """
     revenue = variables[vn.REVENUE]
-    advertising_cost = variables[vn.ADVERTISING_COST]
+    advertising_expense = variables[vn.ADVERTISING_EXPENSE]
 
     # Protect engine against a zero-denominator division crash
-    if advertising_cost == 0:
+    if advertising_expense == 0:
         return {vn.ROAS: 0.0}
 
-    calculated_roas = revenue / advertising_cost
+    calculated_roas = revenue / advertising_expense
 
     return {vn.ROAS: calculated_roas}
 
@@ -44,16 +44,17 @@ class RoasModel(Model):
         to ensure pipeline stability during low-spend or zero-spend scenarios.
 
     Calculation Equation:
-        ROAS = Revenue / AdvertisingCost
+        ROAS = Revenue / AdvertisingExpense
 
         Where:
         - "Revenue" maps to vn.REVENUE
-        - "AdvertisingCost" maps to vn.ADVERTISING_COST
+        - "AdvertisingExpense" maps to vn.ADVERTISING_EXPENSE
+        - "ROAS" maps to vn.ROAS
     """
 
     def __init__(self, input_variables: dict = None):
         """
-        Initializes the ReturnOnAdvertisingSpendModel with defined tracking boundaries.
+        Initializes the RoasModel with defined tracking boundaries.
 
         Args:
             input_variables (dict, optional): The active runtime configuration context dictionary.
@@ -68,5 +69,5 @@ class RoasModel(Model):
         # Enforcing configuration dependency boundaries
         self._required_variables = [
             vn.REVENUE,
-            vn.ADVERTISING_COST
+            vn.ADVERTISING_EXPENSE
         ]

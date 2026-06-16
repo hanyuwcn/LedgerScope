@@ -23,6 +23,7 @@ MARKETING_EXPENSE = "MarketingExpense"
 UNIT_MARKETING_EXPENSE = "UnitMarketingExpense"
 ADVERTISING_EXPENSE = "AdvertisingExpense"
 FREIGHT_EXPENSE = "FreightExpense"
+SELLING_EXPENSE = "SellingExpense"
 
 ### Ads
 CONVERSION_RATE_GOOGLE_SEARCH = "GoogleSearchConversionRate"
@@ -37,7 +38,8 @@ CLOSE_RATE = "CloseRate"
 UNITS_PER_ORDER = "UnitsPerOrder"
 UNITS_SOLD = "UnitsSold"
 UNIT_EXW_PRICE = "UnitExWorksPrice"
-UNIT_FOB_PRICE = "UnitFreeOnBoardPrice"
+COGS = "CostOfGoodSold"
+COST = "Cost"
 
 ### Merchant
 UNIT_RETAIL_PRICE = "UnitRetailPrice"
@@ -51,6 +53,8 @@ UNIT_TARIFF = "UnitTariff"
 UNIT_TARIFF_IN_RMB = "UnitTariff(RMB)"
 UNIT_RETAIL_MARGIN = "UnitRetailerMargin"
 UNIT_RETAIL_MARGIN_IN_RMB = "UnitRetailerMargin(RMB)"
+UNIT_FOB_PRICE = "UnitFreeOnBoardPrice"
+UNIT_FOB_PRICE_IN_RMB = "UnitFreeOnBoardPrice(RMB)"
 
 ### Finance
 TAX_RATE = "TaxRate"
@@ -58,16 +62,13 @@ TARIFF_RATE = "TariffRate"
 USD_TO_RMB = "USDToRMB"
 INTEREST_RATE = "InterestRate"
 
-### Costs
-COGS = "Cogs"
-COST = "Cost"
-
 ### Income
 REVENUE = "Revenue"
-# REVENUE_GOODS_SOLD = "GoodsSold"
-NET_INCOME = "NetIncome"
-PROFIT = "Profit"
+GROSS_PROFIT = "GrossProfit"
 UNIT_GROSS_PROFIT = "UnitGrossProfit"
+OPERATING_INCOME = "OperatingIncome"
+UNIT_OPERATING_INCOME = "UnitOperatingIncome"
+NET_INCOME = "NetIncome"
 FREE_CASH_FLOW = "FreeCashFlow"
 
 ### Investment

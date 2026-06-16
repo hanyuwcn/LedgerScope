@@ -6,7 +6,7 @@ import pandas as pd
 from src.analysis import run_two_way_sensitivity_analysis
 from src.config import variable_names
 from src.core import Variable
-from src.models import NetIncomeModel, MarketPriceModel
+from src.models import NetIncomeModel, MarketPriceModel, OperatingIncomeModel
 from src.variables import PriceToEarningsRatio
 from src.visualization.views.two_way_sensitivity_heatmap_view import generate_heatmap_from_df
 
@@ -15,11 +15,11 @@ class TestTwoWaySensitivityHeatmapViewEngine(unittest.TestCase):
 
     def setUp(self):
         """Standardize fixture using the core fiscal pipeline."""
-        self.pipeline = [NetIncomeModel(), MarketPriceModel()]
+        self.pipeline = [OperatingIncomeModel(), NetIncomeModel(), MarketPriceModel()]
 
         self.variables = {
             variable_names.REVENUE: Variable(min=80000.0, exp=100000.0, max=120000.0),
-            variable_names.COST: Variable(min=30000.0, exp=40000.0, max=50000.0),
+            variable_names.COGS: Variable(min=30000.0, exp=40000.0, max=50000.0),
             variable_names.PE_RATIO: PriceToEarningsRatio(min=5.0, exp=8.0, max=10.0)
         }
 
@@ -27,7 +27,7 @@ class TestTwoWaySensitivityHeatmapViewEngine(unittest.TestCase):
         self.sensitivity_df = run_two_way_sensitivity_analysis(
             variables=self.variables,
             param_x_name=variable_names.REVENUE,
-            param_y_name=variable_names.COST,
+            param_y_name=variable_names.COGS,
             model_pipeline=self.pipeline,
             target_output_name=variable_names.MARKET_PRICE,
             x_steps=3,
@@ -45,7 +45,7 @@ class TestTwoWaySensitivityHeatmapViewEngine(unittest.TestCase):
 
         # Verify labels match the fiscal variable configuration names
         self.assertEqual(ax.get_xlabel(), variable_names.REVENUE)
-        self.assertEqual(ax.get_ylabel(), variable_names.COST)
+        self.assertEqual(ax.get_ylabel(), variable_names.COGS)
 
         plt.close(fig)
 

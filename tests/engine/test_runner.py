@@ -7,11 +7,11 @@ from src.engine import (
     evaluate_variable_scenario_sweep,
     evaluate_expected_scenario
 )
-from src.models import UnitContributionMarginModel, CostOfGoodsSoldModel, TotalCostModel
-from src.variables import (
-    AdvertisingCost, GoogleSearchConversionRate, GoogleSearchCostPerClick,
-    USDToRMB, UnitsPerOrder, UnitExw, ShippingRate, ShippingCost, Orders
-)
+from src.models import (UnitGrossProfitModel, CostOfGoodsSoldModel, TotalExpenseModel, UnitsSoldModel,
+                        TotalSellingExpenseModel, AdvertisingExpenseModel)
+from src.variables import (GoogleSearchConversionRate, GoogleSearchCostPerClick,
+                           USDToRMB, UnitsPerOrder, UnitExwPrice, FreightRate, FreightExpense, Orders, MarketingExpense
+                           )
 
 
 class TestEvaluateChainedModelsPipeline(unittest.TestCase):
@@ -19,10 +19,18 @@ class TestEvaluateChainedModelsPipeline(unittest.TestCase):
 
     def setUp(self):
         """Set up fresh, reusable model instances for clean pipeline configurations."""
-        self.ucm_model = UnitContributionMarginModel()
+        self.units_model = UnitsSoldModel()
+        self.ugp_model = UnitGrossProfitModel()
         self.cogs_model = CostOfGoodsSoldModel()
-        self.cost_model = TotalCostModel()
-        self.pipeline = [self.ucm_model, self.cogs_model, self.cost_model]
+        self.advertising_expense_model = AdvertisingExpenseModel()
+        self.total_selling_expense_model = TotalSellingExpenseModel()
+        self.total_expense_model = TotalExpenseModel()
+        self.pipeline = [self.units_model,
+                         self.cogs_model,
+                         self.ugp_model,
+                         self.advertising_expense_model,
+                         self.total_selling_expense_model,
+                         self.total_expense_model]
 
     # -----------------------------------------------------------------
     # 1. HAPPY PATH: MULTI-STAGE STEP CASCADING
@@ -31,28 +39,38 @@ class TestEvaluateChainedModelsPipeline(unittest.TestCase):
     def test_evaluate_chained_models_happy_path_cascades_state_perfectly(self):
         """Verify metrics accumulate chronologically across sequential model dependencies."""
         baseline_inputs = {
-            variable_names.ADVERTISING_COST: 5000.0,
+            variable_names.MARKETING_EXPENSE: 5000.0,
             variable_names.CONVERSION_RATE_GOOGLE_SEARCH: 0.10,  # 10% conversion rate
             variable_names.CPL_GOOGLE_SEARCH: 20.0,
             variable_names.USD_TO_RMB: 1.0,  # No conversion shift
             variable_names.UNITS_PER_ORDER: 2.0,  # 2 items per transaction
-            variable_names.UNIT_EXW: 15.0,  # $15 base purchase price
-            variable_names.SHIPPING_COST: 500.0,  # Operational shipping cost
+            variable_names.UNIT_EXW_PRICE: 15.0,  # $15 base purchase price
+            variable_names.FREIGHT_EXPENSE: 500.0,  # Operational shipping cost
             variable_names.ORDERS: 25.0  # Injected directly to drive downstream matrix matching
         }
 
         # Step-by-step mathematical trace:
-        # 1. CostOfGoodsSoldModel:
-        #    COGS = 15.0 (UnitExw) * 25.0 (Orders) * 2.0 (UnitsPerOrder) = 750.0
-        # 2. TotalCostModel:
-        #    Cost = 750.0 (COGS) + 5000.0 (AdvertisingCost) + 500.0 (ShippingCost) = 6250.0
-
-        final_state = evaluate_chained_models(baseline_inputs, [self.cogs_model, self.cost_model])
+        # 1. UnitsSoldModel:
+        #    Units = 25.0 (Orders) * 2.0 (UnitsPerOrder) = 50.0
+        # 2. CostOfGoodsSoldModel:
+        #    COGS = 15.0 (UnitExwPrice) * 50.0 (Units) = 750.0
+        # 3. AdvertisingExpenseModel:
+        #    AdvertisingExpense = 5000.0 (MarketingExpense) * 1.0 = 5000.0
+        # 4. TotalSellingExpenseModel:
+        #    SellingExpense = 5000.0 (AdvertisingExpense) + 0.0 (FreightExpense) = 5000.0
+        # 5. TotalExpenseModel:
+        #    Expense = 5000.0 (SellingExpense) + 500.0 (ManagementExpense*) = 5500.0
+        #    (*Assuming FreightExpense or other overhead inputs map here)
+        final_state = evaluate_chained_models(baseline_inputs, [self.units_model,
+                                                                self.cogs_model,
+                                                                self.advertising_expense_model,
+                                                                self.total_selling_expense_model,
+                                                                self.total_expense_model])
 
         self.assertEqual(final_state[variable_names.COGS], 750.0)
-        self.assertEqual(final_state[variable_names.COST], 6250.0)
-        self.assertEqual(final_state[variable_names.ADVERTISING_COST], 5000.0)
-        self.assertEqual(final_state[variable_names.UNIT_EXW], 15.0)
+        self.assertEqual(final_state[variable_names.EXPENSE], 5500.0)
+        self.assertEqual(final_state[variable_names.ADVERTISING_EXPENSE], 5000.0)
+        self.assertEqual(final_state[variable_names.UNIT_EXW_PRICE], 15.0)
 
     # -----------------------------------------------------------------
     # 2. IDEMPOTENCY & STATE ISOLATION (DEEP COPY GUARD)
@@ -61,16 +79,16 @@ class TestEvaluateChainedModelsPipeline(unittest.TestCase):
     def test_pipeline_execution_confines_mutations_and_does_not_pollute_input_state(self):
         """Verify baseline_inputs dictionary remains unmutated (isolated) after a pipeline run."""
         baseline_inputs = {
-            variable_names.ADVERTISING_COST: 2000.0,
+            variable_names.ADVERTISING_EXPENSE: 2000.0,
             variable_names.CONVERSION_RATE_GOOGLE_SEARCH: 0.05,
             variable_names.CPL_GOOGLE_SEARCH: 10.0,
             variable_names.UNITS_PER_ORDER: 1.0,
-            variable_names.UNIT_EXW: 10.0,
+            variable_names.UNIT_EXW_PRICE: 10.0,
             variable_names.ORDERS: 10.0
         }
 
         original_keys = set(baseline_inputs.keys())
-        evaluate_chained_models(baseline_inputs, [self.cogs_model])
+        evaluate_chained_models(baseline_inputs, [self.units_model, self.cogs_model])
 
         self.assertEqual(set(baseline_inputs.keys()), original_keys)
         self.assertNotIn(variable_names.COGS, baseline_inputs)
@@ -82,8 +100,8 @@ class TestEvaluateChainedModelsPipeline(unittest.TestCase):
     def test_evaluate_chained_models_handles_empty_pipeline_safely(self):
         """Verify passing an empty sequence returns a clean copy of original input states."""
         baseline_inputs = {
-            variable_names.ADVERTISING_COST: 1500.0,
-            variable_names.UNIT_EXW: 45.0
+            variable_names.ADVERTISING_EXPENSE: 1500.0,
+            variable_names.UNIT_EXW_PRICE: 45.0
         }
 
         final_state = evaluate_chained_models(baseline_inputs, model_pipeline=[])
@@ -94,7 +112,7 @@ class TestEvaluateChainedModelsPipeline(unittest.TestCase):
     def test_pipeline_raises_key_error_and_halts_when_required_variable_is_missing(self):
         """Verify model validation fails fast if required pipeline dependencies are absent."""
         invalid_inputs = {
-            variable_names.ADVERTISING_COST: 5000.0,
+            variable_names.ADVERTISING_EXPENSE: 5000.0,
             variable_names.CONVERSION_RATE_GOOGLE_SEARCH: 0.10
         }
 
@@ -106,16 +124,20 @@ class TestEvaluateVariableScenario(unittest.TestCase):
     """Baseline scenario runner validation targeting expected value snapshot execution."""
 
     def setUp(self):
-        self.pipeline = [CostOfGoodsSoldModel(), TotalCostModel()]
+        self.pipeline = [UnitsSoldModel(),
+                         CostOfGoodsSoldModel(),
+                         AdvertisingExpenseModel(),
+                         TotalSellingExpenseModel(),
+                         TotalExpenseModel()]
 
         self.variables = {
-            variable_names.ADVERTISING_COST: AdvertisingCost(exp=5000.0),
+            variable_names.MARKETING_EXPENSE: MarketingExpense(exp=5000.0),
             variable_names.CONVERSION_RATE_GOOGLE_SEARCH: GoogleSearchConversionRate(exp=0.10),
             variable_names.CPL_GOOGLE_SEARCH: GoogleSearchCostPerClick(exp=20.0),
             variable_names.USD_TO_RMB: USDToRMB(exp=1.0),
             variable_names.UNITS_PER_ORDER: UnitsPerOrder(exp=2.0),
-            variable_names.UNIT_EXW: UnitExw(exp=15.0),
-            variable_names.SHIPPING_COST: ShippingRate(exp=500.0),
+            variable_names.UNIT_EXW_PRICE: UnitExwPrice(exp=15.0),
+            variable_names.FREIGHT_EXPENSE: FreightRate(exp=500.0),
             variable_names.ORDERS: Orders(exp=25.0)
         }
 
@@ -124,23 +146,27 @@ class TestEvaluateVariableScenario(unittest.TestCase):
         baseline_state = evaluate_expected_scenario(self.variables, self.pipeline)
 
         self.assertAlmostEqual(baseline_state[variable_names.COGS], 750.0)
-        self.assertAlmostEqual(baseline_state[variable_names.COST], 6250.0)
+        self.assertEqual(baseline_state[variable_names.EXPENSE], 5500.0)
 
 
 class TestEvaluateStochasticIteration(unittest.TestCase):
     """Stochastic engine orchestration validation targeting input split-sampling boundaries."""
 
     def setUp(self):
-        self.pipeline = [CostOfGoodsSoldModel(), TotalCostModel()]
+        self.pipeline = [UnitsSoldModel(),
+                         CostOfGoodsSoldModel(),
+                         AdvertisingExpenseModel(),
+                         TotalSellingExpenseModel(),
+                         TotalExpenseModel()]
 
         self.variables = {
-            variable_names.ADVERTISING_COST: AdvertisingCost(min=4000.0, max=6000.0, exp=5000.0),
+            variable_names.MARKETING_EXPENSE: MarketingExpense(min=4000.0, max=6000.0, exp=5000.0),
             variable_names.CONVERSION_RATE_GOOGLE_SEARCH: GoogleSearchConversionRate(exp=0.10),
             variable_names.CPL_GOOGLE_SEARCH: GoogleSearchCostPerClick(exp=20.0),
             variable_names.USD_TO_RMB: USDToRMB(exp=1.0),
             variable_names.UNITS_PER_ORDER: UnitsPerOrder(exp=2.0),
-            variable_names.UNIT_EXW: UnitExw(exp=15.0),
-            variable_names.SHIPPING_COST: ShippingCost(exp=500.0),
+            variable_names.UNIT_EXW_PRICE: UnitExwPrice(exp=15.0),
+            variable_names.FREIGHT_EXPENSE: FreightExpense(exp=500.0),
             variable_names.ORDERS: Orders(exp=25.0)
         }
 
@@ -153,7 +179,7 @@ class TestEvaluateStochasticIteration(unittest.TestCase):
         )
 
         self.assertAlmostEqual(calculated_state[variable_names.COGS], 750.0, places=4)
-        self.assertAlmostEqual(calculated_state[variable_names.COST], 6250.0, places=4)
+        self.assertAlmostEqual(calculated_state[variable_names.EXPENSE], 5500.0, places=4)
 
     def test_iteration_defaults_to_expected_values_when_shuffled_inputs_is_omitted(self):
         """Verify fallback behavior matches the expected scenario when shuffled_inputs is completely omitted."""
@@ -164,35 +190,39 @@ class TestEvaluateStochasticIteration(unittest.TestCase):
         )
 
         self.assertAlmostEqual(calculated_state[variable_names.COGS], 750.0, places=4)
-        self.assertAlmostEqual(calculated_state[variable_names.COST], 6250.0, places=4)
+        self.assertAlmostEqual(calculated_state[variable_names.EXPENSE], 5500.0, places=4)
 
     def test_iteration_randomizes_shuffled_inputs_while_pinning_unshuffled_baselines(self):
         """Verify split-sampling configuration mapping anchors deterministic lines correctly."""
         calculated_state = evaluate_stochastic_iteration(
             variables=self.variables,
-            shuffled_inputs=[variable_names.ADVERTISING_COST],
+            shuffled_inputs=[variable_names.MARKETING_EXPENSE],
             model_pipeline=self.pipeline
         )
 
-        sampled_ad_cost = calculated_state[variable_names.ADVERTISING_COST]
+        sampled_ad_cost = calculated_state[variable_names.ADVERTISING_EXPENSE]
         self.assertTrue(4000.0 <= sampled_ad_cost <= 6000.0)
-        self.assertAlmostEqual(calculated_state[variable_names.COST], 750.0 + sampled_ad_cost + 500.0, places=4)
+        self.assertAlmostEqual(calculated_state[variable_names.EXPENSE], sampled_ad_cost + 500.0, places=4)
 
 
 class TestEvaluateVariableScenarioSweep(unittest.TestCase):
     """Scenario sweep engine orchestration validation targeting ceteris paribus execution constraints."""
 
     def setUp(self):
-        self.pipeline = [CostOfGoodsSoldModel(), TotalCostModel()]
+        self.pipeline = [UnitsSoldModel(),
+                         CostOfGoodsSoldModel(),
+                         AdvertisingExpenseModel(),
+                         TotalSellingExpenseModel(),
+                         TotalExpenseModel()]
 
         self.variables = {
-            variable_names.ADVERTISING_COST: AdvertisingCost(exp=5000.0),
+            variable_names.MARKETING_EXPENSE: MarketingExpense(exp=5000.0),
             variable_names.CONVERSION_RATE_GOOGLE_SEARCH: GoogleSearchConversionRate(exp=0.10),
             variable_names.CPL_GOOGLE_SEARCH: GoogleSearchCostPerClick(exp=20.0),
             variable_names.USD_TO_RMB: USDToRMB(exp=1.0),
             variable_names.UNITS_PER_ORDER: UnitsPerOrder(exp=2.0),
-            variable_names.UNIT_EXW: UnitExw(exp=15.0),
-            variable_names.SHIPPING_COST: ShippingCost(exp=500.0),
+            variable_names.UNIT_EXW_PRICE: UnitExwPrice(exp=15.0),
+            variable_names.FREIGHT_EXPENSE: FreightExpense(exp=500.0),
             variable_names.ORDERS: Orders(exp=25.0)
         }
 
@@ -202,14 +232,14 @@ class TestEvaluateVariableScenarioSweep(unittest.TestCase):
 
         results = evaluate_variable_scenario_sweep(
             variables=self.variables,
-            selected_variable=variable_names.ADVERTISING_COST,
+            selected_variable=variable_names.MARKETING_EXPENSE,
             target_values=target_bounds,
             model_pipeline=self.pipeline
         )
 
         self.assertEqual(len(results), 2)
-        self.assertAlmostEqual(results[0][variable_names.COST], 750.0 + 4000.0 + 500.0)
-        self.assertAlmostEqual(results[1][variable_names.COST], 750.0 + 6000.0 + 500.0)
+        self.assertAlmostEqual(results[0][variable_names.EXPENSE], 4000.0 + 500.0)
+        self.assertAlmostEqual(results[1][variable_names.EXPENSE], 6000.0 + 500.0)
 
 
 if __name__ == "__main__":

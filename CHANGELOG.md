@@ -1,3 +1,56 @@
+
+---
+
+## [1.2.0] - 2026-06-16
+
+### Added
+
+#### Core Framework Auditors
+
+* Added `UnitGrossProfitAuditor` — Validates `UnitGrossProfit = UnitFOBPrice - UnitEXWPrice`
+* Added `UnitOperatingIncomeAuditor` — Validates `UnitOperatingIncome` waterfall (FOB - EXW - Marketing - FixedOverhead) while enforcing `UnitFreightExpense = 0` as a business rule
+* Added `DeductionAuditor` — Validates deduction rate bounds (`0 < Rate < 1`) and reconciles the USD-denominated pricing waterfall
+
+#### Refactored Models
+
+* `NetIncomeModel` — Refactored to derive after-tax profitability directly from `OperatingIncome`
+* `TotalExpenseModel` — Refactored to treat `ManagementExpense` and `SellingExpense` as optional inputs (defaulting to 0.0)
+* `AdvertisingExpenseModel` — Added model for 1:1 marketing-to-advertising budget allocation
+
+### Changed
+
+#### Model Architecture Refinement
+
+* **Parameter Flexibility:** Migrated several models (e.g., `TotalExpenseModel`) from mandatory required inputs to optional inputs, providing greater resilience for partial financial datasets.
+* **Business Logic Enforcement:** Integrated "Forced Zero" logic into the `UnitOperatingIncomeAuditor` to ensure freight costs are correctly excluded from Brand-side profitability calculations regardless of raw input values.
+* **Standardized Docstrings:** Updated all models and auditors with consistent reconciliation formulas, logic descriptions, and input/output mappings to match the `1.1.0` architectural standards.
+
+#### Test Suite Updates
+
+* **Engine Runner:** Updated `runner.py` test suite to reflect the new pipeline structure and updated mathematical traces (Units -> COGS -> Advertising -> Selling -> Total Expense).
+* **Validation:** Added full unit test coverage for the three new auditors and refactored models, ensuring circuit breakers trigger correctly on reconciliation failures.
+
+### Design Benefits
+
+| Benefit | Description |
+| --- | --- |
+| **Pipeline Reliability** | New auditor suite ensures the Price Waterfall remains internally consistent during multi-stage execution |
+| **Business Rule Compliance** | Centralized freight exclusion logic in the auditor prevents "leaky" cost accounting |
+| **Input Robustness** | Optionality in cost models allows for lean execution paths without requiring dummy zero-value inputs |
+| **Auditability** | Formulas and logic are now explicitly documented in class docstrings, facilitating easier peer review |
+
+### Migration Guide (Upgrading from 1.1.0 to 1.2.0)
+
+**For model initialization:**
+
+* Optional variables now rely on default dictionary fallbacks. Ensure that new model instances do not require empty keys for `MANAGEMENT_EXPENSE` or `SELLING_EXPENSE` in the input dictionary.
+
+**For pipeline integration:**
+
+* Integrate the new `UnitGrossProfitAuditor`, `UnitOperatingIncomeAuditor`, and `DeductionAuditor` into the `PipelineComposer` to ensure the integrity of the updated Price Waterfall calculation.
+
+---
+
 ## [1.1.0] - 2026-06-13
 
 ### Changed
@@ -69,7 +122,7 @@ All model calculation functions have been refactored to the new signature, remov
    def calculate_xxx(variables: dict) -> dict:
        value = variables[key]
    ```
-
+   
 ---
 
 ## [1.0.0] - 2026-06-12

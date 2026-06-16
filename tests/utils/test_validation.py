@@ -1,7 +1,7 @@
 import unittest
 
 from src.config import variable_names
-from src.models import RevenueModel, NetIncomeModel, TotalExpenseModel
+from src.models import RevenueModel, TotalExpenseModel, OperatingIncomeModel
 from src.utils.validation import (
     get_missing_elements,
     check_variables_for_function,
@@ -19,15 +19,15 @@ class TestValidationUtils(unittest.TestCase):
         to verify utility calculations and pipeline structural compliance.
         """
         self.mock_provided = {
-            variable_names.COST: 40000.0,
+            variable_names.COGS: 40000.0,
             variable_names.ORDERS: 100,
             variable_names.UNITS_PER_ORDER: 2,
-            variable_names.UNIT_FOB: 4500,
-            variable_names.MONTHLY_EXPENSE: 500.0
+            variable_names.UNIT_FOB_PRICE: 4500,
+            variable_names.MONTHLY_MANAGEMENT_EXPENSE: 500.0
         }
 
         self.revenue_model = RevenueModel()
-        self.net_income_model = NetIncomeModel()
+        self.operating_income_model = OperatingIncomeModel()
         self.expense_model = TotalExpenseModel()
 
     # =====================================================================
@@ -51,7 +51,7 @@ class TestValidationUtils(unittest.TestCase):
 
     def test_check_variables_success_path_returns_true(self):
         """Verify validation passes when all required items exist."""
-        required = [variable_names.ORDERS, variable_names.UNIT_FOB]
+        required = [variable_names.ORDERS, variable_names.UNIT_FOB_PRICE]
         self.assertTrue(check_variables_for_function(self.mock_provided, required_variables=required))
 
     def test_check_variables_missing_keys_raises_formatted_key_error(self):
@@ -73,12 +73,12 @@ class TestValidationUtils(unittest.TestCase):
 
     def test_topology_order_passes_linear_cascade(self):
         """Verify a logically ordered dependency chain (Revenue -> Expense -> NetIncome) passes."""
-        valid_pipeline = [self.revenue_model, self.expense_model, self.net_income_model]
+        valid_pipeline = [self.revenue_model, self.expense_model, self.operating_income_model]
         self.assertTrue(check_model_pipeline_topology_order(valid_pipeline))
 
     def test_topology_order_catches_dependency_inversion(self):
         """Verify that a pipeline where a consumer precedes its provider raises a KeyError."""
-        invalid_pipeline = [self.net_income_model, self.revenue_model]
+        invalid_pipeline = [self.operating_income_model, self.revenue_model]
 
         # We must call the function inside the context manager
         with self.assertRaises(KeyError) as context:
@@ -90,7 +90,7 @@ class TestValidationUtils(unittest.TestCase):
     def test_topology_order_catches_optional_dependency_violation(self):
         """Verify that placing a model needing an optional input before the model generating it fails."""
         # NetIncome needs EXPENSE (provided by TotalExpenseModel)
-        invalid_pipeline = [self.net_income_model, self.expense_model]
+        invalid_pipeline = [self.operating_income_model, self.expense_model]
         with self.assertRaises(KeyError) as context:
             check_model_pipeline_topology_order(invalid_pipeline)
         self.assertIn("Pipeline Order Violation", str(context.exception))

@@ -16,7 +16,7 @@ def calculate_leads_from_ads_budget_via_google_search(variables: dict) -> dict:
     Returns:
         dict: Mapping of estimated lead acquisition volume to the centralized registry.
     """
-    ads_budget = variables[vn.ADVERTISING_COST]
+    ads_budget = variables[vn.ADVERTISING_EXPENSE]
     cpc = variables[vn.CPC_GOOGLE_SEARCH]
     conversion_rate = variables[vn.CONVERSION_RATE_GOOGLE_SEARCH]
     usd_to_rmb = variables[vn.USD_TO_RMB]
@@ -72,7 +72,7 @@ class AdvertisingEfficiencyGoogleSearchModel(Model):
         self._output_names = [vn.LEADS]
 
         self._required_variables = [
-            vn.ADVERTISING_COST,
+            vn.ADVERTISING_EXPENSE,
             vn.CPC_GOOGLE_SEARCH,
             vn.CONVERSION_RATE_GOOGLE_SEARCH,
         ]

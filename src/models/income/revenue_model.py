@@ -7,7 +7,7 @@ def calculate_revenue(variables: dict) -> dict:
     Calculates the gross top-line operational revenue for the specific transactional cycle.
 
     Mathematical Formula:
-        Revenue = UnitFob * Orders * UnitsPerOrder * USDToRMB
+        Revenue = UnitFreeOnBoardPrice * UnitsSold * USDToRMB
 
     Args:
         variables (dict): Unified context containing all mandatory and
@@ -16,37 +16,36 @@ def calculate_revenue(variables: dict) -> dict:
     Returns:
         dict: A dictionary mapping the calculated gross top-line revenue to
             its source-of-truth registry key.
-            Example: {"REVENUE": 48600.0}
+            Example: {"Revenue": 48600.0}
     """
-    selling_price = variables[vn.UNIT_FOB]
-    orders = variables[vn.ORDERS]
-    items_per_order = variables[vn.UNITS_PER_ORDER]
+    selling_price = variables[vn.UNIT_FOB_PRICE]
+    units_sold = variables[vn.UNITS_SOLD]
     usd_to_rmb = variables[vn.USD_TO_RMB]
 
-    calculated_revenue = selling_price * orders * items_per_order * usd_to_rmb
+    calculated_revenue = selling_price * units_sold * usd_to_rmb
 
     return {vn.REVENUE: calculated_revenue}
 
 
 class RevenueModel(Model):
     """
-    Pipeline calculation block responsible for translating sales volumes and item-level pricing
-    structures into a consolidated top-line gross revenue metric.
+    Pipeline calculation block responsible for translating sales volumes and item-level
+    pricing structures into a consolidated top-line gross revenue metric.
 
     Description:
-        This model aggregates incoming purchase signals and transactional density profiles to
-        compute top-line operating inflows. By factoring in unit volume volumes and pricing
-        denominations, it builds a standardized gross intake baseline used subsequently by tax,
-        profitability, and margin expansion evaluation models downstream.
+        This model aggregates incoming purchase signals and transactional density profiles
+        to compute top-line operating inflows. By factoring in unit volumes and pricing
+        denominations, it builds a standardized gross intake baseline used subsequently
+        by tax, profitability, and margin expansion evaluation models downstream.
 
     Calculation Equation:
-        Revenue = Orders * UnitsPerOrder * UnitFob * USDToRMB
+        Revenue = UnitFreeOnBoardPrice * UnitsSold * USDToRMB
 
         Where:
-        - "Orders" maps to vn.ORDERS
-        - "UnitsPerOrder" maps to vn.UNITS_PER_ORDER
-        - "UnitFob" maps to vn.UNIT_FOB
+        - "UnitFreeOnBoardPrice" maps to vn.UNIT_FOB_PRICE
+        - "UnitsSold" maps to vn.UNITS_SOLD
         - "USDToRMB" maps to vn.USD_TO_RMB
+        - "Revenue" maps to vn.REVENUE
     """
 
     def __init__(self, input_variables: dict = None):
@@ -65,9 +64,8 @@ class RevenueModel(Model):
 
         # Enforcing configuration dependency boundaries
         self._required_variables = [
-            vn.UNIT_FOB,
-            vn.ORDERS,
-            vn.UNITS_PER_ORDER
+            vn.UNIT_FOB_PRICE,
+            vn.UNITS_SOLD,
         ]
 
         # Migrated from standard list footprint to map defaults transparently

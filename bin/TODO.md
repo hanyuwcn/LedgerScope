@@ -1,10 +1,6 @@
 - Review all the tests
 
-- Cost per unit = ads per unit + cogs per unit
-  - Remove shipping cost from total cost
-  - Add Ads per unit and cogs per unit(unitExw)
-  - Add a model to exchange all currencies to rmb
-
+- separate freight for seller freight and buyer freight. auditor for only one of them > 0
 
 - Write final report(ctnd)
    - Restructure final report

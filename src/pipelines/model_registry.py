@@ -1,37 +1,54 @@
-from src.auditors import PriceArchitectureAuditor
+from src.auditors import PriceArchitectureAuditor, DeductionAuditor, UnitGrossProfitAuditor, UnitOperatingIncomeAuditor
+
 from src.models import (
-    AdvertisingEfficiencyGoogleSearchModel, CostOfGoodsSoldModel, TotalCostModel,
+    AdvertisingEfficiencyGoogleSearchModel, CostOfGoodsSoldModel,
+    UnitFixedOverheadExpenseModel, FreightExpenseModel, UnitMarketingExpenseModel,
+    TotalSellingExpenseModel, TotalManagementExpenseModel, AdvertisingExpenseModel,
+    UnitRetailMarginModel, UnitTariffModel,
     RevenueModel, TotalExpenseModel, DepreciationModel, CapitalExpenditureModel,
-    NetIncomeModel, ProfitModel, RoiModel, FreeCashFlowModel, UnitFobModel,
-    UnitContributionMarginModel, CacModel, CostPerLeadGoogleSearchModel,
-    DeductionRateModel, OrderModel, MarketPriceModel, RoasModel, PriceArchitectureModel, MonthlyExpenseModel
+    NetIncomeModel, GrossProfitModel, RoiModel, FreeCashFlowModel, UnitFobModel,
+    UnitGrossProfitModel, CacModel, CostPerLeadGoogleSearchModel,
+    DeductionRateModel, OrderModel, MarketPriceModel, RoasModel, MonthlyExpenseModel, CurrencyExchangeModel,
+    UnitOperatingIncomeModel, OperatingIncomeModel,
 )
 
 # The Global Model Menu
 PIPELINE_REGISTRY = {
-    # Models (The legacy list + any new ones)
+    # Models
     "advertising_efficiency_google_search": AdvertisingEfficiencyGoogleSearchModel,
     "cost_per_lead_google_search": CostPerLeadGoogleSearchModel,
     "deduction_rate": DeductionRateModel,
+    "unit_fixed_overhead_expense": UnitFixedOverheadExpenseModel,
     "monthly_expense": MonthlyExpenseModel,
+    "selling_expense": TotalSellingExpenseModel,
+    "advertising_expense": AdvertisingExpenseModel,
+    "management_expense": TotalManagementExpenseModel,
+    "freight_expense": FreightExpenseModel,
+    "currency_exchange": CurrencyExchangeModel,
     "order": OrderModel,
     "cogs": CostOfGoodsSoldModel,
-    "total_cost": TotalCostModel,
     "revenue": RevenueModel,
+    "unit_retail_margin": UnitRetailMarginModel,
+    "unit_tariff": UnitTariffModel,
     "total_expense": TotalExpenseModel,
     "depreciation": DepreciationModel,
     "capital_expenditure": CapitalExpenditureModel,
+    "unit_marketing_expense": UnitMarketingExpenseModel,
     "net_income": NetIncomeModel,
-    "profit": ProfitModel,
+    "unit_operating_income": UnitOperatingIncomeModel,
+    "operating_income": OperatingIncomeModel,
+    "gross_profit": GrossProfitModel,
     "free_cash_flow": FreeCashFlowModel,
-    "unit_contribution_margin": UnitContributionMarginModel,
+    "unit_gross_profit": UnitGrossProfitModel,
     "unit_fob": UnitFobModel,
     "roi": RoiModel,
     "cac": CacModel,
     "roas": RoasModel,
     "market_price": MarketPriceModel,
-    "price_architecture": PriceArchitectureModel,
 
-    # Auditors (The new additions)
+    # Auditors
     "price_architecture_auditor": PriceArchitectureAuditor,
+    "deduction_auditor": DeductionAuditor,
+    "unit_gross_profit_auditor": UnitGrossProfitAuditor,
+    "unit_operating_income_auditor": UnitOperatingIncomeAuditor,
 }

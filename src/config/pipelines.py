@@ -4,7 +4,7 @@ DYNAMIC_PIPELINE_CONFIGS = {
         "advertising_efficiency_google_search",
         "order_model",
         "cogs",
-        "total_cost"
+        "expense",
     ],
 
     # Scenario A: Marketing Efficiency Focus
@@ -12,7 +12,7 @@ DYNAMIC_PIPELINE_CONFIGS = {
         "advertising_efficiency_google_search",
         "order_model"
         "cogs",
-        "total_cost",
+        "expense",
         "revenue",
         "profit"
     ],
@@ -21,7 +21,7 @@ DYNAMIC_PIPELINE_CONFIGS = {
     "earnings_and_capex_run": [
         "advertising_efficiency_google_search",
         "cogs",
-        "total_cost",
+        "expense",
         "revenue",
         "depreciation",
         "capital_expenditure",
@@ -30,8 +30,8 @@ DYNAMIC_PIPELINE_CONFIGS = {
 
     # Scenario C: Full Macro Performance
     "complete_macro_metrics": [
-        "advertising_efficiency_google_search", "cogs", "revenue", "total_cost",
-        "monthly_expense", "total_expense",
+        "advertising_efficiency_google_search", "cogs", "revenue",
+        "monthly_expense", "expense",
         "depreciation", "capital_expenditure",
         "net_income", "profit", "free_cash_flow", "roi"
     ]

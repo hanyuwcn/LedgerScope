@@ -3,7 +3,7 @@ import unittest
 from src.analysis import stochastic_contribution_analysis
 from src.config import variable_names
 from src.core import Variable
-from src.models import NetIncomeModel, MarketPriceModel
+from src.models import NetIncomeModel, MarketPriceModel, OperatingIncomeModel
 from src.variables import PriceToEarningsRatio
 
 
@@ -15,11 +15,11 @@ class TestStochasticContributionIntegration(unittest.TestCase):
 
     def setUp(self):
         """Build fiscal pipeline for Monte Carlo contribution simulation."""
-        self.pipeline = [NetIncomeModel(), MarketPriceModel()]
+        self.pipeline = [OperatingIncomeModel(), NetIncomeModel(), MarketPriceModel()]
 
         self.variables = {
             variable_names.REVENUE: _create_var(80000.0, 100000.0, 120000.0),
-            variable_names.COST: _create_var(30000.0, 40000.0, 50000.0),
+            variable_names.COGS: _create_var(30000.0, 40000.0, 50000.0),
             variable_names.PE_RATIO: PriceToEarningsRatio(min=5.0, exp=8.0, max=10.0)
         }
 
@@ -29,8 +29,8 @@ class TestStochasticContributionIntegration(unittest.TestCase):
 
     def test_stochastic_contribution_analysis_averages_converge_on_expected_values(self):
         """Verify that averaged results align with baseline expected values."""
-        breakdown = [variable_names.REVENUE, variable_names.COST]
-        shuffled = [variable_names.REVENUE, variable_names.COST]
+        breakdown = [variable_names.REVENUE, variable_names.COGS]
+        shuffled = [variable_names.REVENUE, variable_names.COGS]
 
         results = stochastic_contribution_analysis(
             variables=self.variables,
@@ -41,14 +41,14 @@ class TestStochasticContributionIntegration(unittest.TestCase):
         )
 
         self.assertAlmostEqual(results[variable_names.REVENUE], 100000.0, delta=5000)
-        self.assertAlmostEqual(results[variable_names.COST], 40000.0, delta=2000)
+        self.assertAlmostEqual(results[variable_names.COGS], 40000.0, delta=2000)
 
     # -----------------------------------------------------------------
     # 2. RESILIENCE: GUARDRAILS & ERROR HANDLING
     # -----------------------------------------------------------------
 
     def test_stochastic_contribution_analysis_aborts_on_missing_registry_variable(self):
-        """Verify registry guardrail raises KeyError when mandatory input (COST) is absent."""
+        """Verify registry guardrail raises KeyError when mandatory input (COGS) is absent."""
         invalid_variables = {
             variable_names.REVENUE: self.variables[variable_names.REVENUE],
             variable_names.PE_RATIO: self.variables[variable_names.PE_RATIO]

@@ -7,7 +7,7 @@ def calculate_customer_acquisition_cost(variables: dict) -> dict:
     Calculates the strategic Customer Acquisition Cost (CAC) for the operational cycle.
 
     Mathematical Formula:
-        CAC = AdvertisingCost / Orders
+        CAC = AdvertisingExpense / Orders
 
     Args:
         variables (dict): Unified context containing all mandatory and
@@ -18,14 +18,14 @@ def calculate_customer_acquisition_cost(variables: dict) -> dict:
             to its central tracking constant.
             Returns {"CAC": 0.0} if zero orders are processed.
     """
-    advertising_cost = variables[vn.ADVERTISING_COST]
+    advertising_expense = variables[vn.ADVERTISING_EXPENSE]
     orders = variables[vn.ORDERS]
 
     # Protect engine against a zero-denominator division crash
     if orders == 0:
         return {vn.CAC: 0.0}
 
-    calculated_cac = advertising_cost / orders
+    calculated_cac = advertising_expense / orders
 
     return {vn.CAC: calculated_cac}
 
@@ -42,16 +42,17 @@ class CacModel(Model):
         critical for evaluating lifetime value (LTV) ratios and marketing scalability.
 
     Calculation Equation:
-        CAC = AdvertisingCost / Orders
+        CAC = AdvertisingExpense / Orders
 
         Where:
-        - "AdvertisingCost" maps to vn.ADVERTISING_COST
+        - "AdvertisingExpense" maps to vn.ADVERTISING_EXPENSE
         - "Orders" maps to vn.ORDERS
+        - "CAC" maps to vn.CAC
     """
 
     def __init__(self, input_variables: dict = None):
         """
-        Initializes the CACModel with explicit validation boundaries.
+        Initializes the CacModel with explicit validation boundaries.
 
         Args:
             input_variables (dict, optional): The active runtime configuration context dictionary.
@@ -65,6 +66,6 @@ class CacModel(Model):
 
         # Explicit tracking validation boundaries (anchoring core inputs)
         self._required_variables = [
-            vn.ADVERTISING_COST,
+            vn.ADVERTISING_EXPENSE,
             vn.ORDERS
         ]

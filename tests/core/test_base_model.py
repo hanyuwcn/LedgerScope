@@ -15,9 +15,9 @@ class MockRevenueModel(Model):
 
     def __init__(self, input_variables=None):
         super().__init__(input_variables)
-        self._required_variables = [variable_names.ORDERS, variable_names.UNIT_FOB]
+        self._required_variables = [variable_names.ORDERS, variable_names.UNIT_FOB_PRICE]
         self._optional_variables = {variable_names.TAX_RATE: 0.2}
-        self._output_names = [variable_names.REVENUE, variable_names.PROFIT]
+        self._output_names = [variable_names.REVENUE, variable_names.GROSS_PROFIT]
         self._model_function = self._calculate_revenue
 
     def _calculate_revenue(self, variables: dict) -> dict:
@@ -26,7 +26,7 @@ class MockRevenueModel(Model):
         No kwargs or manual fallback management required here.
         """
         orders = variables[variable_names.ORDERS]
-        unit_fob = variables[variable_names.UNIT_FOB]
+        unit_fob = variables[variable_names.UNIT_FOB_PRICE]
         tax_rate = variables[variable_names.TAX_RATE]
 
         raw_revenue = orders * unit_fob
@@ -34,7 +34,7 @@ class MockRevenueModel(Model):
 
         return {
             variable_names.REVENUE: raw_revenue,
-            variable_names.PROFIT: net_profit
+            variable_names.GROSS_PROFIT: net_profit
         }
 
 
@@ -68,7 +68,7 @@ class TestBaseModelArchitecture(unittest.TestCase):
     def test_output_names_getter(self):
         """Verify that output_names property correctly exposes the model's registered outputs."""
         model = MockRevenueModel()
-        expected_outputs = [variable_names.REVENUE, variable_names.PROFIT]
+        expected_outputs = [variable_names.REVENUE, variable_names.GROSS_PROFIT]
         self.assertEqual(model.output_names, expected_outputs)
 
     def test_internal_optional_variables_is_dict(self):
@@ -86,7 +86,7 @@ class TestBaseModelArchitecture(unittest.TestCase):
 
     def test_prepare_calculation_context_merges_data_correctly(self):
         """Verify the new context preparation method correctly joins required and optional data."""
-        inputs = {variable_names.ORDERS: 10, variable_names.UNIT_FOB: 100}
+        inputs = {variable_names.ORDERS: 10, variable_names.UNIT_FOB_PRICE: 100}
         model = MockRevenueModel(inputs)
 
         context = model.prepare_calculation_context()
@@ -104,7 +104,7 @@ class TestBaseModelArchitecture(unittest.TestCase):
         model = MockRevenueModel()
         fresh_state = {
             variable_names.ORDERS: 50,
-            variable_names.UNIT_FOB: 20.0
+            variable_names.UNIT_FOB_PRICE: 20.0
         }
 
         # Trigger the setter
@@ -154,14 +154,14 @@ class TestBaseModelArchitecture(unittest.TestCase):
         class MockMethodVariable:
             @property
             def name(self) -> str:
-                return variable_names.UNIT_FOB
+                return variable_names.UNIT_FOB_PRICE
 
             @property
             def expected_value(self):
                 return 1500.0
 
         model.update_input_variable(MockMethodVariable())
-        self.assertEqual(model.input_variables[variable_names.UNIT_FOB], 1500.0)
+        self.assertEqual(model.input_variables[variable_names.UNIT_FOB_PRICE], 1500.0)
 
     # -----------------------------------------------------------------
     # 4. LIFECYCLE RUNTIME & VALIDATION TESTS
@@ -169,12 +169,12 @@ class TestBaseModelArchitecture(unittest.TestCase):
 
     def test_evaluate_success_and_in_place_data_enrichment_merge(self):
         """Verify calculation execution using the unified variables context."""
-        inputs = {variable_names.ORDERS: 20, variable_names.UNIT_FOB: 3000}
+        inputs = {variable_names.ORDERS: 20, variable_names.UNIT_FOB_PRICE: 3000}
         model = MockRevenueModel(inputs)
         enriched_output = model.evaluate()
 
         self.assertEqual(enriched_output[variable_names.REVENUE], 60000)
-        self.assertEqual(enriched_output[variable_names.PROFIT], 48000)
+        self.assertEqual(enriched_output[variable_names.GROSS_PROFIT], 48000)
         self.assertIs(enriched_output, model.input_variables)
 
     def test_evaluate_missing_required_variables_halts_execution(self):
@@ -191,14 +191,14 @@ class TestBaseModelArchitecture(unittest.TestCase):
         """Verify explicit optional overrides are respected via the unified context."""
         custom_inputs = {
             variable_names.ORDERS: 10,
-            variable_names.UNIT_FOB: 1000,
+            variable_names.UNIT_FOB_PRICE: 1000,
             variable_names.TAX_RATE: 0.10
         }
         model = MockRevenueModel(custom_inputs)
         enriched_output = model.evaluate()
 
         # Profit = 10000 * (1 - 0.10) = 9000
-        self.assertEqual(enriched_output[variable_names.PROFIT], 9000)
+        self.assertEqual(enriched_output[variable_names.GROSS_PROFIT], 9000)
 
 
 if __name__ == "__main__":

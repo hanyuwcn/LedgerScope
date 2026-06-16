@@ -6,7 +6,7 @@ from pandas.io.formats.style import Styler
 from src.analysis import break_even_analysis
 from src.config import variable_names
 from src.core import Variable
-from src.models import NetIncomeModel, MarketPriceModel
+from src.models import NetIncomeModel, MarketPriceModel, OperatingIncomeModel
 from src.variables import PriceToEarningsRatio
 from src.visualization.styles import break_even_styles
 from src.visualization.views.break_even_view import get_break_even_dataframe, render_break_even_dashboard
@@ -16,19 +16,19 @@ class TestBreakEvenViewEngineComprehensive(unittest.TestCase):
 
     def setUp(self):
         """Standardize fixture using the core fiscal pipeline."""
-        self.pipeline = [NetIncomeModel(), MarketPriceModel()]
+        self.pipeline = [OperatingIncomeModel(), NetIncomeModel(), MarketPriceModel()]
 
         # Consistent fiscal scenario
         self.variables = {
             variable_names.REVENUE: Variable(min=80000.0, exp=100000.0, max=120000.0),
-            variable_names.COST: Variable(min=30000.0, exp=40000.0, max=50000.0),
+            variable_names.COGS: Variable(min=30000.0, exp=40000.0, max=50000.0),
             variable_names.PE_RATIO: PriceToEarningsRatio(min=5.0, exp=8.0, max=10.0)
         }
 
         # Generate production-ready analysis output from the engine
         self.analysis_output = break_even_analysis(
             variables=self.variables,
-            selected_variables=[variable_names.REVENUE, variable_names.COST],
+            selected_variables=[variable_names.REVENUE, variable_names.COGS],
             model_pipeline=self.pipeline,
             output_name=variable_names.MARKET_PRICE,
             goal=5000000.0

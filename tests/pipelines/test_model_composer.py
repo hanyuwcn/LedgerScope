@@ -5,9 +5,9 @@ from unittest.mock import patch
 from src.auditors import PriceArchitectureAuditor
 from src.models import (
     AdvertisingEfficiencyGoogleSearchModel,
-    ProfitModel,
+    GrossProfitModel,
     FreeCashFlowModel,
-    DepreciationModel, CostOfGoodsSoldModel, TotalCostModel
+    DepreciationModel, CostOfGoodsSoldModel, RevenueModel
 )
 # Updated imports to reflect the new structure
 from src.pipelines import PipelineComposer
@@ -17,9 +17,8 @@ MOCK_PIPELINE_CONFIGS = {
     "marketing_roi_analysis": [
         "advertising_efficiency_google_search",
         "cogs",
-        "total_cost",
         "revenue",
-        "profit"
+        "gross_profit"
     ]
 }
 
@@ -36,9 +35,9 @@ class TestPipelineComposerEngine(unittest.TestCase):
         """Verify the standard blueprint resolves and instantiates natively."""
         base_pipeline = PipelineComposer.build_named_scenario("marketing_roi_analysis")
 
-        self.assertEqual(len(base_pipeline), 5)
+        self.assertEqual(len(base_pipeline), 4)
         self.assertIsInstance(base_pipeline[0], AdvertisingEfficiencyGoogleSearchModel)
-        self.assertIsInstance(base_pipeline[4], ProfitModel)
+        self.assertIsInstance(base_pipeline[3], GrossProfitModel)
 
     def test_case_b_single_add_on_mixin(self):
         """Verify appending a node (including auditors) on the fly."""
@@ -48,8 +47,8 @@ class TestPipelineComposerEngine(unittest.TestCase):
             "price_architecture_auditor"
         )
 
-        self.assertEqual(len(marketing_audit_pipeline), 6)
-        self.assertIsInstance(marketing_audit_pipeline[5], PriceArchitectureAuditor)
+        self.assertEqual(len(marketing_audit_pipeline), 5)
+        self.assertIsInstance(marketing_audit_pipeline[4], PriceArchitectureAuditor)
 
     def test_case_c_multiple_stacked_complex_mixins(self):
         """Verify stacking components with deduplication guards."""
@@ -57,20 +56,20 @@ class TestPipelineComposerEngine(unittest.TestCase):
             "marketing_roi_analysis",
             "free_cash_flow",
             "depreciation",
-            "profit"  # Duplicate guard check
+            "gross_profit"  # Duplicate guard check
         )
 
-        # Baseline (5) + FreeCashFlow (1) + Depreciation (1) = 7 total
-        self.assertEqual(len(advanced_pipeline), 7)
-        self.assertIsInstance(advanced_pipeline[5], FreeCashFlowModel)
-        self.assertIsInstance(advanced_pipeline[6], DepreciationModel)
+        # Baseline (4) + FreeCashFlow (1) + Depreciation (1) = 7 total
+        self.assertEqual(len(advanced_pipeline), 6)
+        self.assertIsInstance(advanced_pipeline[4], FreeCashFlowModel)
+        self.assertIsInstance(advanced_pipeline[5], DepreciationModel)
 
     def test_case_d_merge_multiple_scenarios(self):
         """Verify that multiple scenarios can be merged with deduplication."""
         # Define a mock configuration with two distinct scenarios
         merged_mock_configs = {
             "scenario_a": ["advertising_efficiency_google_search", "cogs"],
-            "scenario_b": ["cogs", "total_cost"]  # Note: 'cogs' is a duplicate
+            "scenario_b": ["cogs", "revenue"]  # Note: 'cogs' is a duplicate
         }
 
         # Patch the config to use our new multi-scenario mock
@@ -82,7 +81,7 @@ class TestPipelineComposerEngine(unittest.TestCase):
             self.assertEqual(len(merged_pipeline), 3)
             self.assertIsInstance(merged_pipeline[0], AdvertisingEfficiencyGoogleSearchModel)
             self.assertIsInstance(merged_pipeline[1], CostOfGoodsSoldModel)
-            self.assertIsInstance(merged_pipeline[2], TotalCostModel)
+            self.assertIsInstance(merged_pipeline[2], RevenueModel)
 
     # =========================================================================
     # ERROR BOUNDARY VALIDATION
