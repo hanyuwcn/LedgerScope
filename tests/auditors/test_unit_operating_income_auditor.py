@@ -15,7 +15,7 @@ class TestUnitOperatingIncomeAuditor(unittest.TestCase):
         # Math: 250 (FOB) - 200 (EXW) - 0 (Marketing) - 0 (Fixed) = 50.0
         inputs = {
             vn.UNIT_OPERATING_INCOME: 50.0,
-            vn.UNIT_FOB_PRICE: 250.0,
+            vn.UNIT_FOB_PRICE_IN_RMB: 250.0,
             vn.UNIT_EXW_PRICE: 200.0,
             vn.UNIT_MERCHANT_FREIGHT_EXPENSE_IN_RMB: 100.0  # Should be ignored (set to 0.0)
         }
@@ -27,7 +27,7 @@ class TestUnitOperatingIncomeAuditor(unittest.TestCase):
         # Math: 500 (FOB) - 200 (EXW) - 50 (Marketing) - 0 (Freight) - 50 (Fixed) = 200.0
         inputs = {
             vn.UNIT_OPERATING_INCOME: 200.0,
-            vn.UNIT_FOB_PRICE: 500.0,
+            vn.UNIT_FOB_PRICE_IN_RMB: 500.0,
             vn.UNIT_EXW_PRICE: 200.0,
             vn.UNIT_MARKETING_EXPENSE: 50.0,
             vn.UNIT_FIXED_OVERHEAD_EXPENSE: 50.0,
@@ -45,7 +45,7 @@ class TestUnitOperatingIncomeAuditor(unittest.TestCase):
         # Math: 250 - 200 = 50 (Expected). Provided: 40.0
         inputs = {
             vn.UNIT_OPERATING_INCOME: 40.0,
-            vn.UNIT_FOB_PRICE: 250.0,
+            vn.UNIT_FOB_PRICE_IN_RMB: 250.0,
             vn.UNIT_EXW_PRICE: 200.0,
             vn.UNIT_MERCHANT_FREIGHT_EXPENSE_IN_RMB: 0.0
         }
@@ -64,7 +64,7 @@ class TestUnitOperatingIncomeAuditor(unittest.TestCase):
         """Verify that missing mandatory keys trigger KeyError."""
         incomplete_inputs = {
             vn.UNIT_OPERATING_INCOME: 50.0,
-            vn.UNIT_FOB_PRICE: 250.0
+            vn.UNIT_FOB_PRICE_IN_RMB: 250.0
             # Missing EXW and Freight
         }
         auditor = UnitOperatingIncomeAuditor(incomplete_inputs)

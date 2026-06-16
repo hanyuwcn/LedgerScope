@@ -2,6 +2,7 @@ from src.config import variable_names as vn
 from src.core.base_model import Model
 
 
+## TODO: AdvertisingExpense can be convert to USD here
 def calculate_advertising_expense(variables: dict) -> dict:
     """
     Calculates the advertising expense by allocating the total marketing

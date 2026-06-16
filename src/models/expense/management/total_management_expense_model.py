@@ -41,5 +41,5 @@ class TotalManagementExpenseModel(Model):
             vn.MONTHLY_MANAGEMENT_EXPENSE
         ]
         self._optional_variables = {
-            vn.MONTHS: 12
+            vn.MONTHS: 1
         }

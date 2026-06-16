@@ -1,4 +1,7 @@
-from src.auditors import PriceArchitectureAuditor, DeductionAuditor, UnitGrossProfitAuditor, UnitOperatingIncomeAuditor
+from src.auditors import (
+    PriceArchitectureAuditor, DeductionAuditor, UnitGrossProfitAuditor,
+    UnitOperatingIncomeAuditor, FreightExpenseAuditor,
+)
 
 from src.models import (
     AdvertisingEfficiencyGoogleSearchModel, CostOfGoodsSoldModel,
@@ -9,12 +12,14 @@ from src.models import (
     NetIncomeModel, GrossProfitModel, RoiModel, FreeCashFlowModel, UnitFobModel,
     UnitGrossProfitModel, CacModel, CostPerLeadGoogleSearchModel,
     DeductionRateModel, OrderModel, MarketPriceModel, RoasModel, MonthlyExpenseModel, CurrencyExchangeModel,
-    UnitOperatingIncomeModel, OperatingIncomeModel,
+    UnitOperatingIncomeModel, OperatingIncomeModel, UnitsSoldModel, UnitMerchantFreightExpenseModel,
 )
 
 # The Global Model Menu
 PIPELINE_REGISTRY = {
     # Models
+    "units_sold": UnitsSoldModel,
+    "unit_merchant_freight_expense": UnitMerchantFreightExpenseModel,
     "advertising_efficiency_google_search": AdvertisingEfficiencyGoogleSearchModel,
     "cost_per_lead_google_search": CostPerLeadGoogleSearchModel,
     "deduction_rate": DeductionRateModel,
@@ -51,4 +56,5 @@ PIPELINE_REGISTRY = {
     "deduction_auditor": DeductionAuditor,
     "unit_gross_profit_auditor": UnitGrossProfitAuditor,
     "unit_operating_income_auditor": UnitOperatingIncomeAuditor,
+    "freight_expense_auditor": FreightExpenseAuditor,
 }

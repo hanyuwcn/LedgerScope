@@ -26,7 +26,7 @@ class TestRevenueModel(unittest.TestCase):
         self.assertEqual(
             model.required_variables,
             [
-                variable_names.UNIT_FOB_PRICE,
+                variable_names.UNIT_FOB_PRICE_IN_RMB,
                 variable_names.UNITS_SOLD
             ]
         )
@@ -37,7 +37,7 @@ class TestRevenueModel(unittest.TestCase):
         self.assertIsInstance(model._optional_variables, dict)
         self.assertEqual(
             model._optional_variables,
-            {variable_names.USD_TO_RMB: 1.0}
+            {}
         )
 
     # -----------------------------------------------------------------
@@ -48,7 +48,7 @@ class TestRevenueModel(unittest.TestCase):
         """Verify the property setter completely updates the operational variable context."""
         model = RevenueModel()
         fresh_inputs = {
-            variable_names.UNIT_FOB_PRICE: 50.0,
+            variable_names.UNIT_FOB_PRICE_IN_RMB: 350.0,
             variable_names.UNITS_SOLD: 300
         }
 
@@ -84,11 +84,11 @@ class TestRevenueModel(unittest.TestCase):
         # Context B: Structural duck-typed object validation
         class DuckTypeA:
             def __init__(self):
-                self.name = variable_names.UNIT_FOB_PRICE
+                self.name = variable_names.UNIT_FOB_PRICE_IN_RMB
                 self.expected_value = 75.0
 
         model.update_input_variable(DuckTypeA())
-        self.assertEqual(model.input_variables[variable_names.UNIT_FOB_PRICE], 75.0)
+        self.assertEqual(model.input_variables[variable_names.UNIT_FOB_PRICE_IN_RMB], 75.0)
 
     # -----------------------------------------------------------------
     # 4. EXPLICIT DEPENDENCY CHECKING MECHANISMS
@@ -98,9 +98,8 @@ class TestRevenueModel(unittest.TestCase):
     def test_check_variables_success_with_all_metrics(self, mock_log):
         """Verify check_variables clears execution cleanly when every metric constraint is fully met."""
         inputs = {
-            variable_names.UNIT_FOB_PRICE: 50.0,
+            variable_names.UNIT_FOB_PRICE_IN_RMB: 350.0,
             variable_names.UNITS_SOLD: 300,
-            variable_names.USD_TO_RMB: 7.0
         }
         model = RevenueModel(inputs)
 
@@ -112,7 +111,7 @@ class TestRevenueModel(unittest.TestCase):
         """Verify check_variables logs errors and safely raises a KeyError if a requirement is absent."""
         incomplete_inputs = {
             variable_names.UNITS_SOLD: 300
-            # Missing UNIT_FOB_PRICE!
+            # Missing UNIT_FOB_PRICE_IN_RMB!
         }
         model = RevenueModel(incomplete_inputs)
 
@@ -127,27 +126,26 @@ class TestRevenueModel(unittest.TestCase):
     def test_evaluate_revenue_in_domestic_currency(self):
         """Verify baseline revenue calculations hold accurate when currency translations are omitted."""
         inputs = {
-            variable_names.UNIT_FOB_PRICE: 50.0,
+            variable_names.UNIT_FOB_PRICE_IN_RMB: 350.0,
             variable_names.UNITS_SOLD: 300
         }
         model = RevenueModel(inputs)
         enriched_output = model.evaluate()
 
-        # Math verification: 50.0 * 300 * 1.0 = 15000.0
-        self.assertEqual(enriched_output[variable_names.REVENUE], 15000.0)
+        # Math verification: 350.0 * 300 = 15000.0
+        self.assertEqual(enriched_output[variable_names.REVENUE], 105000.0)
         self.assertIs(enriched_output, model.input_variables)
 
     def test_evaluate_revenue_with_currency_translation_factor(self):
         """Verify international revenue scales reliably when an exchange rate multiplier is passed."""
         inputs = {
-            variable_names.UNIT_FOB_PRICE: 100.0,
+            variable_names.UNIT_FOB_PRICE_IN_RMB: 700.0,
             variable_names.UNITS_SOLD: 20,
-            variable_names.USD_TO_RMB: 7.0
         }
         model = RevenueModel(inputs)
         enriched_output = model.evaluate()
 
-        # Math verification: 100.0 * 20 * 7.0 = 14000.0
+        # Math verification: 700.0 * 20 = 14000.0
         self.assertEqual(enriched_output[variable_names.REVENUE], 14000.0)
 
 

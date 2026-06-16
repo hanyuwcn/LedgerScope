@@ -35,7 +35,7 @@ class TestTotalManagementExpenseModel(unittest.TestCase):
         self.assertEqual(
             model._optional_variables,
             {
-                variable_names.MONTHS: 12
+                variable_names.MONTHS: 1
             }
         )
 
@@ -93,16 +93,16 @@ class TestTotalManagementExpenseModel(unittest.TestCase):
         self.assertIs(enriched_output, model.input_variables)
 
     def test_evaluate_success_with_omitted_months_fallback(self):
-        """Verify timeline horizon scaling falls back to default 12-month window when omitted."""
+        """Verify timeline horizon scaling falls back to default one month window when omitted."""
         inputs = {
             variable_names.MONTHLY_MANAGEMENT_EXPENSE: 2500.0
-            # Months omitted intentionally (defaults to 12)
+            # Months omitted intentionally (defaults to 1)
         }
         model = TotalManagementExpenseModel(inputs)
         enriched_output = model.evaluate()
 
-        # Math validation: 2500.0 * 12 = 30000.0 Total Expense
-        self.assertEqual(enriched_output[variable_names.MANAGEMENT_EXPENSE], 30000.0)
+        # Math validation: 2500.0 * 1 = 2500.0 Total Expense
+        self.assertEqual(enriched_output[variable_names.MANAGEMENT_EXPENSE], 2500.0)
 
     def test_evaluate_missing_required_variables_raises_key_error(self):
         """Verify omitting the operational foundation base MonthlyExpense immediately aborts execution."""
