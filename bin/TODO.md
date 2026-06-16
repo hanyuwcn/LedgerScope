@@ -1,5 +1,3 @@
-- Review all the tests
-
 - Write final report(ctnd)
    - Restructure final report
    - Write report in both languages
@@ -7,6 +5,7 @@
 
 - Have a detailed design doc after codebase completion
    - Write Design doc in both languages
+   - Review all the tests
 
 
     - Workflow

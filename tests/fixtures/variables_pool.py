@@ -1,54 +1,59 @@
-# from src.config import variable_names
-# from src.variables import (
-#     Expense,
-#     Rent,
-#     TravelFee,
-#     RenderFee,
-#     Cost,
-#     SetupCost,
-#     AdvertisingCost,
-#     CostPerAcquisition,
-#     ConversionRate,
-#     Orders,
-#     CloseRate,
-#     InterestRate,
-#     TaxRate,
-#     USDToRMB
-# )
-#
-#
-# def get_test_variable_portfolio() -> dict:
-#     """
-#     Centralized factory providing a standard, isolated portfolio of all
-#     LedgerScope domain variables with default test boundaries.
-#
-#     Returns:
-#         dict: A map of string-token registry keys to initialized Variable domain instances.
-#     """
-#     return {
-#         # Expenses
-#         variable_names.EXPENSE: Expense(expected_value=1000, min_value=500, max_value=2000),
-#         variable_names.EXPENSE_MONTHLY_RENT: Rent(min_value=1000, max_value=3000),
-#         variable_names.EXPENSE_TRAVEL_FEE: TravelFee(max_value=1500),
-#         variable_names.EXPENSE_RENDER_FEE: RenderFee(min_value=1000, max_value=2000),
-#
-#         # Costs
-#         variable_names.COST: Cost(),
-#         variable_names.COST_SETUP: SetupCost(min_value=6000, max_value=15000),
-#         variable_names.COST_ADVERTISING: AdvertisingCost(min_value=10000, max_value=30000),
-#         variable_names.COST_CPA: CostPerAcquisition(min_value=12, max_value=36),
-#         variable_names.COST_CONVERSION_RATE: ConversionRate(min_value=0.04, max_value=0.2),
-#
-#         # Deals
-#         variable_names.REVENUE: 0,
-#         variable_names.DEAL_ORDERS: Orders(min_value=20, max_value=30),
-#         variable_names.CLOSE_RATE: CloseRate(min_value=0.08, max_value=0.18),
-#         variable_names.DEAL_ITEMS_PER_ORDER: ItemsPerOrder(min_value=1, max_value=5),
-#         variable_names.DEAL_SELLING_PRICE: SellingPrice(min_value=3000, max_value=6000),
-#         variable_names.DEAL_PURCHASING_PRICE: PurchasingPrice(min_value=1000, max_value=2000),
-#
-#         # Finance
-#         variable_names.FINANCE_INTEREST_RATE: InterestRate(expected_value=0.05),
-#         variable_names.FINANCE_TAX_RATE: TaxRate(expected_value=0.2),
-#         variable_names.FINANCE_USD_TO_RMB: USDToRMB(expected_value=6.8, min_value=6.0, max_value=7.5),
-#     }
+from src.config import variable_names
+
+from src.variables import GoogleSearchConversionRate, GoogleSearchCostPerClick, \
+    CloseRate, UnitsPerOrder, UnitExwPrice, RentExpense, RenderExpense, TravelExpense, MarketingExpense, \
+    InterestRate, TaxRate, TariffRate, USDToRMB, \
+    PriceToEarningsRatio, SetupInvestment, UnitRetailPrice, RetailMarginRate, MerchantFreightRate, \
+    UnitMerchantFreightExpense, GoogleSearchAllocationPercentage
+
+
+def get_panoramic_variable_portfolio() -> dict:
+    """
+    Centralized factory providing a standard, isolated portfolio of all
+    LedgerScope domain variables with default test boundaries.
+
+    Returns:
+        dict: A map of string-token registry keys to initialized Variable domain instances.
+    """
+    return {
+        variable_names.MARKETING_EXPENSE: MarketingExpense(3000, 4000, 5000),
+        # variable_names.ADVERTISING_EXPENSE: AdvertisingBudget(2000, 3000, 5000),
+        variable_names.CONVERSION_RATE_GOOGLE_SEARCH: GoogleSearchConversionRate(min=0.04, max=0.06),
+        variable_names.CPC_GOOGLE_SEARCH: GoogleSearchCostPerClick(min=1.80, exp=2.50, max=3.50),
+        variable_names.ALLOCATION_GOOGLE_SEARCH: GoogleSearchAllocationPercentage(min=0.50, max=0.70),
+
+        # variable_names.ORDERS: Orders(),
+        variable_names.CLOSE_RATE: CloseRate(min=0.08, exp=0.12, max=0.18),
+        variable_names.UNITS_PER_ORDER: UnitsPerOrder(min=1, max=5),
+        # units_sold = UnitsSold(),
+        variable_names.UNIT_EXW_PRICE: UnitExwPrice(min=2000, exp=3000, max=5000),
+        # unit_fob_price = UnitFobPrice(),
+
+        # variable_names.MONTHS: Months(exp=1),
+
+        # expense = Expense(),
+        variable_names.RENT_EXPENSE: RentExpense(min=1000, max=3000),
+        variable_names.RENDER_EXPENSE: RenderExpense(min=1000, max=2000),
+        variable_names.TRAVEL_EXPENSE: TravelExpense(max=1500),
+        # monthly_management_expense = MonthlyManagementExpense(),
+
+        # unit_marketing_expense = UnitMarketingExpense(),
+        # advertising_expense = AdvertisingExpense(),
+        # brand_freight_expense = BrandFreightExpense(),
+
+        variable_names.INTEREST_RATE: InterestRate(exp=0.05),
+        variable_names.TAX_RATE: TaxRate(exp=0.20),
+        variable_names.TARIFF_RATE: TariffRate(min=0.15, exp=0.25, max=0.35),
+        variable_names.USD_TO_RMB: USDToRMB(min=6.0, exp=6.8, max=7.5),
+
+        variable_names.PE_RATIO: PriceToEarningsRatio(min=5.0, exp=8.0, max=10.0),
+        variable_names.SETUP_INVESTMENT: SetupInvestment(min=10000, exp=20000, max=30000),
+
+        variable_names.UNIT_RETAIL_PRICE: UnitRetailPrice(min=8000, exp=10000, max=12000),
+        # deduction_rate = DeductionRate(),
+        variable_names.CHANNEL_MARKUP_RATE: RetailMarginRate(min=0.10, exp=0.15, max=0.20),
+        variable_names.MERCHANT_FREIGHT_RATE: MerchantFreightRate(min=0.02, exp=0.05, max=0.08),
+        variable_names.UNIT_MERCHANT_FREIGHT_EXPENSE: UnitMerchantFreightExpense(min=50, exp=100, max=150),
+        # unit_tariff = UnitTariff(),
+        # unit_retail_margin = UnitRetailMargin(),
+    }

@@ -10,7 +10,7 @@ from src.engine import (
 from src.models import (UnitGrossProfitModel, CostOfGoodsSoldModel, TotalExpenseModel, UnitsSoldModel,
                         TotalSellingExpenseModel, AdvertisingExpenseModel)
 from src.variables import (GoogleSearchConversionRate, GoogleSearchCostPerClick,
-                           USDToRMB, UnitsPerOrder, UnitExwPrice, FreightRate, BrandFreightExpense, Orders,
+                           USDToRMB, UnitsPerOrder, UnitExwPrice, BrandFreightExpense, BrandFreightExpense, Orders,
                            MarketingExpense
                            )
 
@@ -138,7 +138,7 @@ class TestEvaluateVariableScenario(unittest.TestCase):
             variable_names.USD_TO_RMB: USDToRMB(exp=1.0),
             variable_names.UNITS_PER_ORDER: UnitsPerOrder(exp=2.0),
             variable_names.UNIT_EXW_PRICE: UnitExwPrice(exp=15.0),
-            variable_names.BRAND_FREIGHT_EXPENSE: FreightRate(exp=500.0),
+            variable_names.BRAND_FREIGHT_EXPENSE: BrandFreightExpense(exp=500.0),
             variable_names.ORDERS: Orders(exp=25.0)
         }
 

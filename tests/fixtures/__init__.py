@@ -1,0 +1,1 @@
+from .variables_pool import get_panoramic_variable_portfolio
