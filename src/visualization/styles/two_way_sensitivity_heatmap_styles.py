@@ -15,30 +15,42 @@ HEATMAP_COLORS = common_styles.COLOR_SET
 HEATMAP_TITLE = "Heatmap of impact of {factor_1} & {factor_2} on {output}"
 
 
-def apply_heatmap_theme(ax, ax_heatmap, x_var_name, y_var_name, output_name, x_formatter, y_formatter):
-    """Applies corporate styling tokens to layout boundaries in a single shot."""
-    # 1. Style the Colorbar Title Context
+def scale_font(font_dict, factor):
+    new_dict = font_dict.copy()
+    if 'size' in new_dict:
+        new_dict['size'] *= factor
+    return new_dict
+
+
+def apply_heatmap_theme(ax, ax_heatmap, x_var_name, y_var_name, output_name, x_formatter, y_formatter, title=None,
+                        amplify_font=False):
+    amp = 2.5 if amplify_font else 1.0
+
+    # 1. Colorbar
     cbar = ax_heatmap.collections[0].colorbar
-    cbar.ax.set_title(output_name, fontdict=common_styles.X_AXIS_FONT, pad=10)
+    cbar.ax.set_title(output_name, fontdict=scale_font(common_styles.X_AXIS_FONT, amp), pad=10 * amp)
+    cbar.ax.tick_params(labelsize=common_styles.TICK_SIZE * amp)
 
-    # 2. Configure Main Titles and Structural Labels
+    # 2. Main Title and Labels
     ax.set_title(
-        HEATMAP_TITLE.format(factor_1=x_var_name, factor_2=y_var_name, output=output_name),
-        fontdict=common_styles.TITLE_FONT,
-        pad=common_styles.TITLE_PADDING
+        title or HEATMAP_TITLE.format(factor_1=x_var_name, factor_2=y_var_name, output=output_name),
+        fontdict=scale_font(common_styles.TITLE_FONT, amp),
+        pad=common_styles.TITLE_PADDING * amp
     )
-    ax.set_xlabel(x_var_name, fontdict=common_styles.X_AXIS_FONT)
-    ax.set_ylabel(y_var_name, fontdict=common_styles.Y_AXIS_FONT, labelpad=common_styles.Y_AXIS_PADDING,
-                  rotation=common_styles.Y_AXIS_ROTATION)
+    ax.set_xlabel(x_var_name, fontdict=scale_font(common_styles.X_AXIS_FONT, amp))
+    ax.set_ylabel(y_var_name, fontdict=scale_font(common_styles.Y_AXIS_FONT, amp),
+                  labelpad=common_styles.Y_AXIS_PADDING * amp, rotation=common_styles.Y_AXIS_ROTATION)
 
-    # 3. Apply Custom Dynamic Map Formatting Rules onto Active Labels Collection
-    formatted_x = [x_formatter(float(label.get_text())) for label in ax.get_xticklabels()]
-    formatted_y = [y_formatter(float(label.get_text())) for label in ax.get_yticklabels()]
-    ax.set_xticklabels(formatted_x)
-    ax.set_yticklabels(formatted_y)
+    # 3. Formatted Labels
+    ax.set_xticklabels([x_formatter(float(l.get_text())) for l in ax.get_xticklabels()])
+    ax.set_yticklabels([y_formatter(float(l.get_text())) for l in ax.get_yticklabels()])
 
-    # 4. Refine Ticks and Labels Presentation
-    ax.tick_params(axis='x', colors=common_styles.X_AXIS_COLOR, labelsize=common_styles.TICK_SIZE,
+    # 4. Ticks
+    ax.tick_params(axis='x',
+                   colors=common_styles.X_AXIS_COLOR,
+                   labelsize=common_styles.TICK_SIZE * amp,
                    labelrotation=common_styles.X_TICK_ROTATION)
-    ax.tick_params(axis='y', colors=common_styles.Y_AXIS_COLOR, labelsize=common_styles.TICK_SIZE,
+    ax.tick_params(axis='y',
+                   colors=common_styles.Y_AXIS_COLOR,
+                   labelsize=common_styles.TICK_SIZE * amp,
                    labelrotation=common_styles.Y_TICK_ROTATION)

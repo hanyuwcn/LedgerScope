@@ -36,3 +36,12 @@ LEGEND_PROPERTIES = {
     'title': "Components",
     **IN_LEGEND_TEXT_FONTS
 }
+
+
+def scale_font(font_dict, factor):
+    new_dict = font_dict.copy()
+    if 'size' in new_dict:
+        new_dict['size'] *= factor
+    elif 'fontsize' in new_dict:
+        new_dict['fontsize'] *= factor
+    return new_dict

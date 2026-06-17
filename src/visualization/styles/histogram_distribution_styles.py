@@ -76,14 +76,29 @@ def get_threshold_boundary_colors():
     }
 
 
-def apply_histogram_theme(ax, output_name):
-    """Applies corporate styling tokens to layout boundaries in one shot."""
-    # Apply legends and main titles
-    ax.legend(**HISTOGRAM_IN_LEGENDS_TEXT_FONTS)
+def apply_histogram_theme(ax, output_name, title=None, amplify_font=False):
+    """Applies corporate styling with optional title and font amplification."""
+
+    # 2.5x is the fixed multiplier for aggregated views
+    amp = 2.5 if amplify_font else 1.0
+
+    def scale_font(font_dict, factor):
+        new_dict = font_dict.copy()
+        # Scale only if the font dict has a 'size' key
+        if 'size' in new_dict:
+            new_dict['size'] *= factor
+        return new_dict
+
+    # Apply scaling to the legend property dictionary
+    legend_props = HISTOGRAM_IN_LEGENDS_TEXT_FONTS.copy()
+    legend_props['prop'] = scale_font(legend_props['prop'], amp)
+
+    ax.legend(**legend_props)
+
     ax.set_title(
-        label=HISTOGRAM_TITLE_CONTEXT.format(output=output_name),
-        fontdict=TITLE_FONT,
-        pad=50
+        label=title or HISTOGRAM_TITLE_CONTEXT.format(output=output_name),
+        fontdict=scale_font(TITLE_FONT, amp),
+        pad=50 * amp
     )
 
     # Bind structural axis formatters
@@ -91,10 +106,10 @@ def apply_histogram_theme(ax, output_name):
     ax.xaxis.set_major_formatter(x_fmt)
     ax.yaxis.set_major_formatter(y_fmt)
 
-    # Clean tick labels
-    ax.tick_params(axis='x', colors=X_AXIS_COLOR, labelsize=TICK_SIZE, labelrotation=45)
-    ax.tick_params(axis='y', colors=Y_AXIS_COLOR, labelsize=TICK_SIZE)
+    ax.set_xlabel(HISTOGRAM_X_LABEL_CONTEXT.format(output=output_name),
+                  fontdict=scale_font(X_AXIS_FONT, amp))
+    ax.set_ylabel(HISTOGRAM_Y_LABEL_CONTEXT,
+                  fontdict=scale_font(Y_AXIS_FONT, amp), rotation=0, labelpad=60 * amp)
 
-    # Set structural labels
-    ax.set_xlabel(xlabel=HISTOGRAM_X_LABEL_CONTEXT.format(output=output_name), fontdict=X_AXIS_FONT)
-    ax.set_ylabel(ylabel=HISTOGRAM_Y_LABEL_CONTEXT, fontdict=Y_AXIS_FONT, rotation=0, labelpad=60)
+    ax.tick_params(axis='x', colors=X_AXIS_COLOR, labelsize=TICK_SIZE * amp, labelrotation=45)
+    ax.tick_params(axis='y', colors=Y_AXIS_COLOR, labelsize=TICK_SIZE * amp)

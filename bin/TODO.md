@@ -43,6 +43,8 @@
           3. Organize by order
         - Figure out proper time to plot.close()
         - Fix linear regression number check: if np.var(x_values) == 0.0 or np.var(y_values) == 0.0 by math.isclose()
+        - multiple plots in one graph
+        - Allow plots to change title
 
       - Add solid model pipeline so that they don't have to be constructed every single times
         - They can be composed of smaller pipeline

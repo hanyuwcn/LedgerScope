@@ -10,7 +10,7 @@ from src.engine import (
 from src.models import (UnitGrossProfitModel, CostOfGoodsSoldModel, TotalExpenseModel, UnitsSoldModel,
                         TotalSellingExpenseModel, AdvertisingExpenseModel)
 from src.variables import (GoogleSearchConversionRate, GoogleSearchCostPerClick,
-                           USDToRMB, UnitsPerOrder, UnitExwPrice, BrandFreightExpense, BrandFreightExpense, Orders,
+                           USDToRMB, UnitsPerOrder, UnitExwPrice, BrandFreightExpense, Orders,
                            MarketingExpense
                            )
 

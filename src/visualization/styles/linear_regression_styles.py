@@ -4,7 +4,6 @@ Clean design tokens and layout engines for linear regression visualizations.
 """
 
 from matplotlib import cm
-from matplotlib.ticker import FuncFormatter
 
 from . import common_styles
 
@@ -53,32 +52,30 @@ GOAL_BENCHMARK_TEMPLATE = "{label} Benchmark: {benchmark}"
 REGRESSION_LINE_DESCRIPTION = "Trend Line ({equation} | $R^2$: {metric:.2f})"
 
 
-def apply_regression_theme(ax, x_label, y_label, x_formatter, y_formatter):
-    """Applies corporate styling tokens to layout boundaries in a single shot."""
-    # Headings and Labels
-    ax.set_title(CANVAS_MAIN_TITLE.format(x_label=x_label, y_label=y_label), fontdict=TITLE_FONT_CONFIGURATION,
-                 loc='center')
-    ax.set_xlabel(x_label, fontdict=AXIS_LABEL_FONT)
-    ax.set_ylabel(y_label, fontdict=AXIS_LABEL_FONT, labelpad=35, rotation=0, y=0.5)
+def scale_font(font_dict, factor):
+    new_dict = font_dict.copy()
+    # Handle dicts with 'size' or 'fontsize' keys
+    for key in ['size', 'fontsize']:
+        if key in new_dict:
+            new_dict[key] *= factor
+    return new_dict
 
-    # Dynamic Axis Functional Strings Formatting
-    ax.xaxis.set_major_formatter(FuncFormatter(lambda val, pos: x_formatter(val)))
-    ax.yaxis.set_major_formatter(FuncFormatter(lambda val, pos: y_formatter(val)))
 
-    # Tick Parameters Adjustment
-    ax.tick_params(axis='x', colors=common_styles.X_AXIS_COLOR, labelsize=9, labelrotation=45)
-    ax.tick_params(axis='y', colors=common_styles.Y_AXIS_COLOR, labelsize=9)
+def apply_regression_theme(ax, x_label, y_label, x_formatter, y_formatter, title=None, amplify_font=False):
+    amp = 2.5 if amplify_font else 1.0
 
-    # Muted Background Grid Lines Layout
-    ax.grid(True, linestyle='--', linewidth=0.7, color=GRID_LINE_COLOR, alpha=0.7, zorder=1)
+    # Titles and Labels
+    ax.set_title(title or CANVAS_MAIN_TITLE.format(x_label=x_label, y_label=y_label),
+                 fontdict=scale_font(TITLE_FONT_CONFIGURATION, amp), pad=20 * amp)
+    ax.set_xlabel(x_label, fontdict=scale_font(AXIS_LABEL_FONT, amp))
+    ax.set_ylabel(y_label, fontdict=scale_font(AXIS_LABEL_FONT, amp),
+                  labelpad=35 * amp, rotation=0, y=0.5)
 
-    # Spine/Frame Simplification
-    for spine in ['top', 'right']:
-        ax.spines[spine].set_visible(False)
-    for spine in ['left', 'bottom']:
-        ax.spines[spine].set_color(SPINE_BORDER_COLOR)
-        ax.spines[spine].set_linewidth(1)
+    # Ticks
+    ax.tick_params(axis='x', labelsize=9 * amp, labelrotation=45)
+    ax.tick_params(axis='y', labelsize=9 * amp)
 
-    # Legend Construction Cleanup
-    legend = ax.legend(**IN_LEGEND_TEXT_FONTS)
+    # Legend
+    legend = ax.legend(
+        **{**IN_LEGEND_TEXT_FONTS, 'prop': scale_font(IN_LEGEND_TEXT_FONTS.get('prop', {'size': 10}), amp)})
     legend.get_frame().set_linewidth(1)
