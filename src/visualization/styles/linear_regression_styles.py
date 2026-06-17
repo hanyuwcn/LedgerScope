@@ -53,12 +53,7 @@ REGRESSION_LINE_DESCRIPTION = "Trend Line ({equation} | $R^2$: {metric:.2f})"
 
 
 def scale_font(font_dict, factor):
-    new_dict = font_dict.copy()
-    # Handle dicts with 'size' or 'fontsize' keys
-    for key in ['size', 'fontsize']:
-        if key in new_dict:
-            new_dict[key] *= factor
-    return new_dict
+    return common_styles.scale_font(font_dict, factor)
 
 
 def apply_regression_theme(ax, x_label, y_label, x_formatter, y_formatter, title=None, amplify_font=False):

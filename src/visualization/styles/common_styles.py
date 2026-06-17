@@ -104,6 +104,15 @@ COLOR_ALERT_DANGER_BG = "#f8d7da"
 COLOR_ALERT_DANGER_TXT = "#721c24"
 
 
+def scale_font(font_dict, factor):
+    new_dict = font_dict.copy()
+    if 'size' in new_dict:
+        new_dict['size'] *= factor
+    elif 'fontsize' in new_dict:
+        new_dict['fontsize'] *= factor
+    return new_dict
+
+
 # =====================================================================
 # Shared dataframe settings
 # =====================================================================

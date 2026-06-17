@@ -16,10 +16,7 @@ HEATMAP_TITLE = "Heatmap of impact of {factor_1} & {factor_2} on {output}"
 
 
 def scale_font(font_dict, factor):
-    new_dict = font_dict.copy()
-    if 'size' in new_dict:
-        new_dict['size'] *= factor
-    return new_dict
+    return common_styles.scale_font(font_dict, factor)
 
 
 def apply_heatmap_theme(ax, ax_heatmap, x_var_name, y_var_name, output_name, x_formatter, y_formatter, title=None,

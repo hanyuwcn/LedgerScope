@@ -6,7 +6,7 @@
 - Have a detailed design doc after codebase completion
    - Write Design doc in both languages
    - Review all the tests
-
+ 
 
     - Workflow
       - go through each module with AI to discuss the interfaces and functionality 
@@ -45,6 +45,7 @@
         - Fix linear regression number check: if np.var(x_values) == 0.0 or np.var(y_values) == 0.0 by math.isclose()
         - multiple plots in one graph
         - Allow plots to change title
+        - Merge scale_font to a common style
 
       - Add solid model pipeline so that they don't have to be constructed every single times
         - They can be composed of smaller pipeline

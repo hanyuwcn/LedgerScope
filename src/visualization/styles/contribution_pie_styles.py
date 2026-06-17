@@ -39,9 +39,4 @@ LEGEND_PROPERTIES = {
 
 
 def scale_font(font_dict, factor):
-    new_dict = font_dict.copy()
-    if 'size' in new_dict:
-        new_dict['size'] *= factor
-    elif 'fontsize' in new_dict:
-        new_dict['fontsize'] *= factor
-    return new_dict
+    return common_styles.scale_font(font_dict, factor)

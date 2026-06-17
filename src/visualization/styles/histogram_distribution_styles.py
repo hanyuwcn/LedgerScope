@@ -82,22 +82,15 @@ def apply_histogram_theme(ax, output_name, title=None, amplify_font=False):
     # 2.5x is the fixed multiplier for aggregated views
     amp = 2.5 if amplify_font else 1.0
 
-    def scale_font(font_dict, factor):
-        new_dict = font_dict.copy()
-        # Scale only if the font dict has a 'size' key
-        if 'size' in new_dict:
-            new_dict['size'] *= factor
-        return new_dict
-
     # Apply scaling to the legend property dictionary
     legend_props = HISTOGRAM_IN_LEGENDS_TEXT_FONTS.copy()
-    legend_props['prop'] = scale_font(legend_props['prop'], amp)
+    legend_props['prop'] = common_styles.scale_font(legend_props['prop'], amp)
 
     ax.legend(**legend_props)
 
     ax.set_title(
         label=title or HISTOGRAM_TITLE_CONTEXT.format(output=output_name),
-        fontdict=scale_font(TITLE_FONT, amp),
+        fontdict=common_styles.scale_font(TITLE_FONT, amp),
         pad=50 * amp
     )
 
@@ -107,9 +100,9 @@ def apply_histogram_theme(ax, output_name, title=None, amplify_font=False):
     ax.yaxis.set_major_formatter(y_fmt)
 
     ax.set_xlabel(HISTOGRAM_X_LABEL_CONTEXT.format(output=output_name),
-                  fontdict=scale_font(X_AXIS_FONT, amp))
+                  fontdict=common_styles.scale_font(X_AXIS_FONT, amp))
     ax.set_ylabel(HISTOGRAM_Y_LABEL_CONTEXT,
-                  fontdict=scale_font(Y_AXIS_FONT, amp), rotation=0, labelpad=60 * amp)
+                  fontdict=common_styles.scale_font(Y_AXIS_FONT, amp), rotation=0, labelpad=60 * amp)
 
     ax.tick_params(axis='x', colors=X_AXIS_COLOR, labelsize=TICK_SIZE * amp, labelrotation=45)
     ax.tick_params(axis='y', colors=Y_AXIS_COLOR, labelsize=TICK_SIZE * amp)
