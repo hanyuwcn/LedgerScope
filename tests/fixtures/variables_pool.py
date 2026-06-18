@@ -4,7 +4,7 @@ from src.variables import GoogleSearchConversionRate, GoogleSearchCostPerClick, 
     CloseRate, UnitsPerOrder, UnitExwPrice, RentExpense, RenderExpense, TravelExpense, MarketingExpense, \
     InterestRate, TaxRate, TariffRate, USDToRMB, \
     PriceToEarningsRatio, SetupInvestment, UnitRetailPrice, RetailMarginRate, MerchantFreightRate, \
-    UnitMerchantFreightExpense, GoogleSearchAllocationPercentage
+    GoogleSearchAllocationPercentage
 
 
 def get_panoramic_variable_portfolio() -> dict:
@@ -27,7 +27,8 @@ def get_panoramic_variable_portfolio() -> dict:
         variable_names.UNITS_PER_ORDER: UnitsPerOrder(min=1, max=5),
         # units_sold = UnitsSold(),
         variable_names.UNIT_EXW_PRICE: UnitExwPrice(min=2000, exp=3000, max=5000),
-        # unit_fob_price = UnitFobPrice(),
+
+        # variable_names.UNIT_FOB_PRICE: UnitFobPrice(min=4000, exp=5000, max=6000),
 
         # variable_names.MONTHS: Months(exp=1),
 
@@ -53,7 +54,7 @@ def get_panoramic_variable_portfolio() -> dict:
         # deduction_rate = DeductionRate(),
         variable_names.CHANNEL_MARKUP_RATE: RetailMarginRate(min=0.10, exp=0.15, max=0.20),
         variable_names.MERCHANT_FREIGHT_RATE: MerchantFreightRate(min=0.02, exp=0.05, max=0.08),
-        variable_names.UNIT_MERCHANT_FREIGHT_EXPENSE: UnitMerchantFreightExpense(min=50, exp=100, max=150),
+        # variable_names.UNIT_MERCHANT_FREIGHT_EXPENSE: UnitMerchantFreightExpense(),
         # unit_tariff = UnitTariff(),
         # unit_retail_margin = UnitRetailMargin(),
     }

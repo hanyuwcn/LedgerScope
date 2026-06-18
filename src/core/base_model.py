@@ -1,3 +1,4 @@
+from src.config import messages
 from src.utils import log
 from src.utils.validation import check_variables_for_function
 
@@ -112,7 +113,10 @@ class Model:
         try:
             check_variables_for_function(self._input_variables, self._required_variables)
         except KeyError as e:
-            log.error(e.args[0])
+            # print(self.__class__.__name__)
+            # log.error(e.args[0])
+            log.error(messages.ERROR_VARIABLE_MISSING_FOR_MODEL.format(var_not_setup_message=e.args[0],
+                                                                       model=self.__class__.__name__))
             raise
 
         # 2. Optional Validation Pass (Informational alert; calculation injects internal defaults)

@@ -20,6 +20,7 @@ ERROR_VARIABLE_TYPE_NOT_SUPPORT = "Value type not supported"
 ERROR_VARIABLE_NOT_SETUP_WITH_MESSAGE = "Variable(s) not setup: {msg}"
 ERROR_VARIABLE_NOT_MONOTONIC_EFFECT = "The performance curve of {result} is non-monotonic for {factor}."
 
+ERROR_VARIABLE_MISSING_FOR_MODEL = "{var_not_setup_message} for {model}"
 ERROR_PIPELINE_TOPOLOGY_ORDER_VIOLATION = (
     "Pipeline Order Violation: '{variable_name}' is generated as an output by '{current_model}', "
     "but it was already consumed as a required input upstream by '{earlier_model}'. "

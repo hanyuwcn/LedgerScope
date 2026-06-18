@@ -1,14 +1,5 @@
 DYNAMIC_PIPELINE_CONFIGS = {
     # Components
-    ## Advertising
-    "advertising": [
-        "advertising_expense",
-        "advertising_efficiency_google_search",
-
-        ### Advertising efficiency
-        "cost_per_lead_google_search",
-    ],
-
     ## Selling price
     "selling_price": [
         "deduction_rate",
@@ -19,6 +10,15 @@ DYNAMIC_PIPELINE_CONFIGS = {
         "unit_tariff",
 
         "currency_exchange",
+    ],
+
+    ## Advertising
+    "advertising": [
+        "advertising_expense",
+        "advertising_efficiency_google_search",
+
+        ### Advertising efficiency
+        "cost_per_lead_google_search",
     ],
 
     ## Cost of good sold
@@ -102,10 +102,6 @@ DYNAMIC_PIPELINE_CONFIGS = {
     # Aggregated pipelines
     ## From ads, price to final reports
     "end_to_end_pipeline": [
-        ## Ads
-        "advertising_expense",
-        "advertising_efficiency_google_search",
-
         ## Merchant
         "deduction_rate",
         "unit_fob",
@@ -113,6 +109,10 @@ DYNAMIC_PIPELINE_CONFIGS = {
         "unit_retail_margin",
         "unit_tariff",
         "currency_exchange",
+
+        ## Ads
+        "advertising_expense",
+        "advertising_efficiency_google_search",
 
         ## Brand
         "order",
@@ -145,12 +145,6 @@ DYNAMIC_PIPELINE_CONFIGS = {
     ## From marketing, price to final reports, including auditors and unit metrics
     ## Including all models
     "panoramic_pipeline": [
-        ## Ads
-        "advertising_expense",
-        "advertising_efficiency_google_search",
-
-        "cost_per_lead_google_search",
-
         ## Merchant
         "deduction_rate",
         "unit_fob",
@@ -160,6 +154,12 @@ DYNAMIC_PIPELINE_CONFIGS = {
         "unit_tariff",
 
         "currency_exchange",
+
+        ## Ads
+        "advertising_expense",
+        "advertising_efficiency_google_search",
+
+        "cost_per_lead_google_search",
 
         ## Brand
         "order",
